@@ -1,6 +1,7 @@
 // components/Footer.tsx
 import { Github, Linkedin, Terminal, Mail, ArrowRight, Heart, MessageCircle, Instagram, Youtube } from 'lucide-react';
 import Link from 'next/link';
+import NewsletterForm from './NewsletterForm';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -148,26 +149,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Newsletter (Visual) */}
-          <div>
-            <h4 className="font-outfit font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-4 bg-white"></span>
-              NOVEDADES
-            </h4>
-            <p className="text-gray-500 text-xs mb-4">
-              Suscríbete para recibir actualizaciones sobre nuevos assets y tutoriales.
-            </p>
-            <div className="relative group">
-              <input
-                type="email"
-                placeholder="Tu email..."
-                className="w-full bg-black/30 border border-gray-700 p-3 text-sm text-white focus:outline-none focus:border-neon-gold transition-colors pr-12 rounded-lg"
-              />
-              <button className="absolute right-0 top-0 h-full w-12 flex items-center justify-center bg-neon-gold/10 hover:bg-neon-gold text-neon-gold hover:text-black transition-all rounded-r-lg">
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          {/* Newsletter (Funcional) */}
+          <NewsletterForm />
         </div>
 
         {/* Bottom Bar */}

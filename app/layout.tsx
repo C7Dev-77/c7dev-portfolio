@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "Desarrollador Web & Creador de contenido",
 };
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +36,7 @@ export default function RootLayout({
           {children}
         </div>
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );

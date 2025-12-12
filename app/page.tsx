@@ -18,8 +18,10 @@ import {
   Github,
   Linkedin
 } from 'lucide-react';
-import CyberBackground from '@/components/CyberBackground';
+import CyberProgrammer3D from '@/components/CyberProgrammer3D';
 import ScrambleText from '@/components/ScrambleText';
+import RealTimeStats from '@/components/RealTimeStats';
+import ParticleNetwork from '@/components/ParticleNetwork';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -36,7 +38,8 @@ export default function HomePage() {
 
   return (
     <main className="relative overflow-hidden">
-      <CyberBackground />
+      <ParticleNetwork />
+      <CyberProgrammer3D />
 
       {/* ========================================
           HERO SECTION - Todo visible sin scroll
@@ -46,6 +49,8 @@ export default function HomePage() {
           ======================================== */}
       {/* Reducido pt para subir todo el contenido */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-4 relative">
+        {/* Dark Overlay for better text visibility */}
+        <div className="absolute inset-0 bg-black/60 z-0"></div>
         <div className="text-center max-w-4xl mx-auto z-10 w-full">
 
           {/* Profile Section */}
@@ -173,23 +178,8 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Stats - Margen superior muy reducido para que suban */}
-            <div className="flex items-center justify-center gap-8 md:gap-16 py-4 px-8 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 hover:border-neon-gold/30 transition-colors mt-2">
-              <div className="text-center group">
-                <div className="text-2xl md:text-3xl font-bold text-neon-gold group-hover:text-glow-gold transition-all">50+</div>
-                <div className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">Proyectos</div>
-              </div>
-              <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-700 to-transparent"></div>
-              <div className="text-center group">
-                <div className="text-2xl md:text-3xl font-bold text-neon-gold group-hover:text-glow-gold transition-all">100+</div>
-                <div className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">Assets</div>
-              </div>
-              <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-700 to-transparent"></div>
-              <div className="text-center group">
-                <div className="text-2xl md:text-3xl font-bold text-neon-gold group-hover:text-glow-gold transition-all">5K+</div>
-                <div className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">Downloads</div>
-              </div>
-            </div>
+            {/* Stats - Estadísticas en tiempo real desde la base de datos */}
+            <RealTimeStats className="mt-2" />
           </div>
 
           {/* Scroll Indicator */}
@@ -357,10 +347,10 @@ export default function HomePage() {
               </h3>
 
               <div className="space-y-6">
-                {/* HTML/CSS/Tailwind */}
+                {/* HTML/CSS */}
                 <div>
                   <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>HTML5 / CSS3 / TAILWIND</span>
+                    <span>HTML5 / CSS3</span>
                     <span className="text-neon-gold">98%</span>
                   </div>
                   <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
@@ -372,39 +362,50 @@ export default function HomePage() {
                 <div>
                   <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
                     <span>JAVASCRIPT / TYPESCRIPT</span>
-                    <span className="text-neon-platinum">90%</span>
+                    <span className="text-neon-platinum">95%</span>
                   </div>
                   <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-gray-500 to-neon-platinum w-[90%] rounded-full"></div>
+                    <div className="h-full bg-gradient-to-r from-gray-500 to-neon-platinum w-[95%] rounded-full"></div>
                   </div>
                 </div>
 
-                {/* React/Next.js */}
+                {/* Python */}
                 <div>
                   <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>REACT / NEXT.JS</span>
-                    <span className="text-white">85%</span>
+                    <span>PYTHON</span>
+                    <span className="text-[#3776AB]">85%</span>
                   </div>
                   <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-gray-600 to-white w-[85%] rounded-full"></div>
+                    <div className="h-full bg-gradient-to-r from-[#3776AB] to-[#4B8BBE] w-[85%] rounded-full"></div>
                   </div>
                 </div>
 
-                {/* Python/Java */}
+                {/* Java */}
                 <div>
                   <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>PYTHON / JAVA</span>
-                    <span className="text-[#3776AB]">75%</span>
+                    <span>JAVA</span>
+                    <span className="text-[#ED8B00]">80%</span>
                   </div>
                   <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#3776AB] to-[#ED8B00] w-[75%] rounded-full"></div>
+                    <div className="h-full bg-gradient-to-r from-[#ED8B00] to-[#f89820] w-[80%] rounded-full"></div>
+                  </div>
+                </div>
+
+                {/* PHP */}
+                <div>
+                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
+                    <span>PHP</span>
+                    <span className="text-[#777BB4]">75%</span>
+                  </div>
+                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#777BB4] to-[#8892BF] w-[75%] rounded-full"></div>
                   </div>
                 </div>
               </div>
 
-              {/* Badges */}
+              {/* Badges - Tecnologías y herramientas */}
               <div className="flex flex-wrap gap-2 mt-8">
-                {['Git', 'GitHub', 'Firebase', 'Supabase', 'Figma', 'SEO', 'Vercel', 'Node.js'].map((skill) => (
+                {['React', 'Next.js', 'Node.js', 'Tailwind', 'Git', 'GitHub', 'Firebase', 'Supabase', 'MySQL', 'PostgreSQL', 'Figma', 'SEO', 'Vercel'].map((skill) => (
                   <span
                     key={skill}
                     className="px-3 py-1.5 bg-white/5 border border-gray-800 rounded-lg text-[10px] text-gray-500 uppercase tracking-wider hover:border-neon-gold hover:text-neon-gold transition-colors cursor-default"

@@ -17,6 +17,7 @@ import {
     Layers
 } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
+import ProjectStats from '@/components/ProjectStats';
 
 interface Proyecto {
     id: string;
@@ -234,35 +235,10 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </a>
                             )}
-
-                            {proyecto.repo_url && (
-                                <a
-                                    href={proyecto.repo_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 flex items-center justify-center gap-3 px-6 py-4 border-2 border-gray-700 text-white font-bold uppercase tracking-wider rounded-xl hover:border-white hover:bg-white/5 transition-all"
-                                >
-                                    <Github className="w-5 h-5" />
-                                    Ver Código
-                                </a>
-                            )}
                         </div>
 
-                        {/* Estadísticas ficticias (puedes conectar a analytics real después) */}
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                                <div className="text-2xl font-bold text-neon-gold">100+</div>
-                                <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
-                            </div>
-                            <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                                <div className="text-2xl font-bold text-neon-platinum">50+</div>
-                                <div className="text-[10px] text-gray-500 uppercase tracking-wider">Descargas</div>
-                            </div>
-                            <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                                <div className="text-2xl font-bold text-white">4.8</div>
-                                <div className="text-[10px] text-gray-500 uppercase tracking-wider">Rating</div>
-                            </div>
-                        </div>
+                        {/* Estadísticas reales del proyecto */}
+                        <ProjectStats projectId={proyecto.id} type="portfolio" />
                     </div>
                 </div>
 

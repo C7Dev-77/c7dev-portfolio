@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Home, Store, Settings, Menu, X, Terminal, LogIn, User, Code } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import LogoWithSound from './LogoWithSound';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,15 +36,8 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 border-2 border-neon-gold flex items-center justify-center shadow-neon-gold">
-              <Terminal className="w-4 h-4 text-neon-gold" />
-            </div>
-            <span className="text-neon-gold font-outfit font-bold text-xl tracking-wider cursor-blink group-hover:text-glow-gold transition-all">
-              C7Dev
-            </span>
-          </Link>
+          {/* Logo with Sound */}
+          <LogoWithSound />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
