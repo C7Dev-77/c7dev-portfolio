@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================
+   Base Styles
+   ================================ */
+body {
+  @apply bg-cyber-black text-white font-sans;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ================================
+   Glass Panel Utility
+   ================================ */
+@layer components {
+  .glass-panel {
+    @apply bg-cyber-dark/70 backdrop-blur-xl border border-neon-gold/30;
+  }
+
+  .glass-panel-platinum {
+    @apply bg-cyber-dark/70 backdrop-blur-xl border border-neon-platinum/30;
+  }
+}
+
+/* ================================
+   Text Glow Effects
+   ================================ */
+@layer utilities {
+  .text-glow-gold {
+    text-shadow: 0 0 10px #FFD700, 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+
+  .text-glow-platinum {
+    text-shadow: 0 0 10px #E5E4E2, 0 0 20px rgba(229, 228, 226, 0.8);
+  }
+}
+
+/* ================================
+   Cyber Grid Background (Adjusted for Gold)
+   ================================ */
+.cyber-grid {
+  background-image:
+    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+/* ================================
+   Scanlines Effect
+   ================================ */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ================================
+   Glitch Effect (Gold/Platinum)
+   ================================ */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  animation: glitch-1 0.3s infinite linear alternate-reverse;
+  color: #FFD700;
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch-2 0.3s infinite linear alternate-reverse;
+  color: #E5E4E2;
+  z-index: -2;
+}
+
+@keyframes glitch-1 {
+
+  0%,
+  100% {
+    clip-path: inset(0 0 95% 0);
+    transform: translate(-2px, 2px);
+  }
+
+  20% {
+    clip-path: inset(30% 0 50% 0);
+    transform: translate(2px, -2px);
+  }
+
+  40% {
+    clip-path: inset(60% 0 20% 0);
+    transform: translate(-2px, 2px);
+  }
+
+  60% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(2px, -2px);
+  }
+
+  80% {
+    clip-path: inset(10% 0 70% 0);
+    transform: translate(-2px, 2px);
+  }
+}
+
+@keyframes glitch-2 {
+
+  0%,
+  100% {
+    clip-path: inset(95% 0 0 0);
+    transform: translate(2px, -2px);
+  }
+
+  20% {
+    clip-path: inset(50% 0 30% 0);
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    clip-path: inset(20% 0 60% 0);
+    transform: translate(2px, -2px);
+  }
+
+  60% {
+    clip-path: inset(5% 0 80% 0);
+    transform: translate(-2px, 2px);
+  }
+
+  80% {
+    clip-path: inset(70% 0 10% 0);
+    transform: translate(2px, -2px);
+  }
+}
+
+/* ================================
+   Cursor Blink
+   ================================ */
+.cursor-blink::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ================================
+   Custom Scrollbar
+   ================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FFD700;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E5E4E2;
+}
+
+/* ================================
+   Cyber Button
+   ================================ */
+.cyber-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cyber-btn:hover::before {
+  left: 100%;
+}
+
+/* ================================
+   Game Animations
+   ================================ */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.scan-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 102, 0, 0.5), transparent);
+  animation: scanline 3s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
+}
