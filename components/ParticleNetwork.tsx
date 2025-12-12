@@ -12,11 +12,12 @@ export default function ParticleNetwork() {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Set canvas size
+        // Set canvas dimensions
         const resizeCanvas = () => {
-            if (!canvas) return;
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
         };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -28,46 +29,48 @@ export default function ParticleNetwork() {
             vx: number;
             vy: number;
             radius: number;
+            // Guardamos la referencia al canvas para usarla en update
+            private canvasRefs: HTMLCanvasElement;
 
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
+            constructor(canvasKw: HTMLCanvasElement) {
+                this.canvasRefs = canvasKw;
+                this.x = Math.random() * this.canvasRefs.width;
+                this.y = Math.random() * this.canvasRefs.height;
                 this.vx = (Math.random() - 0.5) * 0.5;
                 this.vy = (Math.random() - 0.5) * 0.5;
                 this.radius = Math.random() * 2 + 1;
             }
 
             update() {
-                if (!canvas) return;
-
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Bounce off edges
-                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                // Bounce off edges (usamos la referencia guardada)
+                if (this.x < 0 || this.x > this.canvasRefs.width) this.vx *= -1;
+                if (this.y < 0 || this.y > this.canvasRefs.height) this.vy *= -1;
             }
 
-            draw() {
-                if (!ctx) return;
-
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
-                ctx.fill();
+            draw(context: CanvasRenderingContext2D) {
+                context.beginPath();
+                context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                context.fillStyle = 'rgba(255, 215, 0, 0.6)';
+                context.fill();
 
                 // Glow effect
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#FFD700';
+                context.shadowBlur = 10;
+                context.shadowColor = '#FFD700';
             }
         }
 
-        // Create particles
+        // Create particles - pasamos el canvas explícitamente
         const particleCount = 80;
         const particles: Particle[] = [];
 
         for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+            // Aseguramos que pasamos el canvas no nulo
+            if (canvas) {
+                particles.push(new Particle(canvas));
+            }
         }
 
         // Draw connections between nearby particles
@@ -96,6 +99,7 @@ export default function ParticleNetwork() {
         };
 
         // Animation loop
+        let animationFrameId: number;
         const animate = () => {
             if (!ctx || !canvas) return;
 
@@ -112,16 +116,17 @@ export default function ParticleNetwork() {
             // Update and draw particles
             particles.forEach(particle => {
                 particle.update();
-                particle.draw();
+                particle.draw(ctx);
             });
 
-            requestAnimationFrame(animate);
+            animationFrameId = requestAnimationFrame(animate);
         };
 
         animate();
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            cancelAnimationFrame(animationFrameId);
         };
     }, []);
 
