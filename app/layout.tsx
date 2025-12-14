@@ -3,6 +3,10 @@ import { Outfit, Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SecretGate from "@/components/SecretGate";
+import CustomCursor from "@/components/CustomCursor";
+import StartupAnimation from "@/components/StartupAnimation";
+import BackgroundMusic from "@/components/BackgroundMusic";
+import { ConfigProvider } from "@/context/ConfigContext";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -30,13 +34,18 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${outfit.variable} ${inter.variable}`}>
       <body className="font-sans antialiased scanlines flex flex-col min-h-screen bg-cyber-black text-white">
-        <SecretGate />
-        <Navbar />
-        <div className="flex-grow">
-          {children}
-        </div>
-        <Footer />
-        <SpeedInsights />
+        <ConfigProvider>
+          <StartupAnimation />
+          <CustomCursor />
+          <SecretGate />
+          <Navbar />
+          <div className="flex-grow">
+            {children}
+          </div>
+          <Footer />
+          <BackgroundMusic />
+          <SpeedInsights />
+        </ConfigProvider>
       </body>
     </html>
   );

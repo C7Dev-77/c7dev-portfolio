@@ -53,11 +53,11 @@ export default function ParticleNetwork() {
             draw(context: CanvasRenderingContext2D) {
                 context.beginPath();
                 context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                context.fillStyle = 'rgba(255, 215, 0, 0.6)';
+                context.fillStyle = 'rgba(255, 215, 0, 0.8)'; // Premium gold
                 context.fill();
 
                 // Glow effect
-                context.shadowBlur = 10;
+                context.shadowBlur = 15;
                 context.shadowColor = '#FFD700';
             }
         }
@@ -90,7 +90,7 @@ export default function ParticleNetwork() {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(255, 215, 0, ${opacity * 0.3})`;
+                        ctx.strokeStyle = `rgba(255, 215, 0, ${opacity * 0.4})`; // More visible gold
                         ctx.lineWidth = 1;
                         ctx.stroke();
                     }
@@ -134,7 +134,7 @@ export default function ParticleNetwork() {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 w-full h-full pointer-events-none z-0"
-            style={{ opacity: 0.4 }}
+            style={{ opacity: 0.45 }}
         />
     );
 }

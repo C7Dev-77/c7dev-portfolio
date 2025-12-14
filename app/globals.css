@@ -6,7 +6,7 @@
    Base Styles
    ================================ */
 body {
-  @apply bg-cyber-black text-white font-sans;
+  @apply bg-black text-white font-sans;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -16,11 +16,11 @@ body {
    ================================ */
 @layer components {
   .glass-panel {
-    @apply bg-cyber-dark/70 backdrop-blur-xl border border-neon-gold/30;
+    @apply bg-black/90 backdrop-blur-xl border border-neon-gold/25;
   }
 
   .glass-panel-platinum {
-    @apply bg-cyber-dark/70 backdrop-blur-xl border border-neon-platinum/30;
+    @apply bg-black/90 backdrop-blur-xl border border-neon-platinum/25;
   }
 }
 
@@ -290,5 +290,18 @@ body {
 
   50% {
     opacity: .5;
+  }
+}
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

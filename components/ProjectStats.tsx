@@ -10,8 +10,8 @@ interface ProjectStatsProps {
 
 export default function ProjectStats({ projectId, type = 'portfolio', className }: ProjectStatsProps) {
     const [stats, setStats] = useState({
-        views: 23,
-        downloads: 23, // Solo para productos
+        views: 77, // Base updated to 77
+        downloads: 23, // Base updated to 23
         rating: 4.5
     });
 
@@ -29,12 +29,9 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
                 // Generar rating aleatorio entre 3.9 y 5.0
                 const randomRating = (Math.random() * (5.0 - 3.9) + 3.9).toFixed(1);
 
-                // Valor inicial aleatorio para descargas (23-50)
-                const initialDownloads = Math.floor(Math.random() * (50 - 23 + 1)) + 23;
-
                 projectStats[projectId] = {
-                    views: 23,
-                    downloads: initialDownloads,
+                    views: 77,
+                    downloads: 23,
                     rating: parseFloat(randomRating)
                 };
             }
@@ -44,6 +41,9 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
 
             // Guardar de vuelta
             localStorage.setItem('projectStats', JSON.stringify(projectStats));
+
+            // Disparar evento para actualizar stats globales
+            window.dispatchEvent(new Event('statsUpdated'));
 
             setStats(projectStats[projectId]);
         };
@@ -63,6 +63,10 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
         if (projectStats[projectId]) {
             projectStats[projectId].downloads += 1;
             localStorage.setItem('projectStats', JSON.stringify(projectStats));
+
+            // Disparar evento para actualizar stats globales
+            window.dispatchEvent(new Event('statsUpdated'));
+
             setStats(projectStats[projectId]);
         }
     };

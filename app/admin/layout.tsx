@@ -25,7 +25,7 @@ const navigation = [
     { name: 'Productos', href: '/admin/products', icon: ShoppingBag },
     { name: 'Portafolio', href: '/admin/portfolio', icon: FolderGit2 },
     { name: 'Archivos', href: '/admin/files', icon: Image },
-    { name: 'Configuración', href: '/admin/settings', icon: Settings, disabled: true },
+    { name: 'Configuración', href: '/admin/settings', icon: Settings },
 ];
 
 export default function AdminLayout({

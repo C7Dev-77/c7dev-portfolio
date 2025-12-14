@@ -18,10 +18,11 @@ import {
   Github,
   Linkedin
 } from 'lucide-react';
-import CyberProgrammer3D from '@/components/CyberProgrammer3D';
+
 import ScrambleText from '@/components/ScrambleText';
 import RealTimeStats from '@/components/RealTimeStats';
 import ParticleNetwork from '@/components/ParticleNetwork';
+import FloatingCode from '@/components/FloatingCode';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -39,7 +40,10 @@ export default function HomePage() {
   return (
     <main className="relative overflow-hidden">
       <ParticleNetwork />
-      <CyberProgrammer3D />
+      <FloatingCode />
+      {/* Background Grid - Global for Home */}
+      <div className="fixed inset-0 cyber-grid opacity-10 pointer-events-none z-0"></div>
+
 
       {/* ========================================
           HERO SECTION - Todo visible sin scroll
@@ -49,15 +53,15 @@ export default function HomePage() {
           ======================================== */}
       {/* Reducido pt para subir todo el contenido */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-4 relative">
-        {/* Dark Overlay for better text visibility */}
-        <div className="absolute inset-0 bg-black/60 z-0"></div>
+        {/* Lighter overlay to let background effects show through */}
+        <div className="absolute inset-0 bg-black/50 z-0"></div>
         <div className="text-center max-w-4xl mx-auto z-10 w-full">
 
           {/* Profile Section */}
           <div className="flex flex-col items-center">
             {/* Profile Image con efecto escáner intensificado */}
             {/* Tamaño aumentado: w-40/h-40 móvil, w-48/h-48 desktop */}
-            <div className="relative w-40 h-40 md:w-48 md:h-48 mb-6 group">
+            <div className="relative w-40 h-40 md:w-48 md:h-48 mb-6 group animate-[fadeInUp_0.8s_ease-out]">
               {/* Glow exterior más intenso */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-neon-gold to-yellow-500 blur-2xl opacity-60 group-hover:opacity-80 transition-opacity duration-500 animate-pulse-slow"></div>
 
@@ -81,7 +85,7 @@ export default function HomePage() {
             </div>
 
             {/* Name - Logo animado + Animación continua (Pulse Glow) */}
-            <div className="relative mb-4">
+            <div className="relative mb-4 animate-[fadeInUp_0.8s_ease-out_0.2s_both]">
               <h1 className="font-outfit text-5xl md:text-7xl font-black tracking-tighter flex justify-center items-baseline gap-2 animate-[pulse_4s_ease-in-out_infinite]">
                 <ScrambleText text="C7" className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
                 <ScrambleText text="Dev" className="text-neon-gold drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
@@ -90,7 +94,7 @@ export default function HomePage() {
             </div>
 
             {/* Roles - Margen reducido */}
-            <div className="flex flex-wrap justify-center gap-1.5 md:gap-3 text-gray-400 text-[10px] md:text-xs tracking-widest font-semibold uppercase mb-5">
+            <div className="flex flex-wrap justify-center gap-1.5 md:gap-3 text-gray-300 text-[10px] md:text-xs tracking-widest font-semibold uppercase mb-5 animate-[fadeInUp_0.8s_ease-out_0.4s_both]">
               <span>Desarrollador Web</span>
               <span className="text-neon-gold">•</span>
               <span>Ing de Sistemas</span>
@@ -101,7 +105,7 @@ export default function HomePage() {
             {/* Texto eliminado por solicitud del usuario */}
 
             {/* Social Icons - Margen reducido */}
-            <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
+            <div className="flex items-center justify-center gap-3 mb-6 flex-wrap animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
               <a
                 href="https://www.tiktok.com/@c7dev_"
                 target="_blank"
@@ -159,7 +163,7 @@ export default function HomePage() {
             </div>
 
             {/* CTA Buttons - Margen reducido */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 animate-[fadeInUp_0.8s_ease-out_0.8s_both]">
               <Link
                 href="/tienda"
                 className="group px-8 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold uppercase tracking-wider rounded-xl hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all flex items-center justify-center gap-2 text-sm"
@@ -179,7 +183,9 @@ export default function HomePage() {
             </div>
 
             {/* Stats - Estadísticas en tiempo real desde la base de datos */}
-            <RealTimeStats className="mt-2" />
+            <div className="mt-2 bg-[#050505] backdrop-blur-md rounded-2xl border border-gray-800 py-4 px-8 animate-[fadeInUp_0.8s_ease-out_1s_both] w-full max-w-2xl shadow-lg">
+              <RealTimeStats className="" />
+            </div>
           </div>
 
           {/* Scroll Indicator */}
@@ -192,7 +198,11 @@ export default function HomePage() {
       {/* ========================================
           SECCIÓN MIS SERVICIOS
           ======================================== */}
-      <section className="py-24 px-4 relative z-10 bg-gradient-to-b from-transparent to-[#080808]">
+      {/* ========================================
+          SECCIÓN MIS SERVICIOS
+          ======================================== */}
+      {/* Background removed to let global effects show through */}
+      <section className="py-24 px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
 
           {/* Título de sección con efecto */}
@@ -213,7 +223,7 @@ export default function HomePage() {
                 <Code className="w-7 h-7 text-neon-gold" />
               </div>
               <h3 className="text-white text-lg font-bold mb-3 group-hover:text-neon-gold transition-colors">Desarrollo Web</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">Sitios web modernos, rápidos y optimizados con las últimas tecnologías del mercado.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Diseño y desarrollo de sitios web modernos, rápidos y optimizados, enfocados en conversión, rendimiento y experiencia de usuario utilizando tecnologías actuales.</p>
             </div>
 
             {/* Servicio 2 - Animaciones Web */}
@@ -222,7 +232,7 @@ export default function HomePage() {
                 <Zap className="w-7 h-7 text-green-500" />
               </div>
               <h3 className="text-white text-lg font-bold mb-3 group-hover:text-green-500 transition-colors">Animaciones Web</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">Micro-interacciones y animaciones fluidas que dan vida y personalidad a tu proyecto.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Micro-interacciones y animaciones fluidas que mejoran la experiencia del usuario, aportan identidad visual y elevan la percepción profesional del producto.</p>
             </div>
 
             {/* Servicio 3 - Python */}
@@ -233,7 +243,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="text-white text-lg font-bold mb-3 group-hover:text-[#3776AB] transition-colors">Python</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">Automatización de tareas, scripts eficientes y desarrollo backend robusto.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Automatización de procesos, scripts eficientes y desarrollo backend para optimizar tareas, reducir errores y mejorar la productividad.</p>
             </div>
 
             {/* Servicio 4 - Java */}
@@ -244,20 +254,20 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="text-white text-lg font-bold mb-3 group-hover:text-[#ED8B00] transition-colors">Java</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">Desarrollo de aplicaciones empresariales escalables y sistemas de alta fiabilidad.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Desarrollo de aplicaciones robustas y escalables orientadas a entornos empresariales, con énfasis en rendimiento, seguridad y mantenibilidad.</p>
             </div>
           </div>
 
           {/* Texto de experiencia debajo de las tarjetas */}
           <div className="text-center">
-            <p className="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed border border-white/5 bg-white/5 rounded-2xl p-8 backdrop-blur-sm">
-              <span className="text-neon-gold font-bold">Ingeniero de Sistemas</span> con +3 años de experiencia creando soluciones tecnológicas integrales.
-              Combino lógica de programación avanzada con diseño estético para entregar productos digitales excepcionales.
+            <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed border border-neon-gold/20 bg-black/90 rounded-2xl p-8 backdrop-blur-sm">
+              <span className="text-neon-gold font-bold">Ingeniero de Sistemas especializado en desarrollo web y software</span>, con más de 3 años creando soluciones digitales escalables, modernas y orientadas a resultados.
+              Transformo ideas en productos funcionales combinando arquitectura de software, lógica avanzada y diseño de alto impacto visual.
             </p>
           </div>
 
           {/* ========== STATS DE RESULTADOS ========== */}
-          <div className="mt-20 bg-gradient-to-r from-neon-gold/5 via-transparent to-neon-platinum/5 rounded-3xl p-8 md:p-12 border border-gray-800/50">
+          <div className="mt-20 bg-black/90 backdrop-blur-md rounded-3xl p-8 md:p-12 border border-neon-gold/30">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="flex items-center justify-center gap-2 mb-2">
@@ -310,18 +320,18 @@ export default function HomePage() {
                   BIOGRAFÍA_PROFESIONAL
                 </h3>
 
-                <div className="space-y-4 text-gray-400 leading-relaxed mb-8">
+                <div className="space-y-4 text-gray-300 leading-relaxed mb-8">
                   <p>
-                    <strong className="text-white">Christian</strong> — Ingeniero de Sistemas apasionado por crear
-                    soluciones digitales que combinan estética y funcionalidad.
+                    <strong className="text-white">Cristian Morales</strong> — Ingeniero de Sistemas enfocado en el desarrollo de soluciones digitales eficientes, escalables y visualmente atractivas.
                   </p>
                   <p>
-                    Especializado en <span className="text-neon-gold">desarrollo web</span>, creación de contenido
-                    educativo y proyectos innovadores con tecnologías modernas.
+                    Cuento con experiencia en <span className="text-neon-gold">desarrollo web, backend y automatización</span>, aplicando buenas prácticas de programación y tecnologías modernas para crear productos funcionales y bien estructurados.
                   </p>
-                  <p className="text-sm border-l-2 border-neon-gold pl-4 italic">
-                    "Mi objetivo es ayudar a empresas y emprendedores a destacar en el mundo digital
-                    con productos web de alta calidad."
+                  <p>
+                    Me apasiona transformar problemas reales en soluciones digitales que generen impacto, valor y crecimiento para empresas, emprendedores y proyectos personales.
+                  </p>
+                  <p className="text-sm border-l-2 border-neon-gold pl-4 italic text-gray-400">
+                    "Mi objetivo es crear software que no solo funcione bien, sino que también se vea profesional y aporte resultados reales."
                   </p>
                 </div>
 
@@ -421,11 +431,11 @@ export default function HomePage() {
           <div className="text-center bg-gradient-to-r from-neon-gold/5 via-[#0d0d0d] to-neon-platinum/5 rounded-3xl p-10 border border-gray-800 hover:border-neon-gold/30 transition-colors">
             <Briefcase className="w-12 h-12 text-neon-gold mx-auto mb-4 animate-bounce" />
             <h3 className="text-2xl md:text-3xl font-outfit font-bold text-white mb-4">
-              ¿Listo para trabajar juntos?
+              ¿Listo para llevar tu proyecto al siguiente nivel?
             </h3>
             <p className="text-gray-400 max-w-xl mx-auto mb-8">
               Estoy disponible para proyectos freelance, colaboraciones y oportunidades laborales.
-              Hablemos sobre cómo puedo aportar valor a tu equipo o proyecto.
+              Si buscas un desarrollador comprometido, creativo y orientado a resultados, hablemos y construyamos algo de valor juntos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

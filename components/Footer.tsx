@@ -36,8 +36,11 @@ export default function Footer() {
                 C7<span className="text-neon-gold">Dev_</span>
               </span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-              Potenciando la próxima generación de productos digitales con diseño de vanguardia y arquitectura de software robusta.
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm space-y-1">
+              <span className="block">✓ Código limpio y mantenible</span>
+              <span className="block">✓ Diseño enfocado en experiencia de usuario</span>
+              <span className="block">✓ Soluciones escalables y orientadas a negocio</span>
+              <span className="block">✓ Comunicación clara y compromiso con el proyecto</span>
             </p>
           </div>
 
