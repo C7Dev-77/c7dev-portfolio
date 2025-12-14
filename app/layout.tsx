@@ -7,6 +7,7 @@ import CustomCursor from "@/components/CustomCursor";
 import StartupAnimation from "@/components/StartupAnimation";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import { ConfigProvider } from "@/context/ConfigContext";
+import { MusicProvider } from "@/context/MusicContext";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -35,16 +36,18 @@ export default function RootLayout({
     <html lang="es" className={`${outfit.variable} ${inter.variable}`}>
       <body className="font-sans antialiased scanlines flex flex-col min-h-screen bg-cyber-black text-white">
         <ConfigProvider>
-          <StartupAnimation />
-          <CustomCursor />
-          <SecretGate />
-          <Navbar />
-          <div className="flex-grow">
-            {children}
-          </div>
-          <Footer />
-          <BackgroundMusic />
-          <SpeedInsights />
+          <MusicProvider>
+            <StartupAnimation />
+            <CustomCursor />
+            <SecretGate />
+            <Navbar />
+            <div className="flex-grow">
+              {children}
+            </div>
+            <Footer />
+            <BackgroundMusic />
+            <SpeedInsights />
+          </MusicProvider>
         </ConfigProvider>
       </body>
     </html>

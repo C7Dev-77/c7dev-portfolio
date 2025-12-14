@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
+import { useMusic } from '@/context/MusicContext';
 
 export default function BackgroundMusic() {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [playerReady, setPlayerReady] = useState(false);
+    const { isPlaying, isReady, toggleMusic, setPlayerReady } = useMusic();
     const playerRef = useRef<any>(null);
 
     useEffect(() => {
@@ -42,6 +42,17 @@ export default function BackgroundMusic() {
         };
     }, []);
 
+    // Sincronizar el reproductor con el estado del contexto
+    useEffect(() => {
+        if (playerRef.current && isReady) {
+            if (isPlaying) {
+                playerRef.current.playVideo();
+            } else {
+                playerRef.current.pauseVideo();
+            }
+        }
+    }, [isPlaying, isReady]);
+
     const onPlayerReady = (event: any) => {
         setPlayerReady(true);
         // Establecer volumen inicial bajo (30%)
@@ -52,18 +63,6 @@ export default function BackgroundMusic() {
         // Si termina (estado 0), intentar reproducir de nuevo si no lo hace el loop nativo
         if (event.data === 0) {
             playerRef.current?.playVideo();
-        }
-    };
-
-    const toggleMusic = () => {
-        if (!playerRef.current || !playerReady) return;
-
-        if (isPlaying) {
-            playerRef.current.pauseVideo();
-            setIsPlaying(false);
-        } else {
-            playerRef.current.playVideo();
-            setIsPlaying(true);
         }
     };
 
@@ -79,7 +78,7 @@ export default function BackgroundMusic() {
                         : 'border-neon-gold/40 hover:border-neon-gold'
                     }`}
                 title={isPlaying ? 'Pausar música' : 'Reproducir música'}
-                disabled={!playerReady}
+                disabled={!isReady}
                 aria-label={isPlaying ? 'Pausar música de fondo' : 'Reproducir música de fondo'}
             >
                 {isPlaying ? (

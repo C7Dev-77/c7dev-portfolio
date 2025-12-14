@@ -1,47 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Terminal, Volume2, VolumeX } from 'lucide-react';
 import ScrambleText from './ScrambleText';
+import { useMusic } from '@/context/MusicContext';
 
 export default function LogoWithSound() {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    useEffect(() => {
-        // Audio configuration
-        audioRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-        audioRef.current.loop = false;
-        audioRef.current.volume = 0.3;
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-            }
-        };
-    }, []);
+    const { isPlaying, toggleMusic } = useMusic();
 
     const toggleSound = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-
-        if (!audioRef.current) return;
-
-        if (isPlaying) {
-            audioRef.current.pause();
-            setIsPlaying(false);
-        } else {
-            audioRef.current.play().catch(err => {
-                console.error('Error playing audio:', err);
-            });
-            setIsPlaying(true);
-
-            audioRef.current.onended = () => {
-                setIsPlaying(false);
-            };
-        }
+        toggleMusic();
     };
 
     return (
