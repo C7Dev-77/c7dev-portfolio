@@ -67,27 +67,7 @@ export default function BackgroundMusic() {
     };
 
     return (
-        <>
-            <div id="youtube-player" className="hidden"></div>
-
-            <button
-                onClick={toggleMusic}
-                className={`fixed bottom-8 right-8 z-50 p-4 bg-black/90 border rounded-full transition-all group
-          ${isPlaying
-                        ? 'border-neon-gold shadow-[0_0_20px_rgba(255,215,0,0.3)]'
-                        : 'border-neon-gold/40 hover:border-neon-gold'
-                    }`}
-                title={isPlaying ? 'Pausar música' : 'Reproducir música'}
-                disabled={!isReady}
-                aria-label={isPlaying ? 'Pausar música de fondo' : 'Reproducir música de fondo'}
-            >
-                {isPlaying ? (
-                    <Volume2 className="w-5 h-5 text-neon-gold animate-pulse" />
-                ) : (
-                    <VolumeX className="w-5 h-5 text-gray-400 group-hover:text-neon-gold transition-colors" />
-                )}
-            </button>
-        </>
+        <div id="youtube-player" className="hidden"></div>
     );
 }
 
