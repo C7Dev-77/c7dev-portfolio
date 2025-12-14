@@ -20,7 +20,14 @@ import {
     User
 } from 'lucide-react';
 
-const navigation = [
+interface NavigationItem {
+    name: string;
+    href: string;
+    icon: any;
+    disabled?: boolean;
+}
+
+const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Productos', href: '/admin/products', icon: ShoppingBag },
     { name: 'Portafolio', href: '/admin/portfolio', icon: FolderGit2 },
