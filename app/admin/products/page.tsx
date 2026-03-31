@@ -183,6 +183,30 @@ export default function ProductsManager() {
         setLoading(false);
     };
 
+    // Subida directa de imagen local a Supabase Storage
+    const [uploadingImg, setUploadingImg] = useState(false);
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setUploadingImg(true);
+        try {
+            const ext = file.name.split('.').pop();
+            const fileName = `producto_${Date.now()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+                .from('assets')
+                .upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
+            setFormData(prev => ({ ...prev, imagen_url: data.publicUrl }));
+        } catch (err: any) {
+            alert('Error subiendo imagen: ' + err.message);
+        } finally {
+            setUploadingImg(false);
+        }
+    };
+
+
+
     const filteredProducts = products.filter(product =>
         product.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.descripcion?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -311,26 +335,68 @@ export default function ProductsManager() {
                             />
                         </div>
 
-                        {/* Imagen Principal */}
+                        {/* Imagen Principal — Subida directa o URL */}
                         <div className="space-y-2">
                             <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
                                 <ImageIcon className="w-3 h-3" /> Imagen Principal *
                             </label>
-                            <div className="flex gap-4">
+
+                            {/* Preview */}
+                            {formData.imagen_url && (
+                                <div className="relative w-full h-40 rounded-xl overflow-hidden border border-gray-700 bg-gray-900">
+                                    <img src={formData.imagen_url} alt="Preview" className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, imagen_url: '' })}
+                                        className="absolute top-2 right-2 p-1.5 bg-black/70 hover:bg-red-500/80 rounded-lg text-white transition-colors"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Botón subir desde PC */}
+                            <div className="flex gap-3">
+                                <label className={`
+                                    flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer text-sm font-medium transition-all flex-shrink-0
+                                    ${uploadingImg
+                                        ? 'bg-gray-800 text-gray-500 cursor-wait'
+                                        : 'bg-neon-gold/10 border border-neon-gold/40 text-neon-gold hover:bg-neon-gold/20'
+                                    }
+                                `}>
+                                    {uploadingImg ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-neon-gold/30 border-t-neon-gold rounded-full animate-spin" />
+                                            Subiendo...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Subir desde PC
+                                        </>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        disabled={uploadingImg}
+                                        className="hidden"
+                                    />
+                                </label>
+
+                                {/* O pegar URL */}
                                 <input
-                                    required
-                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                    placeholder="O pega una URL de imagen aquí..."
                                     className="flex-1 bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
                                     value={formData.imagen_url}
                                     onChange={e => setFormData({ ...formData, imagen_url: e.target.value })}
                                 />
-                                {formData.imagen_url && (
-                                    <div className="w-16 h-12 rounded-xl overflow-hidden border border-gray-700 flex-shrink-0">
-                                        <img src={formData.imagen_url} alt="Preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
                             </div>
+                            <p className="text-gray-600 text-xs">
+                                💡 Puedes subir directamente desde tu PC o pegar una URL externa.
+                            </p>
                         </div>
+
 
                         {/* VIDEO URL - NUEVO */}
                         <div className="space-y-2">

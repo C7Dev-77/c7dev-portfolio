@@ -10,7 +10,11 @@ import {
     Save,
     RotateCcw,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    User,
+    Code,
+    Plus,
+    Trash2
 } from 'lucide-react';
 import { useState } from 'react';
 import { useConfig } from '@/context/ConfigContext';
@@ -20,18 +24,12 @@ export default function SettingsPage() {
     const { config, updateConfig, resetConfig } = useConfig();
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [activeTab, setActiveTab] = useState('theme');
-
-    // No necesitamos useEffect para cargar, el contexto ya lo hace
+    const [activeTab, setActiveTab] = useState<string>('theme');
 
     const handleSave = () => {
         setSaving(true);
-        // Simular retraso de red
         setTimeout(() => {
-            // El updateConfig ya guarda en localStorage y actualiza el estado global
-            // Aquí podríamos hacer una llamada a API si tuviéramos backend real para esto
             updateConfig(config);
-
             setSaving(false);
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
@@ -45,21 +43,24 @@ export default function SettingsPage() {
     };
 
     // Helper para actualizar config profundamente
-    const updateSettings = (section: keyof typeof config, key: string, value: any) => {
-        const newConfig = { ...config };
-        // @ts-ignore
-        if (typeof newConfig[section] === 'object' && newConfig[section] !== null) {
-            // @ts-ignore
+    const updateSettings = (
+        section: 'theme' | 'texts' | 'bio' | 'stack' | 'accessibility' | 'performance' | 'language' | 'devMode',
+        key: string,
+        value: any
+    ) => {
+        const newConfig = { ...config } as any;
+        if (newConfig[section] !== null && typeof newConfig[section] === 'object') {
             newConfig[section] = { ...newConfig[section], [key]: value };
         } else {
-            // @ts-ignore
             newConfig[section] = value;
         }
-        updateConfig(newConfig); // Actualización en tiempo real
+        updateConfig(newConfig);
     };
 
     const tabs = [
         { id: 'theme', label: 'Tema', icon: Palette },
+        { id: 'perfil', label: 'Perfil', icon: User },
+        { id: 'stack', label: 'Stack', icon: Code },
         { id: 'texts', label: 'Textos', icon: Type },
         { id: 'language', label: 'Idioma', icon: Languages },
         { id: 'accessibility', label: 'Accesibilidad', icon: Accessibility },
@@ -130,7 +131,166 @@ export default function SettingsPage() {
 
             {/* Content */}
             <div className="bg-[#111111] rounded-2xl border border-gray-800/50 p-6">
-                {/* TEMA */}
+
+                {/* ===== PERFIL / BIO ===== */}
+                {activeTab === 'perfil' && (
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white mb-4">Biografía Profesional</h2>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Tu Nombre</label>
+                                <input
+                                    type="text"
+                                    value={config.bio?.name || ''}
+                                    onChange={(e) => updateSettings('bio', 'name', e.target.value)}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none"
+                                    placeholder="Cristian Morales"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Párrafo 1 — Presentación</label>
+                                <textarea
+                                    value={config.bio?.bio1 || ''}
+                                    onChange={(e) => updateSettings('bio', 'bio1', e.target.value)}
+                                    rows={3}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none resize-none"
+                                    placeholder="Ingeniero de Sistemas enfocado en..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Párrafo 2 — Experiencia</label>
+                                <textarea
+                                    value={config.bio?.bio2 || ''}
+                                    onChange={(e) => updateSettings('bio', 'bio2', e.target.value)}
+                                    rows={3}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none resize-none"
+                                    placeholder="Cuento con experiencia en..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Párrafo 3 — Pasión</label>
+                                <textarea
+                                    value={config.bio?.bio3 || ''}
+                                    onChange={(e) => updateSettings('bio', 'bio3', e.target.value)}
+                                    rows={3}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none resize-none"
+                                    placeholder="Me apasiona transformar..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Frase / Quote</label>
+                                <input
+                                    type="text"
+                                    value={config.bio?.quote || ''}
+                                    onChange={(e) => updateSettings('bio', 'quote', e.target.value)}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none"
+                                    placeholder={'"Mi objetivo es crear software que no solo funcione bien..."'}
+                                />
+                            </div>
+                        </div>
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Los cambios se reflejan en tiempo real en la página principal.
+                        </div>
+                    </div>
+                )}
+
+                {/* ===== STACK ===== */}
+                {activeTab === 'stack' && (
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white mb-4">Stack Tecnológico</h2>
+
+                        {/* Skills / Barras de progreso */}
+                        <div>
+                            <div className="flex items-center justify-between mb-3">
+                                <label className="text-sm text-gray-400">Habilidades (barras de progreso)</label>
+                                <button
+                                    onClick={() => {
+                                        const newSkills = [
+                                            ...(config.stack?.skills || []),
+                                            { name: 'Nueva habilidad', level: 70, color: '#FFD700' }
+                                        ];
+                                        updateConfig({ ...config, stack: { ...config.stack, skills: newSkills } });
+                                    }}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-neon-gold/20 text-neon-gold rounded-lg text-xs hover:bg-neon-gold/30 transition-colors"
+                                >
+                                    <Plus className="w-3 h-3" /> Agregar
+                                </button>
+                            </div>
+                            <div className="space-y-3">
+                                {(config.stack?.skills || []).map((skill, idx) => (
+                                    <div key={idx} className="flex gap-3 items-center p-3 bg-white/5 rounded-xl">
+                                        <input
+                                            type="text"
+                                            value={skill.name}
+                                            onChange={(e) => {
+                                                const s = [...config.stack.skills];
+                                                s[idx] = { ...s[idx], name: e.target.value };
+                                                updateConfig({ ...config, stack: { ...config.stack, skills: s } });
+                                            }}
+                                            className="flex-1 px-3 py-2 bg-black border border-gray-700 rounded-lg text-white text-sm focus:border-neon-gold focus:outline-none"
+                                            placeholder="Nombre tecnología"
+                                        />
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={skill.level}
+                                            onChange={(e) => {
+                                                const s = [...config.stack.skills];
+                                                s[idx] = { ...s[idx], level: parseInt(e.target.value) || 0 };
+                                                updateConfig({ ...config, stack: { ...config.stack, skills: s } });
+                                            }}
+                                            className="w-20 px-3 py-2 bg-black border border-gray-700 rounded-lg text-white text-sm focus:border-neon-gold focus:outline-none"
+                                            placeholder="%"
+                                        />
+                                        <input
+                                            type="color"
+                                            value={skill.color}
+                                            onChange={(e) => {
+                                                const s = [...config.stack.skills];
+                                                s[idx] = { ...s[idx], color: e.target.value };
+                                                updateConfig({ ...config, stack: { ...config.stack, skills: s } });
+                                            }}
+                                            className="w-10 h-10 rounded-lg border border-gray-700 bg-black cursor-pointer"
+                                            title="Color de la barra"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const s = config.stack.skills.filter((_, i) => i !== idx);
+                                                updateConfig({ ...config, stack: { ...config.stack, skills: s } });
+                                            }}
+                                            className="p-2 hover:bg-red-500/20 text-gray-500 hover:text-red-400 rounded-lg transition-colors"
+                                            title="Eliminar"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Badges */}
+                        <div>
+                            <label className="block text-sm text-gray-400 mb-2">Badges / Tecnologías (separadas por coma)</label>
+                            <textarea
+                                value={(config.stack?.badges || []).join(', ')}
+                                onChange={(e) => {
+                                    const badges = e.target.value.split(',').map((b) => b.trim()).filter(Boolean);
+                                    updateConfig({ ...config, stack: { ...config.stack, badges } });
+                                }}
+                                rows={3}
+                                className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none resize-none"
+                                placeholder="React, Next.js, Node.js, Tailwind, Git, ..."
+                            />
+                        </div>
+
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Los cambios se reflejan en tiempo real en la página principal.
+                        </div>
+                    </div>
+                )}
+
+                {/* ===== TEMA ===== */}
                 {activeTab === 'theme' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Personalización de Tema</h2>
@@ -183,7 +343,7 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* TEXTOS */}
+                {/* ===== TEXTOS ===== */}
                 {activeTab === 'texts' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Textos Editables</h2>
@@ -236,7 +396,7 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* IDIOMA */}
+                {/* ===== IDIOMA ===== */}
                 {activeTab === 'language' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Configuración de Idioma</h2>
@@ -280,100 +440,63 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* ACCESIBILIDAD */}
+                {/* ===== ACCESIBILIDAD ===== */}
                 {activeTab === 'accessibility' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Opciones de Accesibilidad</h2>
 
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                <div>
-                                    <p className="text-white font-medium">Alto Contraste</p>
-                                    <p className="text-sm text-gray-500">Mejora la visibilidad de elementos</p>
+                            {[
+                                { key: 'highContrast', label: 'Alto Contraste', desc: 'Mejora la visibilidad de elementos', value: config.accessibility.highContrast },
+                                { key: 'largeText', label: 'Texto Grande', desc: 'Aumenta el tamaño de fuente', value: config.accessibility.largeText },
+                                { key: 'reduceMotion', label: 'Reducir Movimiento', desc: 'Desactiva animaciones complejas', value: config.accessibility.reduceMotion },
+                            ].map((item) => (
+                                <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                                    <div>
+                                        <p className="text-white font-medium">{item.label}</p>
+                                        <p className="text-sm text-gray-500">{item.desc}</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={item.value}
+                                            onChange={(e) => updateSettings('accessibility', item.key, e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
+                                    </label>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={config.accessibility.highContrast}
-                                        onChange={(e) => updateSettings('accessibility', 'highContrast', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                <div>
-                                    <p className="text-white font-medium">Texto Grande</p>
-                                    <p className="text-sm text-gray-500">Aumenta el tamaño de fuente</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={config.accessibility.largeText}
-                                        onChange={(e) => updateSettings('accessibility', 'largeText', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                <div>
-                                    <p className="text-white font-medium">Reducir Movimiento</p>
-                                    <p className="text-sm text-gray-500">Desactiva animaciones complejas</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={config.accessibility.reduceMotion}
-                                        onChange={(e) => updateSettings('accessibility', 'reduceMotion', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
-                                </label>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 )}
 
-                {/* RENDIMIENTO */}
+                {/* ===== RENDIMIENTO ===== */}
                 {activeTab === 'performance' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Optimización de Rendimiento</h2>
 
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                <div>
-                                    <p className="text-white font-medium">Lazy Load de Imágenes</p>
-                                    <p className="text-sm text-gray-500">Carga imágenes cuando sean visibles</p>
+                            {[
+                                { key: 'lazyLoadImages', label: 'Lazy Load de Imágenes', desc: 'Carga imágenes cuando sean visibles', value: config.performance.lazyLoadImages },
+                                { key: 'cacheEnabled', label: 'Caché Activado', desc: 'Almacena recursos para carga rápida', value: config.performance.cacheEnabled },
+                            ].map((item) => (
+                                <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                                    <div>
+                                        <p className="text-white font-medium">{item.label}</p>
+                                        <p className="text-sm text-gray-500">{item.desc}</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={item.value}
+                                            onChange={(e) => updateSettings('performance', item.key, e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={config.performance.lazyLoadImages}
-                                        onChange={(e) => updateSettings('performance', 'lazyLoadImages', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                <div>
-                                    <p className="text-white font-medium">Caché Activado</p>
-                                    <p className="text-sm text-gray-500">Almacena recursos para carga rápida</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={config.performance.cacheEnabled}
-                                        onChange={(e) => updateSettings('performance', 'cacheEnabled', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                                </label>
-                            </div>
+                            ))}
 
                             <div>
                                 <label className="block text-sm text-gray-400 mb-3">
@@ -396,7 +519,7 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* MODO DEV */}
+                {/* ===== MODO DEV ===== */}
                 {activeTab === 'devMode' && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-white mb-4">Modo Desarrollador</h2>
@@ -428,7 +551,6 @@ export default function SettingsPage() {
                                         </p>
                                     </div>
                                 </div>
-
                                 <div className="space-y-2 text-sm text-green-200/70">
                                     <p>• Haz clic en cualquier texto para editarlo</p>
                                     <p>• Arrastra elementos para reordenarlos</p>
@@ -447,6 +569,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 )}
+
             </div>
         </div>
     );

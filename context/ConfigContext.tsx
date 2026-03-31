@@ -3,6 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Tipos iguales a los de SettingsPage
+interface SkillItem {
+    name: string;
+    level: number;
+    color: string;
+}
+
 interface SiteConfig {
     theme: {
         primaryColor: string;
@@ -15,6 +21,17 @@ interface SiteConfig {
         homeSubtitle: string;
         ctaButton: string;
         footerText: string;
+    };
+    bio: {
+        name: string;
+        bio1: string;
+        bio2: string;
+        bio3: string;
+        quote: string;
+    };
+    stack: {
+        skills: SkillItem[];
+        badges: string[];
     };
     language: string;
     accessibility: {
@@ -42,6 +59,23 @@ const DEFAULT_CONFIG: SiteConfig = {
         homeSubtitle: 'Desarrollador Web • Ing de Sistemas • Creador de Contenido',
         ctaButton: 'Ver Códigos',
         footerText: 'Código limpio y mantenible'
+    },
+    bio: {
+        name: 'Cristian Morales',
+        bio1: 'Ingeniero de Sistemas enfocado en el desarrollo de soluciones digitales eficientes, escalables y visualmente atractivas.',
+        bio2: 'Cuento con experiencia en desarrollo web, backend y automatización, aplicando buenas prácticas de programación y tecnologías modernas para crear productos funcionales y bien estructurados.',
+        bio3: 'Me apasiona transformar problemas reales en soluciones digitales que generen impacto, valor y crecimiento para empresas, emprendedores y proyectos personales.',
+        quote: '"Mi objetivo es crear software que no solo funcione bien, sino que también se vea profesional y aporte resultados reales."'
+    },
+    stack: {
+        skills: [
+            { name: 'HTML5 / CSS3', level: 98, color: '#FFD700' },
+            { name: 'JAVASCRIPT / TYPESCRIPT', level: 95, color: '#E5E4E2' },
+            { name: 'PYTHON', level: 85, color: '#3776AB' },
+            { name: 'JAVA', level: 80, color: '#ED8B00' },
+            { name: 'PHP', level: 75, color: '#777BB4' },
+        ],
+        badges: ['React', 'Next.js', 'Node.js', 'Tailwind', 'Git', 'GitHub', 'Firebase', 'Supabase', 'MySQL', 'PostgreSQL', 'Figma', 'SEO', 'Vercel']
     },
     language: 'es',
     accessibility: {

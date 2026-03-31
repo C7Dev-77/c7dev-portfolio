@@ -23,6 +23,7 @@ import ScrambleText from '@/components/ScrambleText';
 import RealTimeStats from '@/components/RealTimeStats';
 import ParticleNetwork from '@/components/ParticleNetwork';
 import FloatingCode from '@/components/FloatingCode';
+import BioStackSection from '@/components/BioStackSection';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -217,44 +218,47 @@ export default function HomePage() {
 
           {/* ========== SERVICIOS - 4 Tarjetas ========== */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Servicio 1 - Desarrollo Web */}
-            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-neon-gold rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)]">
-              <div className="w-14 h-14 bg-neon-gold/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-neon-gold/20 transition-colors group-hover:scale-110 duration-300">
-                <Code className="w-7 h-7 text-neon-gold" />
-              </div>
-              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-neon-gold transition-colors">Desarrollo Web</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Diseño y desarrollo de sitios web modernos, rápidos y optimizados, enfocados en conversión, rendimiento y experiencia de usuario utilizando tecnologías actuales.</p>
-            </div>
-
-            {/* Servicio 2 - Animaciones Web */}
-            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-green-500 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)]">
-              <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-500/20 transition-colors group-hover:scale-110 duration-300">
-                <Zap className="w-7 h-7 text-green-500" />
-              </div>
-              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-green-500 transition-colors">Animaciones Web</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Micro-interacciones y animaciones fluidas que mejoran la experiencia del usuario, aportan identidad visual y elevan la percepción profesional del producto.</p>
-            </div>
-
-            {/* Servicio 3 - Python */}
-            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-[#3776AB] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(55,118,171,0.1)]">
-              <div className="w-14 h-14 bg-[#3776AB]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#3776AB]/20 transition-colors group-hover:scale-110 duration-300">
-                <svg className="w-7 h-7 text-[#3776AB]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z" />
+            {/* Servicio 1 - Desarrollo 3D */}
+            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-purple-500 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+              <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition-colors group-hover:scale-110 duration-300">
+                <svg className="w-7 h-7 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
                 </svg>
               </div>
-              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-[#3776AB] transition-colors">Python</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Automatización de procesos, scripts eficientes y desarrollo backend para optimizar tareas, reducir errores y mejorar la productividad.</p>
+              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-purple-400 transition-colors">Desarrollo 3D</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Creación de experiencias visuales inmersivas con tecnologías modernas de renderizado 3D y animaciones interactivas para la web.</p>
             </div>
 
-            {/* Servicio 4 - Java */}
-            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-[#ED8B00] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(237,139,0,0.1)]">
-              <div className="w-14 h-14 bg-[#ED8B00]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#ED8B00]/20 transition-colors group-hover:scale-110 duration-300">
-                <svg className="w-7 h-7 text-[#ED8B00]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8.851 18.56s-.917.534.653.714c1.902.218 2.874.187 4.969-.211 0 0 .552.346 1.321.646-4.699 2.013-10.633-.118-6.943-1.149M8.276 15.933s-1.028.761.542.924c2.032.209 3.636.227 6.413-.308 0 0 .384.389.987.602-5.679 1.661-12.007.13-7.942-1.218M13.116 11.475c1.158 1.333-.304 2.533-.304 2.533s2.939-1.518 1.589-3.418c-1.261-1.772-2.228-2.652 3.007-5.688 0-.001-8.216 2.051-4.292 6.573M19.33 20.504s.679.559-.747.991c-2.712.822-11.288 1.069-13.669.033-.856-.373.75-.89 1.254-.998.527-.114.828-.093.828-.093-.953-.671-6.156 1.317-2.643 1.887 9.58 1.553 17.462-.7 14.977-1.82M9.292 13.21s-4.362 1.036-1.544 1.412c1.189.159 3.561.123 5.77-.062 1.806-.152 3.618-.477 3.618-.477s-.637.272-1.098.587c-4.429 1.165-12.986.623-10.522-.568 2.082-1.006 3.776-.892 3.776-.892M17.116 17.584c4.503-2.34 2.421-4.589.968-4.285-.355.074-.515.138-.515.138s.132-.207.385-.297c2.875-1.011 5.086 2.981-.928 4.562 0-.001.07-.062.09-.118M14.401 0s2.494 2.494-2.365 6.33c-3.896 3.077-.888 4.832-.001 6.836-2.274-2.053-3.943-3.858-2.824-5.539 1.644-2.469 6.197-3.665 5.19-7.627M9.734 23.924c4.322.277 10.959-.153 11.116-2.198 0 0-.302.775-3.572 1.391-3.688.694-8.239.613-10.937.168 0-.001.553.457 3.393.639" />
+            {/* Servicio 2 - Arquitectura de Sistemas */}
+            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-red-500 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+              <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-500/20 transition-colors group-hover:scale-110 duration-300">
+                <svg className="w-7 h-7 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
                 </svg>
               </div>
-              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-[#ED8B00] transition-colors">Java</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Desarrollo de aplicaciones robustas y escalables orientadas a entornos empresariales, con énfasis en rendimiento, seguridad y mantenibilidad.</p>
+              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-red-400 transition-colors">Arquitectura de Sistemas</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Diseño escalable y eficiente de infraestructuras complejas, garantizando rendimiento, mantenibilidad y evolución del software.</p>
+            </div>
+
+            {/* Servicio 3 - Optimización de Código */}
+            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-gray-400 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(156,163,175,0.15)]">
+              <div className="w-14 h-14 bg-gray-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-gray-500/20 transition-colors group-hover:scale-110 duration-300">
+                <svg className="w-7 h-7 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+              </div>
+              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-gray-300 transition-colors">Optimización de Código</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Mejora de rendimiento y calidad en aplicaciones existentes, reduciendo tiempos de carga y deuda técnica con buenas prácticas.</p>
+            </div>
+
+            {/* Servicio 4 - Consultoría Tecnológica */}
+            <div className="group bg-[#0d0d0d] border border-gray-800 hover:border-amber-600 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(217,119,6,0.15)]">
+              <div className="w-14 h-14 bg-amber-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-600/20 transition-colors group-hover:scale-110 duration-300">
+                <Briefcase className="w-7 h-7 text-amber-500" />
+              </div>
+              <h3 className="text-white text-lg font-bold mb-3 group-hover:text-amber-500 transition-colors">Consultoría Tecnológica</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Asesoría experta en transformación digital y modernización de procesos para empresas que buscan evolucionar con tecnología.</p>
             </div>
           </div>
 
@@ -309,123 +313,8 @@ export default function HomePage() {
             <div className="w-20 h-0.5 bg-gradient-to-l from-transparent to-neon-gold"></div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
-            {/* BIO CARD */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-platinum/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity"></div>
-              <div className="relative h-full bg-[#0d0d0d] border border-gray-800 group-hover:border-neon-platinum/50 rounded-2xl p-8 backdrop-blur-sm transition-colors">
-                <h3 className="text-xl font-outfit text-neon-platinum mb-6 flex items-center gap-3">
-                  <span className="w-2 h-2 bg-neon-platinum rounded-full animate-pulse"></span>
-                  <span className="text-gray-500 font-mono text-sm">//</span>
-                  BIOGRAFÍA_PROFESIONAL
-                </h3>
+          <BioStackSection whatsappLink={whatsappLink} />
 
-                <div className="space-y-4 text-gray-300 leading-relaxed mb-8">
-                  <p>
-                    <strong className="text-white">Cristian Morales</strong> — Ingeniero de Sistemas enfocado en el desarrollo de soluciones digitales eficientes, escalables y visualmente atractivas.
-                  </p>
-                  <p>
-                    Cuento con experiencia en <span className="text-neon-gold">desarrollo web, backend y automatización</span>, aplicando buenas prácticas de programación y tecnologías modernas para crear productos funcionales y bien estructurados.
-                  </p>
-                  <p>
-                    Me apasiona transformar problemas reales en soluciones digitales que generen impacto, valor y crecimiento para empresas, emprendedores y proyectos personales.
-                  </p>
-                  <p className="text-sm border-l-2 border-neon-gold pl-4 italic text-gray-400">
-                    "Mi objetivo es crear software que no solo funcione bien, sino que también se vea profesional y aporte resultados reales."
-                  </p>
-                </div>
-
-                {/* Contact Info */}
-                <div className="flex flex-col gap-3 text-sm border-t border-gray-800 pt-6">
-                  <a href="mailto:christian.dev.77@gmail.com" className="flex items-center gap-3 text-gray-400 hover:text-neon-gold transition-colors p-2 hover:bg-white/5 rounded-lg">
-                    <Mail className="w-4 h-4" />
-                    christian.dev.77@gmail.com
-                  </a>
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-400 hover:text-[#25D366] transition-colors p-2 hover:bg-white/5 rounded-lg">
-                    <MessageCircle className="w-4 h-4" />
-                    +57 324 425 9132
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* TECH STACK */}
-            <div className="bg-[#0d0d0d] border border-gray-800 rounded-2xl p-8">
-              <h3 className="text-xl font-outfit text-white mb-8 flex items-center gap-2">
-                <span className="text-neon-gold font-mono">&gt;_</span>
-                STACK TECNOLÓGICO
-              </h3>
-
-              <div className="space-y-6">
-                {/* HTML/CSS */}
-                <div>
-                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>HTML5 / CSS3</span>
-                    <span className="text-neon-gold">98%</span>
-                  </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-amber-600 to-neon-gold w-[98%] rounded-full shadow-[0_0_10px_rgba(255,215,0,0.3)]"></div>
-                  </div>
-                </div>
-
-                {/* JavaScript */}
-                <div>
-                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>JAVASCRIPT / TYPESCRIPT</span>
-                    <span className="text-neon-platinum">95%</span>
-                  </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-gray-500 to-neon-platinum w-[95%] rounded-full"></div>
-                  </div>
-                </div>
-
-                {/* Python */}
-                <div>
-                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>PYTHON</span>
-                    <span className="text-[#3776AB]">85%</span>
-                  </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#3776AB] to-[#4B8BBE] w-[85%] rounded-full"></div>
-                  </div>
-                </div>
-
-                {/* Java */}
-                <div>
-                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>JAVA</span>
-                    <span className="text-[#ED8B00]">80%</span>
-                  </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#ED8B00] to-[#f89820] w-[80%] rounded-full"></div>
-                  </div>
-                </div>
-
-                {/* PHP */}
-                <div>
-                  <div className="flex justify-between text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400">
-                    <span>PHP</span>
-                    <span className="text-[#777BB4]">75%</span>
-                  </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#777BB4] to-[#8892BF] w-[75%] rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Badges - Tecnologías y herramientas */}
-              <div className="flex flex-wrap gap-2 mt-8">
-                {['React', 'Next.js', 'Node.js', 'Tailwind', 'Git', 'GitHub', 'Firebase', 'Supabase', 'MySQL', 'PostgreSQL', 'Figma', 'SEO', 'Vercel'].map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-3 py-1.5 bg-white/5 border border-gray-800 rounded-lg text-[10px] text-gray-500 uppercase tracking-wider hover:border-neon-gold hover:text-neon-gold transition-colors cursor-default"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
 
           {/* ========== CTA CONTRATACIÓN ========== */}
           <div className="text-center bg-gradient-to-r from-neon-gold/5 via-[#0d0d0d] to-neon-platinum/5 rounded-3xl p-10 border border-gray-800 hover:border-neon-gold/30 transition-colors">
@@ -437,7 +326,7 @@ export default function HomePage() {
               Estoy disponible para proyectos freelance, colaboraciones y oportunidades laborales.
               Si buscas un desarrollador comprometido, creativo y orientado a resultados, hablemos y construyamos algo de valor juntos.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -456,7 +345,24 @@ export default function HomePage() {
                 Enviar Email
               </a>
             </div>
+            {/* ☕ Apoyo al Creador */}
+            <div className="border-t border-gray-800/60 pt-6">
+              <p className="text-gray-500 text-sm mb-3">¿Te ayudé con algo? Apóyame con un café ☕</p>
+              <a
+                href="https://ko-fi.com/cristiandev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF5E5B] hover:bg-[#e04f4c] text-white font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-[#FF5E5B]/30 text-sm"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.025 1.508 3.338 3.255 3.658 2.083.415 8.248.396 8.248.396 0 0 6.608.03 8.068-.596 1.919-.816 2.812-2.388 2.887-4.85.068-2.016-.003-6.001-.003-6.001l.002-.234zM19.466 20.01c-.422.035-.937-.029-.937-.029s-5.565.017-7.36-.019c-1.893-.038-2.547-.985-2.547-.985s.038-3.123.048-4.867V9.89H21.13s.017 2.61.009 5.021c-.006 2.025-.251 4.75-1.673 5.099z"/>
+                </svg>
+                Apóyame en Ko-fi
+              </a>
+              <p className="text-gray-600 text-xs mt-2">También puedes usar <strong className="text-gray-500">Nequi</strong> o <strong className="text-gray-500">Bancolombia</strong> al número +57 324 425 9132</p>
+            </div>
           </div>
+
 
         </div>
       </section>
