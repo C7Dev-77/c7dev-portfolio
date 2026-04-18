@@ -1,7 +1,5 @@
-// components/Footer.tsx
 import { Github, Linkedin, Terminal, Mail, ArrowRight, Heart, MessageCircle, Instagram, Youtube } from 'lucide-react';
 import Link from 'next/link';
-import NewsletterForm from './NewsletterForm';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -24,7 +22,8 @@ export default function Footer() {
       <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12 text-center md:text-left">
+
 
           {/* Brand Column */}
           <div className="space-y-6">
@@ -75,7 +74,7 @@ export default function Footer() {
               <span className="w-1 h-4 bg-neon-platinum"></span>
               CONECTAR
             </h4>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap justify-center md:justify-start">
               <a
                 href="https://www.tiktok.com/@c7dev_"
                 target="_blank"
@@ -151,10 +150,8 @@ export default function Footer() {
               </a>
             </div>
           </div>
-
-          {/* Newsletter (Funcional) */}
-          <NewsletterForm />
         </div>
+
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">

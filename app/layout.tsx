@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SecretGate from "@/components/SecretGate";
 import CustomCursor from "@/components/CustomCursor";
-import StartupAnimation from "@/components/StartupAnimation";
-import BackgroundMusic from "@/components/BackgroundMusic";
 import { ConfigProvider } from "@/context/ConfigContext";
 import { MusicProvider } from "@/context/MusicContext";
 import "./globals.css";
+
+// Lazy load componentes pesados para mejorar el LCP
+const StartupAnimation = dynamic(() => import("@/components/StartupAnimation"), { ssr: false });
+const BackgroundMusic = dynamic(() => import("@/components/BackgroundMusic"), { ssr: false });
 
 const outfit = Outfit({
   subsets: ["latin"],

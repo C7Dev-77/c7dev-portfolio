@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   ShoppingBag,
   FolderGit2,
@@ -21,9 +22,14 @@ import {
 
 import ScrambleText from '@/components/ScrambleText';
 import RealTimeStats from '@/components/RealTimeStats';
-import ParticleNetwork from '@/components/ParticleNetwork';
-import FloatingCode from '@/components/FloatingCode';
 import BioStackSection from '@/components/BioStackSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import FAQSection from '@/components/FAQSection';
+
+// Lazy load componentes visuales pesados (mejora LCP/FCP)
+const ParticleNetwork = dynamic(() => import('@/components/ParticleNetwork'), { ssr: false });
+const FloatingCode = dynamic(() => import('@/components/FloatingCode'), { ssr: false });
+
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -315,7 +321,25 @@ export default function HomePage() {
 
           <BioStackSection whatsappLink={whatsappLink} />
 
+        </div>
+      </section>
 
+      {/* ========================================
+          SECCIÓN TESTIMONIOS
+          ======================================== */}
+      <TestimonialsSection />
+
+      {/* ========================================
+          SECCIÓN FAQ
+          ======================================== */}
+      <FAQSection />
+
+
+      {/* ========================================
+          CTA CONTRATACIÓN
+          ======================================== */}
+      <section className="py-24 px-4 relative z-10">
+        <div className="max-w-6xl mx-auto">
           {/* ========== CTA CONTRATACIÓN ========== */}
           <div className="text-center bg-gradient-to-r from-neon-gold/5 via-[#0d0d0d] to-neon-platinum/5 rounded-3xl p-10 border border-gray-800 hover:border-neon-gold/30 transition-colors">
             <Briefcase className="w-12 h-12 text-neon-gold mx-auto mb-4 animate-bounce" />
@@ -337,31 +361,9 @@ export default function HomePage() {
                 Escríbeme por WhatsApp
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
-              <a
-                href="mailto:christian.dev.77@gmail.com"
-                className="px-8 py-4 border-2 border-neon-gold text-neon-gold font-bold uppercase tracking-wider rounded-xl hover:bg-neon-gold hover:text-black transition-all flex items-center justify-center gap-3"
-              >
-                <Mail className="w-5 h-5" />
-                Enviar Email
-              </a>
-            </div>
-            {/* ☕ Apoyo al Creador */}
-            <div className="border-t border-gray-800/60 pt-6">
-              <p className="text-gray-500 text-sm mb-3">¿Te ayudé con algo? Apóyame con un café ☕</p>
-              <a
-                href="https://ko-fi.com/cristiandev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF5E5B] hover:bg-[#e04f4c] text-white font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-[#FF5E5B]/30 text-sm"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.025 1.508 3.338 3.255 3.658 2.083.415 8.248.396 8.248.396 0 0 6.608.03 8.068-.596 1.919-.816 2.812-2.388 2.887-4.85.068-2.016-.003-6.001-.003-6.001l.002-.234zM19.466 20.01c-.422.035-.937-.029-.937-.029s-5.565.017-7.36-.019c-1.893-.038-2.547-.985-2.547-.985s.038-3.123.048-4.867V9.89H21.13s.017 2.61.009 5.021c-.006 2.025-.251 4.75-1.673 5.099z"/>
-                </svg>
-                Apóyame en Ko-fi
-              </a>
-              <p className="text-gray-600 text-xs mt-2">También puedes usar <strong className="text-gray-500">Nequi</strong> o <strong className="text-gray-500">Bancolombia</strong> al número +57 324 425 9132</p>
             </div>
           </div>
+
 
 
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ShoppingBag,
   FolderGit2,
@@ -10,7 +11,6 @@ import {
   Eye,
   ArrowUpRight,
   ArrowDownRight,
-  Package,
   Activity,
   Clock,
   Plus,
@@ -111,7 +111,6 @@ export default function AdminDashboard() {
   const quickActions = [
     { label: 'Nuevo Producto', href: '/admin/products', icon: ShoppingBag, color: 'gold' },
     { label: 'Nuevo Proyecto', href: '/admin/portfolio', icon: FolderGit2, color: 'platinum' },
-    { label: 'Subir Archivo', href: '/admin/files', icon: Package, color: 'blue' },
   ];
 
   // Simular datos del gráfico
@@ -325,9 +324,9 @@ export default function AdminDashboard() {
             ) : stats.productosRecientes.length > 0 ? (
               stats.productosRecientes.slice(0, 4).map((producto) => (
                 <div key={producto.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-800">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-800 relative">
                     {producto.imagen_url && (
-                      <img src={producto.imagen_url} alt={producto.nombre} className="w-full h-full object-cover" />
+                      <Image src={producto.imagen_url} alt={producto.nombre} fill className="object-cover" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -378,9 +377,9 @@ export default function AdminDashboard() {
             ) : stats.proyectosRecientes.length > 0 ? (
               stats.proyectosRecientes.slice(0, 4).map((proyecto) => (
                 <div key={proyecto.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-800">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-800 relative">
                     {proyecto.imagen_url && (
-                      <img src={proyecto.imagen_url} alt={proyecto.titulo} className="w-full h-full object-cover" />
+                      <Image src={proyecto.imagen_url} alt={proyecto.titulo} fill className="object-cover" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">

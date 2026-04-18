@@ -8,7 +8,6 @@ import {
     LayoutDashboard,
     ShoppingBag,
     FolderGit2,
-    Image,
     Settings,
     LogOut,
     ChevronRight,
@@ -31,7 +30,6 @@ const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Productos', href: '/admin/products', icon: ShoppingBag },
     { name: 'Portafolio', href: '/admin/portfolio', icon: FolderGit2 },
-    { name: 'Archivos', href: '/admin/files', icon: Image },
     { name: 'Configuración', href: '/admin/settings', icon: Settings },
 ];
 
@@ -48,6 +46,9 @@ export default function AdminLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+    // Admin autorizado (debe coincidir con middleware.ts)
+    const ADMIN_EMAILS = ['christian.dev.77@gmail.com'];
+
     useEffect(() => {
         let mounted = true;
         const validateSession = async () => {
@@ -57,6 +58,10 @@ export default function AdminLayout({
                 if (mounted) {
                     if (!session) {
                         router.push('/login');
+                    } else if (!ADMIN_EMAILS.includes(session.user.email || '')) {
+                        // Autenticado pero no es admin
+                        await supabase.auth.signOut();
+                        router.push('/?error=unauthorized');
                     } else {
                         setUser(session.user);
                         setAuthorized(true);
@@ -64,6 +69,7 @@ export default function AdminLayout({
                 }
             } catch (error) {
                 console.error("Auth check failed", error);
+                if (mounted) router.push('/login');
             } finally {
                 if (mounted) setChecking(false);
             }
@@ -72,6 +78,7 @@ export default function AdminLayout({
         validateSession();
         return () => { mounted = false; };
     }, [router]);
+
 
     const handleLogout = async () => {
         await supabase.auth.signOut();

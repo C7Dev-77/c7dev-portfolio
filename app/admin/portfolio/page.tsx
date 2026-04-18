@@ -180,6 +180,51 @@ export default function PortfolioManager() {
         setLoading(false);
     };
 
+    // Subida directa de imagen local a Supabase Storage
+    const [uploadingImg, setUploadingImg] = useState(false);
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setUploadingImg(true);
+        try {
+            const ext = file.name.split('.').pop();
+            const fileName = `proyecto_${Date.now()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+                .from('assets')
+                .upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
+            setFormData(prev => ({ ...prev, imagen_url: data.publicUrl }));
+        } catch (err: any) {
+            alert('Error subiendo imagen: ' + err.message);
+        } finally {
+            setUploadingImg(false);
+        }
+    };
+
+    const [uploadingCap, setUploadingCap] = useState(false);
+    const handleCapturaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setUploadingCap(true);
+        try {
+            const ext = file.name.split('.').pop();
+            const fileName = `captura_${Date.now()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+                .from('assets')
+                .upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
+            const currentCaps = formData.capturas.trim();
+            const newCaps = currentCaps ? `${currentCaps}, ${data.publicUrl}` : data.publicUrl;
+            setFormData(prev => ({ ...prev, capturas: newCaps }));
+        } catch (err: any) {
+            alert('Error subiendo captura: ' + err.message);
+        } finally {
+            setUploadingCap(false);
+        }
+    };
+
     const filteredProjects = projects.filter(project =>
         project.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.descripcion?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -298,20 +343,61 @@ export default function PortfolioManager() {
                             <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
                                 <ImageIcon className="w-3 h-3" /> Imagen Principal *
                             </label>
-                            <div className="flex gap-4">
+
+                            {/* Preview */}
+                            {formData.imagen_url && (
+                                <div className="relative w-full h-40 rounded-xl overflow-hidden border border-gray-700 bg-gray-900">
+                                    <img src={formData.imagen_url} alt="Preview" className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, imagen_url: '' })}
+                                        className="absolute top-2 right-2 p-1.5 bg-black/70 hover:bg-red-500/80 rounded-lg text-white transition-colors"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Botón subir desde PC */}
+                            <div className="flex gap-3">
+                                <label className={`
+                                    flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer text-sm font-medium transition-all flex-shrink-0
+                                    ${uploadingImg
+                                        ? 'bg-gray-800 text-gray-500 cursor-wait'
+                                        : 'bg-neon-platinum/10 border border-neon-platinum/40 text-neon-platinum hover:bg-neon-platinum/20'
+                                    }
+                                `}>
+                                    {uploadingImg ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-neon-platinum/30 border-t-neon-platinum rounded-full animate-spin" />
+                                            Subiendo...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Subir desde PC
+                                        </>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        disabled={uploadingImg}
+                                        className="hidden"
+                                    />
+                                </label>
+
+                                {/* O pegar URL */}
                                 <input
-                                    required
-                                    placeholder="https://ejemplo.com/imagen.jpg o URL de Unsplash"
+                                    placeholder="O pega una URL de imagen aquí..."
                                     className="flex-1 bg-[#0a0a0a] border border-gray-800 focus:border-neon-platinum outline-none p-3 rounded-xl text-white transition-all text-sm"
                                     value={formData.imagen_url}
                                     onChange={e => setFormData({ ...formData, imagen_url: e.target.value })}
                                 />
-                                {formData.imagen_url && (
-                                    <div className="w-16 h-12 rounded-xl overflow-hidden border border-gray-700 flex-shrink-0">
-                                        <img src={formData.imagen_url} alt="Preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
                             </div>
+                            <p className="text-gray-600 text-xs">
+                                💡 Puedes subir directamente desde tu PC o pegar una URL externa.
+                            </p>
                         </div>
 
                         {/* VIDEO URL - NUEVO */}
@@ -333,14 +419,65 @@ export default function PortfolioManager() {
                         {/* Capturas adicionales - NUEVO */}
                         <div className="space-y-2">
                             <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                <ImageIcon className="w-3 h-3" /> Capturas Adicionales (URLs separadas por coma)
+                                <ImageIcon className="w-3 h-3" /> Capturas Adicionales
                             </label>
-                            <input
-                                placeholder="https://url1.jpg, https://url2.jpg, https://url3.jpg"
-                                className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                value={formData.capturas}
-                                onChange={e => setFormData({ ...formData, capturas: e.target.value })}
-                            />
+
+                            {/* Mostrar previews de capturas si hay */}
+                            {formData.capturas && (
+                                <div className="flex gap-2 mb-2 flex-wrap">
+                                    {formData.capturas.split(',').map(c => c.trim()).filter(Boolean).map((cap, i) => (
+                                        <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-700">
+                                            <img src={cap} alt={`Cap ${i}`} className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newCaps = formData.capturas.split(',').map(c => c.trim()).filter((_, idx) => idx !== i).join(', ');
+                                                    setFormData({ ...formData, capturas: newCaps });
+                                                }}
+                                                className="absolute top-1 right-1 p-0.5 bg-black/70 hover:bg-red-500/80 rounded text-white"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="flex gap-3">
+                                <label className={`
+                                    flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer text-sm font-medium transition-all flex-shrink-0
+                                    ${uploadingCap
+                                        ? 'bg-gray-800 text-gray-500 cursor-wait'
+                                        : 'bg-white/5 border border-gray-700 text-gray-300 hover:bg-white/10'
+                                    }
+                                `}>
+                                    {uploadingCap ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-gray-500 border-t-white rounded-full animate-spin" />
+                                            Subiendo...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Añadir captura
+                                        </>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleCapturaUpload}
+                                        disabled={uploadingCap}
+                                        className="hidden"
+                                    />
+                                </label>
+
+                                <input
+                                    placeholder="O URLs separadas por coma..."
+                                    className="flex-1 bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    value={formData.capturas}
+                                    onChange={e => setFormData({ ...formData, capturas: e.target.value })}
+                                />
+                            </div>
                         </div>
 
                         {/* Tags y Orden */}
