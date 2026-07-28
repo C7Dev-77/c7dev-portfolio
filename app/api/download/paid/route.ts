@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { supabase } from '@/lib/supabase'; // Asegúrate de tener esta importación correcta
+import { supabase } from '@/lib/supabase';
+import type { Producto } from '@/types/database';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -28,11 +29,13 @@ export async function POST(req: Request) {
     }
 
     // 4. Buscamos el producto en Supabase
-    const { data: producto, error } = await supabase
+    const { data: productoRaw, error } = await supabase
       .from('productos')
       .select('*')
       .eq('id', productoId)
       .single();
+
+    const producto = productoRaw as unknown as Producto | null;
 
     if (error || !producto || !producto.link_paid) {
       console.error('Error obteniendo producto:', error);

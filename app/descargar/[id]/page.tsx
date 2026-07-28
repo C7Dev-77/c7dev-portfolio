@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import AdBanner from '@/components/AdBanner';
 import { Download, Loader2, AlertCircle } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
+import type { Producto } from '@/types/database';
 
 export default function DescargarPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
@@ -17,11 +18,13 @@ export default function DescargarPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: dataRaw, error } = await supabase
           .from('productos')
           .select('nombre, link_free')
           .eq('id', params.id)
           .single();
+
+        const data = dataRaw as unknown as Pick<Producto, 'nombre' | 'link_free'> | null;
 
         if (error || !data) {
           throw new Error('Producto no encontrado');
