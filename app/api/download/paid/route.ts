@@ -27,11 +27,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Producto no encontrado en la sesión' }, { status: 404 });
     }
 
-    // 4. Buscamos el producto en Supabase
-    const { data: producto, error } = await supabase
-      .from('productos')
+    // 4. Buscamos el producto en Supabase con bypass de tipos para Vercel
+    const { data: producto, error } = await (supabase.from('productos') as any)
       .select('*')
-      .eq('id', productoId as string)
+      .eq('id', productoId)
       .single();
 
     if (error || !producto || !producto.link_paid) {
