@@ -61,11 +61,13 @@ export interface Database {
         Row: Producto;
         Insert: ProductoInsert;
         Update: ProductoUpdate;
+        Relationships: [];
       };
       proyectos: {
         Row: Proyecto;
         Insert: ProyectoInsert;
         Update: ProyectoUpdate;
+        Relationships: [];
       };
     };
     Views: {};
