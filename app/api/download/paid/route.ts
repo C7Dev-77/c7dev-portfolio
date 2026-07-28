@@ -27,11 +27,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Producto no encontrado en la sesión' }, { status: 404 });
     }
 
-    // 4. Buscamos el link_paid en Supabase
+    // 4. Buscamos el producto en Supabase
     const { data: producto, error } = await supabase
       .from('productos')
-      .select('link_paid')
-      .eq('id', productoId)
+      .select('*')
+      .eq('id', productoId as string)
       .single();
 
     if (error || !producto || !producto.link_paid) {
