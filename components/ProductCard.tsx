@@ -13,10 +13,44 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
   const placeholderImage = 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400';
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // Formatear precio de forma segura
   const formatPrice = (precio: number | undefined | null) => {
     if (typeof precio !== 'number' || isNaN(precio)) return '0.00';
     return precio.toFixed(2);
+  };
+
+  const handleCheckout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productoId: producto.id,
+          nombre: producto.nombre,
+          precio: producto.precio,
+          imagen_url: producto.imagen_url,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Error al crear sesión de pago:', data.error);
+        alert('Hubo un error al iniciar el pago.');
+      }
+    } catch (error) {
+      console.error('Error en checkout:', error);
+      alert('Error de conexión.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -100,28 +134,28 @@ export default function ProductCard({ producto }: ProductCardProps) {
         {/* Buttons */}
         <div className="flex gap-3 mt-auto">
           {/* Free Download Button */}
-          <a
-            href={producto.link_free || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={`/descargar/${producto.id}`}
             onClick={(e) => e.stopPropagation()}
             className="flex-1 px-4 py-3 border-2 border-green-500 text-green-500 text-center font-bold text-sm uppercase hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2 rounded-lg"
           >
             <Download className="w-4 h-4" />
             Gratis
-          </a>
+          </Link>
 
           {/* Purchase Button */}
-          <a
-            href={producto.link_paid || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm uppercase hover:shadow-lg hover:shadow-neon-gold/25 transition-all flex items-center justify-center gap-2 rounded-lg"
+          <button
+            onClick={handleCheckout}
+            disabled={isLoading}
+            className={`flex-1 px-4 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm uppercase hover:shadow-lg hover:shadow-neon-gold/25 transition-all flex items-center justify-center gap-2 rounded-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            <CreditCard className="w-4 h-4" />
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+            ) : (
+              <CreditCard className="w-4 h-4" />
+            )}
             ${formatPrice(producto.precio)}
-          </a>
+          </button>
         </div>
       </div>
     </div>
