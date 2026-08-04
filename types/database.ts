@@ -254,7 +254,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      products_public: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          has_free_version: boolean | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          price_cents: number
+          slug: string
+          tags: string[] | null
+          title: string
+        }
+      }
     }
     Functions: {
       [_ in never]: never

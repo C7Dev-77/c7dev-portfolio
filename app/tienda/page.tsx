@@ -32,7 +32,7 @@ export default function TiendaPage() {
 
     try {
       const { data, error: fetchError } = await supabase
-        .from('products_public')
+        .from('products_public' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
