@@ -1,8 +1,12 @@
 -- SQL-SITE-SETTINGS-AND-PRODUCTS.sql
 -- Ejecuta este script en el SQL Editor de Supabase
 
--- 1. Crear Vista Pública Segura para la Tienda
-CREATE OR REPLACE VIEW products_public AS
+ALTER TABLE products ADD COLUMN IF NOT EXISTS link_paid text;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS link_free text;
+
+DROP VIEW IF EXISTS products_public;
+
+CREATE VIEW products_public AS
 SELECT 
   id, 
   title, 
@@ -14,6 +18,10 @@ SELECT
   category, 
   is_featured, 
   has_free_version,
+  external_product_id,
+  storage_path,
+  link_paid,
+  link_free,
   created_at
 FROM products 
 WHERE is_active = true;

@@ -259,12 +259,16 @@ export type Database = {
           category: string | null
           created_at: string | null
           description: string | null
+          external_product_id: string | null
           has_free_version: boolean | null
           id: string
           image_url: string | null
           is_featured: boolean | null
+          link_free: string | null
+          link_paid: string | null
           price_cents: number
           slug: string
+          storage_path: string | null
           tags: string[] | null
           title: string
         }

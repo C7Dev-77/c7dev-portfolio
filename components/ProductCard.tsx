@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Download, CreditCard, Package, Play, Star } from 'lucide-react';
+import { Download, CreditCard, Package, Play, Star, AlertCircle } from 'lucide-react';
 import { MonetizationProduct } from '@/types';
 
 interface ProductCardProps {
@@ -11,6 +11,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ producto }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
   
   // Precio viene en centavos, lo convertimos a dólares/pesos
   const precioFormateado = (producto.price_cents / 100).toFixed(2);
@@ -18,18 +19,34 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const handleCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (!producto.external_product_id) {
-      alert('Este producto no tiene configurado un ID de Lemon Squeezy.');
+    setCheckoutError('');
+
+    const directLink = (producto as any).link_paid;
+    const externalId = (producto as any).external_product_id;
+
+    // Prioridad 1: Si hay una URL directa de pago (ej. LemonSqueezy checkout URL)
+    if (directLink && (directLink.startsWith('http://') || directLink.startsWith('https://'))) {
+      window.open(directLink, '_blank');
       return;
     }
 
-    // Usamos la URL de la tienda desde las variables de entorno, o un fallback
-    const storeUrl = process.env.NEXT_PUBLIC_LS_STORE_URL || 'https://tu-tienda.lemonsqueezy.com';
-    const checkoutUrl = `${storeUrl}/checkout/buy/${producto.external_product_id}?checkout[custom][product_id]=${producto.id}`;
-    
-    window.location.href = checkoutUrl;
+    // Prioridad 2: Si hay un ID de variante de LemonSqueezy
+    if (externalId) {
+      const storeUrl = process.env.NEXT_PUBLIC_LS_STORE_URL || 'https://tu-tienda.lemonsqueezy.com';
+      const checkoutUrl = `${storeUrl}/checkout/buy/${externalId}?checkout[custom][product_id]=${producto.id}`;
+      window.location.href = checkoutUrl;
+      return;
+    }
+
+    setCheckoutError('Producto sin enlace de pago configurado.');
+    setTimeout(() => setCheckoutError(''), 4000);
   };
+
+  const freeHref = (producto as any).link_free && ((producto as any).link_free.startsWith('http://') || (producto as any).link_free.startsWith('https://'))
+    ? (producto as any).link_free
+    : `/descargar/${producto.id}`;
+
+  const hasFree = (producto as any).has_free_version || Boolean((producto as any).link_free);
 
   return (
     <div className="bg-[#0d0d0d] border border-gray-800 hover:border-neon-gold transition-all duration-300 hover:-translate-y-1 group overflow-hidden rounded-xl flex flex-col">
@@ -115,28 +132,37 @@ export default function ProductCard({ producto }: ProductCardProps) {
         )}
 
         {/* Buttons */}
-        <div className="flex gap-3 mt-auto">
-          {/* Free Download Button */}
-          {/* @ts-ignore */}
-          {producto.has_free_version && (
-            <Link
-              href={`/descargar/${producto.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="flex-1 px-4 py-3 border-2 border-green-500 text-green-500 text-center font-bold text-sm uppercase hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2 rounded-lg"
-            >
-              <Download className="w-4 h-4" />
-              Gratis
-            </Link>
+        <div className="flex gap-3 mt-auto flex-col">
+          {/* Error Message */}
+          {checkoutError && (
+            <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+              <AlertCircle className="w-3 h-3 flex-shrink-0" />
+              {checkoutError}
+            </div>
           )}
+          <div className="flex gap-3">
+            {/* Free Download Button */}
+            {hasFree && (
+              <Link
+                href={freeHref}
+                target={freeHref.startsWith('http') ? '_blank' : '_self'}
+                onClick={(e) => e.stopPropagation()}
+                className="flex-1 px-4 py-3 border-2 border-green-500 text-green-500 text-center font-bold text-sm uppercase hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2 rounded-lg"
+              >
+                <Download className="w-4 h-4" />
+                Gratis
+              </Link>
+            )}
 
-          {/* Purchase Button */}
-          <button
-            onClick={handleCheckout}
-            className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm uppercase hover:shadow-lg hover:shadow-neon-gold/25 transition-all flex items-center justify-center gap-2 rounded-lg"
-          >
-            <CreditCard className="w-4 h-4" />
-            ${precioFormateado}
-          </button>
+            {/* Purchase Button */}
+            <button
+              onClick={handleCheckout}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm uppercase hover:shadow-lg hover:shadow-neon-gold/25 transition-all flex items-center justify-center gap-2 rounded-lg"
+            >
+              <CreditCard className="w-4 h-4" />
+              ${precioFormateado}
+            </button>
+          </div>
         </div>
       </div>
     </div>
