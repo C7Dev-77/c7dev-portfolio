@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase/client';
 
 // Tipos iguales a los de SettingsPage
 interface SkillItem {
@@ -9,7 +10,7 @@ interface SkillItem {
     color: string;
 }
 
-interface SiteConfig {
+export interface SiteConfig {
     theme: {
         primaryColor: string;
         secondaryColor: string;
@@ -32,6 +33,10 @@ interface SiteConfig {
     stack: {
         skills: SkillItem[];
         badges: string[];
+    };
+    donations: {
+        nuKey: string;
+        qrCodeUrl: string;
     };
     language: string;
     accessibility: {
@@ -77,6 +82,10 @@ const DEFAULT_CONFIG: SiteConfig = {
         ],
         badges: ['React', 'Next.js', 'Node.js', 'Tailwind', 'Git', 'GitHub', 'Firebase', 'Supabase', 'MySQL', 'PostgreSQL', 'Figma', 'SEO', 'Vercel']
     },
+    donations: {
+        nuKey: '@UDS891',
+        qrCodeUrl: '/donaciones-qr.png'
+    },
     language: 'es',
     accessibility: {
         highContrast: false,
@@ -93,7 +102,7 @@ const DEFAULT_CONFIG: SiteConfig = {
 
 interface ConfigContextType {
     config: SiteConfig;
-    updateConfig: (newConfig: SiteConfig) => void;
+    updateConfig: (newConfig: SiteConfig) => Promise<boolean>;
     resetConfig: () => void;
 }
 
@@ -104,20 +113,45 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // 1. Cargar configuración inicial
-        const savedConfig = localStorage.getItem('siteConfig');
-        if (savedConfig) {
-            try {
-                const parsed = JSON.parse(savedConfig);
-                // Fusionar con default para asegurar que existan todos los campos si hubo updates
-                setConfig((prev) => ({ ...prev, ...parsed }));
-            } catch (e) {
-                console.error("Error parsing siteConfig", e);
+        const loadInitialConfig = async () => {
+            // 1. Intentar cargar desde localStorage rápido
+            const savedConfig = localStorage.getItem('siteConfig');
+            if (savedConfig) {
+                try {
+                    const parsed = JSON.parse(savedConfig);
+                    setConfig((prev) => ({
+                        ...DEFAULT_CONFIG,
+                        ...parsed,
+                        donations: { ...DEFAULT_CONFIG.donations, ...(parsed.donations || {}) }
+                    }));
+                } catch (e) {
+                    console.error("Error parsing localStorage siteConfig", e);
+                }
             }
-        }
-        setMounted(true);
 
-        // 2. Escuchar cambios en localStorage (para sincronizar pestañas)
+            // 2. Cargar desde Supabase vía API
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data?.config) {
+                    const mergedConfig = {
+                        ...DEFAULT_CONFIG,
+                        ...data.config,
+                        donations: { ...DEFAULT_CONFIG.donations, ...(data.config.donations || {}) }
+                    };
+                    setConfig(mergedConfig);
+                    localStorage.setItem('siteConfig', JSON.stringify(mergedConfig));
+                }
+            } catch (err) {
+                console.error("Error fetching settings from Supabase API", err);
+            } finally {
+                setMounted(true);
+            }
+        };
+
+        loadInitialConfig();
+
+        // Escuchar cambios en localStorage (sincronizar pestañas)
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === 'siteConfig' && e.newValue) {
                 setConfig(JSON.parse(e.newValue));
@@ -128,12 +162,36 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    const updateConfig = (newConfig: SiteConfig) => {
+    const updateConfig = async (newConfig: SiteConfig): Promise<boolean> => {
+        // Actualizar estado local e instantáneamente en localStorage
         setConfig(newConfig);
         localStorage.setItem('siteConfig', JSON.stringify(newConfig));
-
-        // Disparar evento personalizado para actualizar componentes que no usen el contexto directamente
         window.dispatchEvent(new Event('siteConfigUpdated'));
+
+        // Intentar guardar en Supabase DB con sesión autenticada
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token || '';
+
+            const res = await fetch('/api/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ config: newConfig })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                console.error("Failed to persist settings to Supabase DB:", errData);
+                return false;
+            }
+            return true;
+        } catch (err) {
+            console.error("Error sending POST /api/settings:", err);
+            return false;
+        }
     };
 
     const resetConfig = () => {
@@ -151,8 +209,6 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         root.style.setProperty('--secondary-color', config.theme.secondaryColor);
         root.style.setProperty('--accent-color', config.theme.accentColor);
 
-        // Manejar modo oscuro (clase en html)
-        // Nota: Tailwind usa 'dark', pero aquí estamos forzando colores
         if (config.theme.darkMode) {
             root.classList.add('dark');
         } else {
@@ -175,3 +231,4 @@ export function useConfig() {
     }
     return context;
 }
+

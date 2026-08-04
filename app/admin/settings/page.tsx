@@ -14,7 +14,8 @@ import {
     User,
     Code,
     Plus,
-    Trash2
+    Trash2,
+    Heart
 } from 'lucide-react';
 import { useState } from 'react';
 import { useConfig } from '@/context/ConfigContext';
@@ -24,16 +25,20 @@ export default function SettingsPage() {
     const { config, updateConfig, resetConfig } = useConfig();
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>('theme');
 
-    const handleSave = () => {
+    const handleSave = async () => {
         setSaving(true);
-        setTimeout(() => {
-            updateConfig(config);
-            setSaving(false);
+        setSaveError(null);
+        const success = await updateConfig(config);
+        setSaving(false);
+        if (success) {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
-        }, 800);
+        } else {
+            setSaveError('Error al guardar en Supabase. Verifica tu sesión de admin.');
+        }
     };
 
     const handleReset = () => {
@@ -44,7 +49,7 @@ export default function SettingsPage() {
 
     // Helper para actualizar config profundamente
     const updateSettings = (
-        section: 'theme' | 'texts' | 'bio' | 'stack' | 'accessibility' | 'performance' | 'language' | 'devMode',
+        section: 'theme' | 'texts' | 'bio' | 'stack' | 'accessibility' | 'performance' | 'language' | 'devMode' | 'donations',
         key: string,
         value: any
     ) => {
@@ -62,6 +67,7 @@ export default function SettingsPage() {
         { id: 'perfil', label: 'Perfil', icon: User },
         { id: 'stack', label: 'Stack', icon: Code },
         { id: 'texts', label: 'Textos', icon: Type },
+        { id: 'donations', label: 'Donaciones', icon: Heart },
         { id: 'language', label: 'Idioma', icon: Languages },
         { id: 'accessibility', label: 'Accesibilidad', icon: Accessibility },
         { id: 'performance', label: 'Rendimiento', icon: Gauge },
@@ -392,6 +398,43 @@ export default function SettingsPage() {
                                     placeholder="Código limpio y mantenible"
                                 />
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ===== DONACIONES ===== */}
+                {activeTab === 'donations' && (
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white mb-4">Configuración de Donaciones</h2>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Llave Nu / Nequi / Bre-B</label>
+                                <input
+                                    type="text"
+                                    value={config.donations?.nuKey || ''}
+                                    onChange={(e) => updateSettings('donations', 'nuKey', e.target.value)}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none font-mono"
+                                    placeholder="@UDS891"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Ejemplo: @UDS891 o tu número de Nequi/Bre-B</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Ruta o URL de Imagen QR de Donaciones</label>
+                                <input
+                                    type="text"
+                                    value={config.donations?.qrCodeUrl || ''}
+                                    onChange={(e) => updateSettings('donations', 'qrCodeUrl', e.target.value)}
+                                    className="w-full px-4 py-3 bg-black border border-gray-700 rounded-xl text-white focus:border-neon-gold focus:outline-none"
+                                    placeholder="/donaciones-qr.png"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Puedes usar /donaciones-qr.png o una URL pública de Supabase Storage/Image</p>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Esta información se mostrará automáticamente en el pie de la tienda y en la sección de donaciones.
                         </div>
                     </div>
                 )}

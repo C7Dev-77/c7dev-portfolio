@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { Copy, Check, Heart, QrCode } from 'lucide-react';
-
-const BREB_KEY = 'cristian.dev'; // ← Reemplaza con tu llave Bre-B/Nu real
+import { useConfig } from '@/context/ConfigContext';
 
 export default function DonationSection() {
+  const { config } = useConfig();
   const [copied, setCopied] = useState(false);
 
+  const nuKey = config.donations?.nuKey || '@UDS891';
+  const qrCodeUrl = config.donations?.qrCodeUrl || '/donaciones-qr.png';
+
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(BREB_KEY);
+    await navigator.clipboard.writeText(nuKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -39,15 +42,15 @@ export default function DonationSection() {
           {/* Sube tu QR a /public/donaciones-qr.png */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/donaciones-qr.png"
-            alt="QR Bre-B / Nequi de CristianDev"
+            src={qrCodeUrl}
+            alt="QR de Donaciones CristianDev"
             className="w-full h-full object-contain"
             onError={(e) => {
-              // Placeholder si aún no has subido el QR
+              // Placeholder si aún no se ha cargado el QR
               (e.currentTarget as HTMLImageElement).style.display = 'none';
               const parent = (e.currentTarget as HTMLImageElement).parentElement;
               if (parent) {
-                parent.innerHTML = `<div class="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="text-[10px] text-center px-2">Sube<br/>donaciones-qr.png</span></div>`;
+                parent.innerHTML = `<div class="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="text-[10px] text-center px-2">Configurar<br/>QR de Donación</span></div>`;
               }
             }}
           />
@@ -55,8 +58,8 @@ export default function DonationSection() {
 
         {/* Info */}
         <div className="flex-1 text-center md:text-left">
-          <p className="text-gray-400 text-sm mb-1 uppercase tracking-widest text-xs">Llave Bre-B / Nequi</p>
-          <p className="text-white font-mono text-lg font-bold mb-4">{BREB_KEY}</p>
+          <p className="text-gray-400 text-sm mb-1 uppercase tracking-widest text-xs">Llave Nu / Nequi / Bre-B</p>
+          <p className="text-white font-mono text-lg font-bold mb-4">{nuKey}</p>
 
           <button
             onClick={handleCopy}
