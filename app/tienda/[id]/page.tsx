@@ -42,42 +42,79 @@ export const dynamic = 'force-dynamic';
 
 // Generar metadata dinámica para SEO
 export async function generateMetadata({ params }: { params: { id: string } }) {
-    const { data: producto } = await (supabase.from('productos') as any)
+    const { data: raw } = await (supabase.from('products_public' as any) as any)
         .select('*')
         .eq('id', params.id)
         .single();
 
-    if (!producto) {
+    if (!raw) {
         return { title: 'Producto no encontrado - C7Dev' };
     }
 
+    const title = raw.title || raw.nombre || 'Producto';
+    const description = raw.description || raw.descripcion || '';
+    const imageUrl = raw.image_url || raw.imagen_url || '';
+
     return {
-        title: `${producto.nombre} - C7Dev Digital Codes`,
-        description: producto.descripcion,
+        title: `${title} - C7Dev Digital Codes`,
+        description,
         openGraph: {
-            title: producto.nombre,
-            description: producto.descripcion,
-            images: [producto.imagen_url],
+            title,
+            description,
+            images: [imageUrl],
         },
     };
 }
 
 export default async function ProductoDetallePage({ params }: { params: { id: string } }) {
-    const { data: producto, error } = await (supabase.from('productos') as any)
+    let { data: raw, error } = await (supabase.from('products_public' as any) as any)
         .select('*')
         .eq('id', params.id)
         .single();
 
-    if (error || !producto) {
+    // Fallback a la tabla legacy si no existe en products_public
+    if (error || !raw) {
+        const { data: legacy } = await (supabase.from('productos') as any)
+            .select('*')
+            .eq('id', params.id)
+            .single();
+        raw = legacy;
+    }
+
+    if (!raw) {
         notFound();
     }
 
+    // Normalizar objeto producto
+    const producto = {
+        id: raw.id,
+        nombre: raw.title || raw.nombre || 'Sin nombre',
+        descripcion: raw.description || raw.descripcion || 'Sin descripción',
+        precio: typeof raw.price_cents === 'number' ? raw.price_cents / 100 : (raw.precio || 0),
+        imagen_url: raw.image_url || raw.imagen_url || '',
+        link_free: raw.has_free_version ? `/descargar/${raw.id}` : (raw.link_free || ''),
+        link_paid: raw.external_product_id || raw.link_paid || '',
+        video_url: raw.video_url || undefined,
+        capturas: raw.capturas || [],
+        tags: raw.tags || [],
+        categoria: raw.category || raw.categoria || 'Código',
+        destacado: raw.is_featured || raw.destacado || false,
+        created_at: raw.created_at || new Date().toISOString()
+    };
+
     // Obtener productos relacionados (misma categoría)
-    const { data: relacionados } = await (supabase.from('productos') as any)
-        .select('id, nombre, imagen_url, precio, tags')
+    const { data: relRaw } = await (supabase.from('products_public' as any) as any)
+        .select('*')
         .neq('id', params.id)
-        .eq('categoria', producto.categoria || 'Código')
         .limit(3);
+
+    const relacionados = (relRaw || []).map((r: any) => ({
+        id: r.id,
+        nombre: r.title || r.nombre,
+        imagen_url: r.image_url || r.imagen_url,
+        precio: typeof r.price_cents === 'number' ? r.price_cents / 100 : r.precio,
+        tags: r.tags || []
+    }));
 
     const allImages = [producto.imagen_url, ...(producto.capturas || [])];
     const fechaFormateada = new Date(producto.created_at).toLocaleDateString('es-ES', {
