@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Producto } from '@/types/database';
+import { supabase } from '@/lib/supabase/client';
+import { MonetizationProduct } from '@/types';
 import { Search, Filter, ShoppingBag, Loader2, AlertCircle, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import GlitchText from '@/components/GlitchText';
+import DonationSection from '@/components/DonationSection';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function TiendaPage() {
-  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productos, setProductos] = useState<MonetizationProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,7 +32,7 @@ export default function TiendaPage() {
 
     try {
       const { data, error: fetchError } = await supabase
-        .from('productos')
+        .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -40,7 +41,7 @@ export default function TiendaPage() {
         setError('Error al conectar con la base de datos');
         setProductos([]);
       } else {
-        setProductos(data as Producto[] || []);
+        setProductos(data as MonetizationProduct[] || []);
       }
     } catch (err) {
       console.error('Error:', err);
@@ -53,8 +54,9 @@ export default function TiendaPage() {
 
   // Filtrar por búsqueda
   const filteredProductos = productos.filter(p =>
-    p.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.descripcion.toLowerCase().includes(searchQuery.toLowerCase())
+    (p.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    // @ts-ignore
+    (p.description || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Paginación
@@ -225,6 +227,11 @@ export default function TiendaPage() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Sección de donaciones al final */}
+      <div className="border-t border-gray-800/50 mt-16">
+        <DonationSection />
       </div>
     </main>
   );
