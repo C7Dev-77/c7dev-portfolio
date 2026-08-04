@@ -101,19 +101,15 @@ export default function ProductCard({ producto }: ProductCardProps) {
         </p>
 
         {/* Tags */}
-        {/* @ts-ignore */}
-        {producto.tags && producto.tags.length > 0 && (
+        {(producto as any).tags && (producto as any).tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {/* @ts-ignore */}
-            {producto.tags.slice(0, 3).map((tag: string, idx: number) => (
+            {(producto as any).tags.slice(0, 3).map((tag: string, idx: number) => (
               <span key={idx} className="text-[9px] bg-white/5 px-2 py-0.5 rounded text-gray-400">
                 {tag}
               </span>
             ))}
-            {/* @ts-ignore */}
-            {producto.tags.length > 3 && (
-              {/* @ts-ignore */}
-              <span className="text-[9px] text-gray-600">+{producto.tags.length - 3}</span>
+            {(producto as any).tags.length > 3 && (
+              <span className="text-[9px] text-gray-600">+{(producto as any).tags.length - 3}</span>
             )}
           </div>
         )}
