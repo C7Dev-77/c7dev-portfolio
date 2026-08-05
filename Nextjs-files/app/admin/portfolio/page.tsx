@@ -105,6 +105,8 @@ export default function PortfolioManager() {
         if (!error) {
             fetchProjects();
             await revalidatePortfolio();
+        } else {
+            alert('Error al eliminar proyecto de Supabase: ' + error.message);
         }
     };
 
@@ -141,6 +143,8 @@ export default function PortfolioManager() {
         if (!error) {
             fetchProjects();
             await revalidatePortfolio();
+        } else {
+            alert('Error al cambiar estado activo: ' + error.message);
         }
     };
 
@@ -152,6 +156,8 @@ export default function PortfolioManager() {
         if (!error) {
             fetchProjects();
             await revalidatePortfolio();
+        } else {
+            alert('Error al destacar proyecto: ' + error.message);
         }
     };
 
