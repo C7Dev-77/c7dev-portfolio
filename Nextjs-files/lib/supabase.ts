@@ -9,8 +9,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// Cliente para uso en cliente (browser)
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Cliente principal — desactiva el caché de fetch de Next.js
+// para que las páginas públicas siempre muestren datos frescos de Supabase
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  global: {
+    fetch: (url, options = {}) => {
+      return fetch(url, { ...options, cache: 'no-store' });
+    },
+  },
+});
 
 // Cliente para uso en servidor (con service role key para operaciones admin)
 export const createServerClient = () => {

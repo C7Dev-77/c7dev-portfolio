@@ -36,6 +36,7 @@ interface Proyecto {
 }
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Generar metadata dinámica para SEO
 export async function generateMetadata({ params }: { params: { id: string } }) {
