@@ -82,6 +82,19 @@ export default function PortfolioManager() {
         setFetching(false);
     };
 
+    // Invalida el caché de Vercel para que la web pública refleje los cambios
+    const revalidatePortfolio = async () => {
+        try {
+            await fetch('/api/revalidate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paths: ['/portafolio', '/'] }),
+            });
+        } catch (_) {
+            // silencioso: no bloquea la operación admin
+        }
+    };
+
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este proyecto? Esta acción es irreversible.')) return;
 
@@ -89,7 +102,10 @@ export default function PortfolioManager() {
             .delete()
             .eq('id', id);
 
-        if (!error) fetchProjects();
+        if (!error) {
+            fetchProjects();
+            await revalidatePortfolio();
+        }
     };
 
     const handleEdit = (project: any) => {
@@ -122,7 +138,10 @@ export default function PortfolioManager() {
             .update({ activo: !currentActive })
             .eq('id', id);
 
-        if (!error) fetchProjects();
+        if (!error) {
+            fetchProjects();
+            await revalidatePortfolio();
+        }
     };
 
     const handleToggleDestacado = async (id: string, currentDestacado: boolean) => {
@@ -130,7 +149,10 @@ export default function PortfolioManager() {
             .update({ destacado: !currentDestacado })
             .eq('id', id);
 
-        if (!error) fetchProjects();
+        if (!error) {
+            fetchProjects();
+            await revalidatePortfolio();
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +192,7 @@ export default function PortfolioManager() {
             setFormData(emptyForm);
             setEditingId(null);
             fetchProjects();
+            await revalidatePortfolio();
             setTimeout(() => {
                 setSuccess(false);
                 setShowForm(false);
