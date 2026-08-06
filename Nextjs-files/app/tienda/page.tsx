@@ -237,7 +237,10 @@ export default function TiendaPage() {
               onClick={() => setSearchQuery('')}
               className="mt-4 px-4 py-2 bg-white/5 text-gray-400 rounded-lg text-sm hover:bg-white/10 transition-colors"
             >
-        <DonationSection />
+              {t.clearSearch}
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );
