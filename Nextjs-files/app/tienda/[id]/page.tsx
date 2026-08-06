@@ -301,7 +301,7 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                 <Code2 className="w-4 h-4" />
                                 Sobre este Código
                             </h3>
-                            <p className="text-gray-300 leading-relaxed text-lg">
+                            <p className="text-gray-300 leading-relaxed text-sm whitespace-pre-line">
                                 {producto.descripcion}
                             </p>
                         </div>

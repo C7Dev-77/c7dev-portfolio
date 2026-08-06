@@ -228,7 +228,7 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
                                 <Code2 className="w-4 h-4" />
                                 Sobre el Proyecto
                             </h3>
-                            <p className="text-gray-300 leading-relaxed text-lg">
+                            <p className="text-gray-300 leading-relaxed text-sm whitespace-pre-line">
                                 {proyecto.descripcion}
                             </p>
                         </div>

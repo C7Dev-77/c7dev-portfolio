@@ -1,118 +1,145 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Download, CreditCard, Package, Play, Star, AlertCircle } from 'lucide-react';
+import { Package, Play, Star, Eye, Code } from 'lucide-react';
 import { MonetizationProduct } from '@/types';
+import { useConfig } from '@/context/ConfigContext';
+import { translations } from '@/lib/i18n';
 
 interface ProductCardProps {
   producto: MonetizationProduct;
 }
 
 export default function ProductCard({ producto }: ProductCardProps) {
+  const { config } = useConfig();
+  const lang = (config?.language as 'es' | 'en') || 'es';
+  const t = translations[lang] || translations.es;
+
   const [imageError, setImageError] = useState(false);
-  const [checkoutError, setCheckoutError] = useState('');
-  
-  // Precio viene en centavos, lo convertimos a dólares/pesos
-  const precioFormateado = (producto.price_cents / 100).toFixed(2);
+  const [totalViews, setTotalViews] = useState<number>(100);
 
-  const handleCheckout = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCheckoutError('');
+  useEffect(() => {
+    const updateViews = () => {
+      try {
+        const allStats = localStorage.getItem('projectStats');
+        if (allStats) {
+          const parsed = JSON.parse(allStats);
+          if (parsed[producto.id] && typeof parsed[producto.id].views === 'number') {
+            setTotalViews(100 + parsed[producto.id].views);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      setTotalViews(100);
+    };
 
-    const directLink = (producto as any).link_paid;
-    const externalId = (producto as any).external_product_id;
+    updateViews();
 
-    // Prioridad 1: Si hay una URL directa de pago (ej. LemonSqueezy checkout URL)
-    if (directLink && (directLink.startsWith('http://') || directLink.startsWith('https://'))) {
-      window.open(directLink, '_blank');
-      return;
+    window.addEventListener('statsUpdated', updateViews);
+    window.addEventListener('storage', updateViews);
+
+    return () => {
+      window.removeEventListener('statsUpdated', updateViews);
+      window.removeEventListener('storage', updateViews);
+    };
+  }, [producto.id]);
+
+  const handleIncrementView = () => {
+    try {
+      const allStats = localStorage.getItem('projectStats');
+      let projectStats: any = {};
+      if (allStats) {
+        projectStats = JSON.parse(allStats);
+      }
+      if (!projectStats[producto.id]) {
+        const randomRating = (Math.random() * (5.0 - 3.9) + 3.9).toFixed(1);
+        projectStats[producto.id] = {
+          views: 0,
+          downloads: 0,
+          rating: parseFloat(randomRating)
+        };
+      }
+      projectStats[producto.id].views += 1;
+      localStorage.setItem('projectStats', JSON.stringify(projectStats));
+      window.dispatchEvent(new Event('statsUpdated'));
+    } catch (e) {
+      console.error(e);
     }
-
-    // Prioridad 2: Si hay un ID de variante de LemonSqueezy
-    if (externalId) {
-      const storeUrl = process.env.NEXT_PUBLIC_LS_STORE_URL || 'https://tu-tienda.lemonsqueezy.com';
-      const checkoutUrl = `${storeUrl}/checkout/buy/${externalId}?checkout[custom][product_id]=${producto.id}`;
-      window.location.href = checkoutUrl;
-      return;
-    }
-
-    setCheckoutError('Producto sin enlace de pago configurado.');
-    setTimeout(() => setCheckoutError(''), 4000);
   };
 
-  const freeHref = (producto as any).link_free && ((producto as any).link_free.startsWith('http://') || (producto as any).link_free.startsWith('https://'))
-    ? (producto as any).link_free
-    : `/descargar/${producto.id}`;
-
-  const hasFree = (producto as any).has_free_version || Boolean((producto as any).link_free);
+  const formattedVisitas = totalViews >= 1000 
+    ? `${(totalViews / 1000).toFixed(1)}k` 
+    : `${totalViews}`;
 
   return (
-    <div className="bg-[#0d0d0d] border border-gray-800 hover:border-neon-gold transition-all duration-300 hover:-translate-y-1 group overflow-hidden rounded-xl flex flex-col">
+    <div className="bg-[#09090b]/90 border border-gray-800/80 hover:border-neon-gold/60 transition-all duration-300 hover:-translate-y-1.5 group rounded-2xl flex flex-col backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)]">
       {/* Image Container - Clickeable */}
-      <Link href={`/tienda/${producto.id}`} className="aspect-video overflow-hidden relative bg-gray-900 block">
+      <Link 
+        href={`/tienda/${producto.id}`} 
+        onClick={handleIncrementView}
+        className="aspect-video overflow-hidden relative bg-[#050507] block rounded-t-2xl"
+      >
         {!imageError && producto.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={producto.image_url}
             alt={producto.title || 'Producto'}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+            className="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <Package className="w-12 h-12 text-gray-600" />
+          <div className="w-full h-full flex items-center justify-center bg-gray-900/60">
+            <Package className="w-10 h-10 text-gray-700" />
           </div>
         )}
 
-        {/* Badge de Video */}
+        {/* Overlay de gradiente inferior */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-black/30 pointer-events-none" />
+
+        {/* Badge CÓDIGO en esquina */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+          <Code className="w-3 h-3 text-neon-gold" />
+          <span className="text-[9px] text-gray-300 font-bold uppercase tracking-widest">
+            {(producto as any).category || 'Código'}
+          </span>
+        </div>
+
+        {/* Badge de Video Demo */}
         {producto.video_url && (
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
+          <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-neon-gold/30">
             <Play className="w-3 h-3 text-neon-gold fill-neon-gold" />
-            <span className="text-[10px] text-white uppercase tracking-wider">Demo</span>
+            <span className="text-[9px] text-white uppercase tracking-wider font-semibold">{t.demo}</span>
           </div>
         )}
 
         {/* Badge Destacado */}
-        {/* @ts-ignore - is_featured se añade en la migración SQL */}
+        {/* @ts-ignore */}
         {producto.is_featured && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 bg-neon-gold/90 text-black px-2 py-1 rounded-full">
+          <div className="absolute top-3 right-3 flex items-center gap-1 bg-neon-gold text-black px-2.5 py-1 rounded-full font-bold shadow-[0_0_12px_rgba(255,215,0,0.5)]">
             <Star className="w-3 h-3 fill-current" />
           </div>
         )}
 
-        {/* Price Badge */}
-        <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm rounded-lg shadow-lg">
-          ${precioFormateado}
-        </div>
-
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white text-sm font-medium">
-            Ver Detalles
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+          <span className="px-4 py-2 bg-neon-gold/10 border border-neon-gold/50 rounded-xl text-neon-gold text-xs font-bold uppercase tracking-wider drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">
+            {t.details}
           </span>
         </div>
       </Link>
 
       {/* Content */}
       <div className="p-5 flex-1 flex flex-col">
-        {/* Categoría */}
-        {/* @ts-ignore */}
-        {producto.category && (
-          <span className="text-[10px] text-neon-platinum uppercase tracking-widest mb-2">
-            {/* @ts-ignore */}
-            {producto.category}
-          </span>
-        )}
-
-        <Link href={`/tienda/${producto.id}`}>
-          <h3 className="font-outfit text-lg text-white mb-2 group-hover:text-neon-gold transition-colors">
+        <Link href={`/tienda/${producto.id}`} onClick={handleIncrementView}>
+          <h3 className="font-outfit text-base font-bold text-white mb-2 group-hover:text-neon-gold transition-colors line-clamp-1">
             {producto.title || 'Sin nombre'}
           </h3>
         </Link>
 
-        <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">
+        <p className="text-gray-400 text-xs mb-4 line-clamp-2 flex-1 leading-relaxed">
           {/* @ts-ignore */}
           {producto.description || 'Sin descripción'}
         </p>
@@ -121,48 +148,32 @@ export default function ProductCard({ producto }: ProductCardProps) {
         {(producto as any).tags && (producto as any).tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
             {(producto as any).tags.slice(0, 3).map((tag: string, idx: number) => (
-              <span key={idx} className="text-[9px] bg-white/5 px-2 py-0.5 rounded text-gray-400">
+              <span key={idx} className="text-[9px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-md text-gray-400 font-mono">
                 {tag}
               </span>
             ))}
             {(producto as any).tags.length > 3 && (
-              <span className="text-[9px] text-gray-600">+{(producto as any).tags.length - 3}</span>
+              <span className="text-[9px] text-gray-600 font-mono">+{(producto as any).tags.length - 3}</span>
             )}
           </div>
         )}
 
-        {/* Buttons */}
-        <div className="flex gap-3 mt-auto flex-col">
-          {/* Error Message */}
-          {checkoutError && (
-            <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
-              <AlertCircle className="w-3 h-3 flex-shrink-0" />
-              {checkoutError}
-            </div>
-          )}
-          <div className="flex gap-3">
-            {/* Free Download Button */}
-            {hasFree && (
-              <Link
-                href={freeHref}
-                target={freeHref.startsWith('http') ? '_blank' : '_self'}
-                onClick={(e) => e.stopPropagation()}
-                className="flex-1 px-4 py-3 border-2 border-green-500 text-green-500 text-center font-bold text-sm uppercase hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2 rounded-lg"
-              >
-                <Download className="w-4 h-4" />
-                Gratis
-              </Link>
-            )}
-
-            {/* Purchase Button */}
-            <button
-              onClick={handleCheckout}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm uppercase hover:shadow-lg hover:shadow-neon-gold/25 transition-all flex items-center justify-center gap-2 rounded-lg"
-            >
-              <CreditCard className="w-4 h-4" />
-              ${precioFormateado}
-            </button>
+        {/* Bottom Bar: Visitas & Ver más */}
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-800/80">
+          {/* Contador de Visitas */}
+          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
+            <Eye className="w-3.5 h-3.5 text-neon-gold" />
+            <span>{formattedVisitas}</span>
           </div>
+
+          {/* Botón Ver más compacto */}
+          <Link
+            href={`/tienda/${producto.id}`}
+            onClick={handleIncrementView}
+            className="px-4 py-1.5 bg-gradient-to-r from-neon-gold to-amber-500 hover:from-amber-400 hover:to-neon-gold text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl shadow-[0_0_12px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:scale-105"
+          >
+            {t.viewMore}
+          </Link>
         </div>
       </div>
     </div>

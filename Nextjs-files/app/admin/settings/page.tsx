@@ -2,15 +2,10 @@
 
 import {
     Palette,
-    Languages,
-    Accessibility,
-    Gauge,
-    PenTool,
     Type,
     Save,
     RotateCcw,
     CheckCircle2,
-    AlertCircle,
     User,
     Code,
     Plus,
@@ -49,7 +44,7 @@ export default function SettingsPage() {
 
     // Helper para actualizar config profundamente
     const updateSettings = (
-        section: 'theme' | 'texts' | 'bio' | 'stack' | 'accessibility' | 'performance' | 'language' | 'devMode' | 'donations',
+        section: 'theme' | 'texts' | 'bio' | 'stack' | 'donations',
         key: string,
         value: any
     ) => {
@@ -68,10 +63,6 @@ export default function SettingsPage() {
         { id: 'stack', label: 'Stack', icon: Code },
         { id: 'texts', label: 'Textos', icon: Type },
         { id: 'donations', label: 'Donaciones', icon: Heart },
-        { id: 'language', label: 'Idioma', icon: Languages },
-        { id: 'accessibility', label: 'Accesibilidad', icon: Accessibility },
-        { id: 'performance', label: 'Rendimiento', icon: Gauge },
-        { id: 'devMode', label: 'Modo Dev', icon: PenTool },
     ];
 
     return (
@@ -438,181 +429,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 )}
-
-                {/* ===== IDIOMA ===== */}
-                {activeTab === 'language' && (
-                    <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-4">Configuración de Idioma</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
-                                { code: 'es', label: 'Español', flag: '🇪🇸' },
-                                { code: 'en', label: 'English', flag: '🇬🇧' },
-                                { code: 'fr', label: 'Français', flag: '🇫🇷' },
-                                { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-                            ].map((lang) => (
-                                <button
-                                    key={lang.code}
-                                    onClick={() => updateConfig({ ...config, language: lang.code })}
-                                    className={`
-                    p-4 rounded-xl border-2 transition-all text-left
-                    ${config.language === lang.code
-                                            ? 'border-neon-gold bg-neon-gold/10'
-                                            : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                                        }
-                  `}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-3xl">{lang.flag}</span>
-                                        <div>
-                                            <p className="text-white font-medium">{lang.label}</p>
-                                            <p className="text-xs text-gray-500">{lang.code.toUpperCase()}</p>
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex gap-3">
-                            <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-blue-400 text-sm font-medium">Próximamente</p>
-                                <p className="text-blue-300/70 text-sm">La traducción automática se implementará en una actualización futura.</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ===== ACCESIBILIDAD ===== */}
-                {activeTab === 'accessibility' && (
-                    <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-4">Opciones de Accesibilidad</h2>
-
-                        <div className="space-y-4">
-                            {[
-                                { key: 'highContrast', label: 'Alto Contraste', desc: 'Mejora la visibilidad de elementos', value: config.accessibility.highContrast },
-                                { key: 'largeText', label: 'Texto Grande', desc: 'Aumenta el tamaño de fuente', value: config.accessibility.largeText },
-                                { key: 'reduceMotion', label: 'Reducir Movimiento', desc: 'Desactiva animaciones complejas', value: config.accessibility.reduceMotion },
-                            ].map((item) => (
-                                <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                    <div>
-                                        <p className="text-white font-medium">{item.label}</p>
-                                        <p className="text-sm text-gray-500">{item.desc}</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={item.value}
-                                            onChange={(e) => updateSettings('accessibility', item.key, e.target.checked)}
-                                            className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* ===== RENDIMIENTO ===== */}
-                {activeTab === 'performance' && (
-                    <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-4">Optimización de Rendimiento</h2>
-
-                        <div className="space-y-4">
-                            {[
-                                { key: 'lazyLoadImages', label: 'Lazy Load de Imágenes', desc: 'Carga imágenes cuando sean visibles', value: config.performance.lazyLoadImages },
-                                { key: 'cacheEnabled', label: 'Caché Activado', desc: 'Almacena recursos para carga rápida', value: config.performance.cacheEnabled },
-                            ].map((item) => (
-                                <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                    <div>
-                                        <p className="text-white font-medium">{item.label}</p>
-                                        <p className="text-sm text-gray-500">{item.desc}</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={item.value}
-                                            onChange={(e) => updateSettings('performance', item.key, e.target.checked)}
-                                            className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                                    </label>
-                                </div>
-                            ))}
-
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-3">
-                                    Nivel de Compresión: {config.performance.compressionLevel}%
-                                </label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={config.performance.compressionLevel}
-                                    onChange={(e) => updateSettings('performance', 'compressionLevel', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-neon-gold"
-                                />
-                                <div className="flex justify-between text-xs text-gray-600 mt-1">
-                                    <span>Sin compresión</span>
-                                    <span>Máxima compresión</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ===== MODO DEV ===== */}
-                {activeTab === 'devMode' && (
-                    <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-4">Modo Desarrollador</h2>
-
-                        <div className="flex items-center justify-between p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl">
-                            <div>
-                                <p className="text-white font-medium text-lg">Activar Modo Edición Visual</p>
-                                <p className="text-sm text-gray-400 mt-1">Edita tu página en tiempo real (similar a Wix)</p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={config.devMode}
-                                    onChange={(e) => updateConfig({ ...config, devMode: e.target.checked })}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-pink-500"></div>
-                            </label>
-                        </div>
-
-                        {config.devMode && (
-                            <div className="p-6 bg-green-500/10 border border-green-500/30 rounded-xl">
-                                <div className="flex items-start gap-3 mb-4">
-                                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-green-400 font-medium mb-1">¡Modo Dev Activado!</p>
-                                        <p className="text-green-300/70 text-sm">
-                                            Ahora puedes hacer clic en cualquier elemento de la página para editarlo directamente.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-2 text-sm text-green-200/70">
-                                    <p>• Haz clic en cualquier texto para editarlo</p>
-                                    <p>• Arrastra elementos para reordenarlos</p>
-                                    <p>• Doble clic en imágenes para cambiarlas</p>
-                                    <p>• Los cambios se guardan automáticamente</p>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl flex gap-3">
-                            <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-yellow-400 text-sm font-medium">Función Experimental</p>
-                                <p className="text-yellow-300/70 text-sm">El modo de edición visual está en desarrollo. Algunas funciones pueden no funcionar como se espera.</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
             </div>
         </div>
     );

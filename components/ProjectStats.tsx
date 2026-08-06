@@ -10,8 +10,8 @@ interface ProjectStatsProps {
 
 export default function ProjectStats({ projectId, type = 'portfolio', className }: ProjectStatsProps) {
     const [stats, setStats] = useState({
-        views: 77, // Base updated to 77
-        downloads: 23, // Base updated to 23
+        views: 0,
+        downloads: 12,
         rating: 4.5
     });
 
@@ -24,19 +24,18 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
                 projectStats = JSON.parse(allStats);
             }
 
-            // Si no existe este proyecto, inicializarlo
+            // Si no existe este proyecto, inicializarlo (vistas reales comienzan en 0)
             if (!projectStats[projectId]) {
-                // Generar rating aleatorio entre 3.9 y 5.0
                 const randomRating = (Math.random() * (5.0 - 3.9) + 3.9).toFixed(1);
 
                 projectStats[projectId] = {
-                    views: 77,
-                    downloads: 23,
+                    views: 0,
+                    downloads: Math.floor(Math.random() * 15) + 5,
                     rating: parseFloat(randomRating)
                 };
             }
 
-            // Incrementar vista
+            // Incrementar vista real
             projectStats[projectId].views += 1;
 
             // Guardar de vuelta
@@ -78,13 +77,15 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
         }
     }, [projectId, type]);
 
+    const displayViews = 100 + (stats.views || 0);
+
     // Renderizado según tipo
     if (type === 'portfolio') {
         // Portafolio: Solo Vistas y Rating
         return (
             <div className={`grid grid-cols-2 gap-4 ${className}`}>
                 <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                    <div className="text-2xl font-bold text-neon-gold">{stats.views}+</div>
+                    <div className="text-2xl font-bold text-neon-gold">{displayViews}</div>
                     <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
                 </div>
                 <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
@@ -99,7 +100,7 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
     return (
         <div className={`grid grid-cols-3 gap-4 ${className}`}>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                <div className="text-2xl font-bold text-neon-gold">{stats.views}+</div>
+                <div className="text-2xl font-bold text-neon-gold">{displayViews}</div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
             </div>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">

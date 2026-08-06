@@ -6,7 +6,9 @@ import { MonetizationProduct } from '@/types';
 import { Search, Filter, ShoppingBag, Loader2, AlertCircle, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import GlitchText from '@/components/GlitchText';
-import DonationSection from '@/components/DonationSection';
+import ParticleNetwork from '@/components/ParticleNetwork';
+import { useConfig } from '@/context/ConfigContext';
+import { translations } from '@/lib/i18n';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -16,6 +18,10 @@ export default function TiendaPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const { config } = useConfig();
+
+  const lang = (config?.language as 'es' | 'en') || 'es';
+  const t = translations[lang] || translations.es;
 
   useEffect(() => {
     fetchProductos();
@@ -70,43 +76,56 @@ export default function TiendaPage() {
   };
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4 cyber-grid">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen pt-24 pb-16 px-4 relative">
+      {/* Fondo de Red de Partículas / Constelaciones Animadas de toda la web */}
+      <ParticleNetwork />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="font-outfit text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
-            Digital <GlitchText text="CODES" className="text-neon-gold" />
+        <div className="text-center mb-6">
+          <h1 className="font-outfit text-4xl md:text-6xl font-black uppercase tracking-tighter">
+            <span className="text-white">{t.codesTitle} </span>
+            <span className="relative inline-block">
+              <span className="text-neon-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.7)] animate-pulse-gold">
+                <GlitchText text="CODES" className="text-neon-gold" />
+              </span>
+            </span>
           </h1>
-          <p className="text-gray-500 max-w-xl mx-auto font-sans text-sm">
-            Explora herramientas de alto rendimiento diseñadas para el ecosistema moderno.
-          </p>
         </div>
 
-        {/* Barra de Búsqueda */}
-        <div className="glass-panel p-4 mb-12 flex flex-col md:flex-row gap-4 items-center justify-between border-l-4 border-neon-gold">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        {/* Barra de Búsqueda Premium */}
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between mb-10">
+          {/* Input de búsqueda estilo Cyber Glass */}
+          <div className="relative w-full sm:w-80 md:w-96 group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neon-gold/70 group-focus-within:text-neon-gold transition-colors" />
             <input
               type="text"
-              placeholder="BUSCAR CÓDIGOS..."
+              placeholder={t.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-cyber-black/50 border border-gray-800 p-3 pl-10 text-xs text-white outline-none focus:border-neon-gold transition-all rounded-lg"
+              className="w-full bg-[#09090b]/90 border border-gray-800 hover:border-neon-gold/40 focus:border-neon-gold py-2.5 pl-10 pr-4 text-xs text-white placeholder-gray-600 outline-none transition-all duration-300 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] focus:shadow-[0_0_20px_rgba(255,215,0,0.15)] appearance-none"
             />
           </div>
-          <div className="flex gap-3 w-full md:w-auto items-center">
-            <span className="text-gray-500 text-xs">
-              {filteredProductos.length} código{filteredProductos.length !== 1 ? 's' : ''}
-              {totalPages > 1 && ` · Página ${currentPage}/${totalPages}`}
-            </span>
+
+          {/* Derecha: count + refresh */}
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="bg-[#09090b]/80 border border-gray-800/80 px-3.5 py-2 rounded-xl backdrop-blur-md">
+              <span className="text-gray-400 text-xs font-mono">
+                {filteredProductos.length} <span className="text-neon-gold">{filteredProductos.length === 1 ? t.codesCount : t.codesCountPlural}</span>
+                {totalPages > 1 && ` · pág ${currentPage}/${totalPages}`}
+              </span>
+            </div>
+
             <button
               onClick={fetchProductos}
-              className="flex items-center justify-center gap-2 bg-white/5 border border-gray-800 text-gray-400 px-4 py-2.5 text-xs font-medium uppercase tracking-wider hover:bg-white/10 hover:text-white transition-all rounded-lg"
+              className="flex items-center gap-2 bg-[#09090b]/80 border border-gray-800 hover:border-neon-gold/60 text-gray-400 hover:text-neon-gold px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer hover:shadow-[0_0_15px_rgba(255,215,0,0.15)]"
             >
-              <Filter className="w-3 h-3" /> Actualizar
+              <Filter className="w-3.5 h-3.5 text-neon-gold" />
+              <span>{t.updateBtn}</span>
             </button>
           </div>
         </div>
+
 
         {/* Estado de Carga */}
         {loading && (
@@ -115,7 +134,7 @@ export default function TiendaPage() {
               <div className="w-16 h-16 border-4 border-transparent border-t-neon-gold rounded-full animate-spin" />
               <ShoppingBag className="w-6 h-6 text-neon-gold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="mt-6 text-gray-500 text-sm uppercase tracking-widest animate-pulse">Cargando códigos...</p>
+            <p className="mt-6 text-gray-500 text-sm uppercase tracking-widest animate-pulse">{t.loadingCodes}</p>
           </div>
         )}
 
@@ -128,7 +147,7 @@ export default function TiendaPage() {
               onClick={fetchProductos}
               className="px-6 py-2 bg-red-500/20 text-red-500 border border-red-500/50 rounded-lg text-sm hover:bg-red-500/30 transition-colors"
             >
-              Reintentar
+              {t.updateBtn}
             </button>
           </div>
         )}
@@ -145,16 +164,14 @@ export default function TiendaPage() {
             {/* PAGINACIÓN */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-12">
-                {/* Anterior */}
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                   className="flex items-center gap-2 px-4 py-2 border border-gray-800 text-gray-400 rounded-lg hover:border-neon-gold hover:text-neon-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
                 >
-                  <ChevronLeft className="w-4 h-4" /> Anterior
+                  <ChevronLeft className="w-4 h-4" /> {t.prevPage}
                 </button>
 
-                {/* Números de página */}
                 <div className="flex gap-2">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                     const isNearCurrent = Math.abs(page - currentPage) <= 1 || page === 1 || page === totalPages;
@@ -180,21 +197,19 @@ export default function TiendaPage() {
                   })}
                 </div>
 
-                {/* Siguiente */}
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="flex items-center gap-2 px-4 py-2 border border-gray-800 text-gray-400 rounded-lg hover:border-neon-gold hover:text-neon-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
                 >
-                  Siguiente <ChevronRight className="w-4 h-4" />
+                  {t.nextPage} <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             )}
 
-            {/* Info de paginación */}
             {totalPages > 1 && (
-              <p className="text-center text-gray-700 text-xs mt-4">
-                Mostrando {startIdx + 1}–{Math.min(startIdx + ITEMS_PER_PAGE, filteredProductos.length)} de {filteredProductos.length} códigos
+              <p className="text-center text-gray-600 text-xs mt-4">
+                {t.pageInfo} {startIdx + 1}–{Math.min(startIdx + ITEMS_PER_PAGE, filteredProductos.length)} / {filteredProductos.length} {t.codesCountPlural}
               </p>
             )}
           </>
@@ -204,9 +219,9 @@ export default function TiendaPage() {
         {!loading && !error && productos.length === 0 && (
           <div className="text-center py-20 glass-panel">
             <Package className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-            <h3 className="text-xl text-gray-400 mb-2">No hay productos disponibles</h3>
+            <h3 className="text-xl text-gray-400 mb-2">{t.noProducts}</h3>
             <p className="text-gray-600 text-sm max-w-md mx-auto">
-              Los productos aparecerán aquí cuando se agreguen desde el panel de administración.
+              {t.noProductsDesc}
             </p>
           </div>
         )}
@@ -215,23 +230,18 @@ export default function TiendaPage() {
         {!loading && !error && productos.length > 0 && filteredProductos.length === 0 && (
           <div className="text-center py-20 glass-panel">
             <Search className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-            <h3 className="text-xl text-gray-400 mb-2">Sin resultados</h3>
+            <h3 className="text-xl text-gray-400 mb-2">{t.noResults}</h3>
             <p className="text-gray-600 text-sm">
-              No se encontraron productos que coincidan con &ldquo;{searchQuery}&rdquo;
+              {t.noResultsDesc} &ldquo;{searchQuery}&rdquo;
             </p>
             <button
               onClick={() => setSearchQuery('')}
               className="mt-4 px-4 py-2 bg-white/5 text-gray-400 rounded-lg text-sm hover:bg-white/10 transition-colors"
             >
-              Limpiar búsqueda
+              {t.clearSearch}
             </button>
           </div>
         )}
-      </div>
-
-      {/* Sección de donaciones al final */}
-      <div className="border-t border-gray-800/50 mt-16">
-        <DonationSection />
       </div>
     </main>
   );

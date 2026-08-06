@@ -32,13 +32,27 @@ export default async function PortfolioPage() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="mb-12 border-l-4 border-neon-platinum pl-6">
+        <div className="mb-12">
           <h1 className="font-outfit text-4xl md:text-5xl font-bold text-white mb-2 uppercase">
-            <GlitchText text="Portafolio" className="text-white" />
+            <span className="relative inline-block">
+              <span
+                className="text-transparent bg-clip-text"
+                style={{
+                  backgroundImage: 'linear-gradient(90deg, #ffffff 0%, #FFD700 35%, #ffffff 60%, #FFD700 85%, #ffffff 100%)',
+                  backgroundSize: '200% auto',
+                  animation: 'shimmer 3s linear infinite'
+                }}
+              >
+                Portafolio
+              </span>
+            </span>
           </h1>
-          <p className="text-gray-500 font-sans tracking-tighter">
-            Explorando las fronteras entre el diseño y el código puro.
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="h-px w-8 bg-neon-gold/60" />
+            <p className="text-gray-500 font-sans tracking-tighter text-sm">
+              Explorando las fronteras entre el diseño y el código puro.
+            </p>
+          </div>
         </div>
 
         {/* Grid de Proyectos con Filtros */}
