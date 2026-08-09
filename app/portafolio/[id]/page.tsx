@@ -38,8 +38,6 @@ interface Proyecto {
     created_at: string;
 }
 
-export const dynamic = 'force-dynamic';
-
 // Generar metadata dinámica para SEO
 export async function generateMetadata({ params }: { params: { id: string } }) {
     const { data: proyecto } = await (supabase.from('proyectos') as any)
