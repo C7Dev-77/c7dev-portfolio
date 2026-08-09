@@ -28,10 +28,15 @@ export const metadata: Metadata = {
   title: "C7Dev_ | Cristian Morales — Desarrollador Web & Ing. de Sistemas",
   description: "Portafolio profesional de Cristian Morales (C7Dev_). Desarrollador Web Full Stack, Ingeniero de Sistemas y creador de contenido en Colombia. Especializado en Next.js, React, Python y Java. Servicios de desarrollo web, animaciones y automatización.",
   keywords: [
+    "portafolio c7dev",
+    "portafolio c7dev_",
+    "c7dev portafolio",
+    "C7Dev",
+    "c7dev-portfolio",
     "desarrollador web Colombia",
     "programador freelance Colombia",
-    "C7Dev",
     "ingeniero de sistemas",
+    "free chateo",
     "Next.js developer",
     "React developer Colombia",
     "desarrollo web profesional",
@@ -80,7 +85,7 @@ export const metadata: Metadata = {
     creator: "@c7dev_",
   },
   verification: {
-    google: "",
+    google: "googlebeedeb2068387784",
   },
 };
 
