@@ -6,6 +6,7 @@ import PortfolioGrid from '@/components/PortfolioGrid';
 import { Folder, ChevronRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface Proyecto {
   id: string;
