@@ -38,6 +38,9 @@ export interface SiteConfig {
         nuKey: string;
         qrCodeUrl: string;
     };
+    services?: {
+        [key: string]: { title?: string; desc?: string };
+    };
     language: string;
     accessibility: {
         highContrast: boolean;
@@ -86,6 +89,7 @@ const DEFAULT_CONFIG: SiteConfig = {
         nuKey: '@UDS891',
         qrCodeUrl: '/donaciones-qr.png'
     },
+    services: {},
     language: 'es',
     accessibility: {
         highContrast: false,
@@ -200,7 +204,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         window.dispatchEvent(new Event('siteConfigUpdated'));
     };
 
-    // Aplicar variables CSS globales para el tema
+    // Aplicar variables CSS globales para el tema y modo oscuro/claro
     useEffect(() => {
         if (!mounted) return;
 
@@ -211,8 +215,14 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
 
         if (config.theme.darkMode) {
             root.classList.add('dark');
+            root.classList.remove('light');
+            document.body.style.backgroundColor = '#000000';
+            document.body.style.color = '#ffffff';
         } else {
             root.classList.remove('dark');
+            root.classList.add('light');
+            document.body.style.backgroundColor = '#f5f5f5';
+            document.body.style.color = '#111111';
         }
 
     }, [config.theme, mounted]);

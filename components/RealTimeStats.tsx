@@ -20,17 +20,14 @@ export default function RealTimeStats({ className }: StatsProps) {
                 // Contar proyectos del portafolio
                 const { count: proyectosCount } = await supabase
                     .from('proyectos')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('activo', true);
+                    .select('*', { count: 'exact', head: true });
 
-                // Contar productos de la tienda
-                const { count: productosCount } = await supabase
-                    .from('productos')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('activo', true);
+                // Contar productos de la tienda (products_public)
+                const { count: productosCount } = await (supabase.from('products_public' as any) as any)
+                    .select('*', { count: 'exact', head: true });
 
-                // Calcular total de proyectos: Base 10 + Portafolio + Tienda
-                const totalProyectos = 10 + (proyectosCount || 0) + (productosCount || 0);
+                // Calcular total real de proyectos
+                const totalProyectos = (proyectosCount || 0) + (productosCount || 0);
 
                 // 1. Calcular descargas totales sumando TODOS los contadores de proyecto del localStorage
                 const allProjectStats = localStorage.getItem('projectStats');

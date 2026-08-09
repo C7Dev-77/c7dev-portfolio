@@ -135,23 +135,35 @@ export default function DonarPage() {
 
                 {/* Transferencia Directa por Banco */}
                 <div className="glass-panel border border-gray-800 rounded-2xl p-5">
-                  <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">Transfiere desde tu banco</p>
+                  <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">Transfiere desde tu banco / app móvil</p>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { name: 'Nequi', url: 'https://www.nequi.com.co', color: 'hover:border-purple-500 hover:text-purple-400 hover:bg-purple-500/10' },
-                      { name: 'Daviplata', url: 'https://www.daviplata.com', color: 'hover:border-red-500 hover:text-red-400 hover:bg-red-500/10' },
-                      { name: 'Bancolombia', url: 'https://www.bancolombia.com', color: 'hover:border-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10' },
-                      { name: 'Nu Colombia', url: 'https://nu.com.co', color: 'hover:border-purple-600 hover:text-purple-300 hover:bg-purple-600/10' },
+                      { name: 'Nequi', scheme: 'nequi://', url: 'https://www.nequi.com.co', color: 'hover:border-purple-500 hover:text-purple-400 hover:bg-purple-500/10' },
+                      { name: 'Daviplata', scheme: 'daviplata://', url: 'https://www.daviplata.com', color: 'hover:border-red-500 hover:text-red-400 hover:bg-red-500/10' },
+                      { name: 'Bancolombia', scheme: 'bancolombia://', url: 'https://www.bancolombia.com', color: 'hover:border-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10' },
+                      { name: 'Nu Colombia', scheme: 'nu://', url: 'https://nu.com.co', color: 'hover:border-purple-600 hover:text-purple-300 hover:bg-purple-600/10' },
                     ].map((bank) => (
-                      <a
+                      <button
                         key={bank.name}
-                        href={bank.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`px-3 py-2.5 border border-gray-800 text-gray-300 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 text-center flex items-center justify-center gap-1.5 ${bank.color}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                          if (isMobile) {
+                            const start = Date.now();
+                            window.location.href = bank.scheme;
+                            setTimeout(() => {
+                              if (Date.now() - start < 2000) {
+                                window.open(bank.url, '_blank', 'noopener,noreferrer');
+                              }
+                            }, 1200);
+                          } else {
+                            window.open(bank.url, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
+                        className={`px-3 py-2.5 border border-gray-800 text-gray-300 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 text-center flex items-center justify-center gap-1.5 cursor-pointer ${bank.color}`}
                       >
-                        {bank.name} ↗
-                      </a>
+                        {bank.name} 📱
+                      </button>
                     ))}
                   </div>
                 </div>

@@ -21,8 +21,15 @@ export default function DownloadButtons({ productId, linkFree, linkPaid, precio 
         if (typeof window !== 'undefined' && (window as any)[`incrementDownload_${productId}`]) {
             (window as any)[`incrementDownload_${productId}`]();
         }
-        const link = type === 'free' ? linkFree : linkPaid;
-        window.open(link, '_blank', 'noopener,noreferrer');
+        let targetUrl = type === 'free' ? linkFree : linkPaid;
+        if (!targetUrl || targetUrl.trim() === '') {
+            alert('No hay un enlace configurado para este botón en este momento.');
+            return;
+        }
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('/')) {
+            targetUrl = `https://${targetUrl}`;
+        }
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
     };
 
     return (

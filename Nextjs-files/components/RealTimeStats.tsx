@@ -9,9 +9,9 @@ interface StatsProps {
 
 export default function RealTimeStats({ className }: StatsProps) {
     const [stats, setStats] = useState({
-        proyectos: 10, // Base 10
-        assets: 70,    // Base 70
-        downloads: 23 // Base 23
+        proyectos: 0,
+        assets: 70,
+        downloads: 23
     });
 
     useEffect(() => {
@@ -20,17 +20,14 @@ export default function RealTimeStats({ className }: StatsProps) {
                 // Contar proyectos del portafolio
                 const { count: proyectosCount } = await supabase
                     .from('proyectos')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('activo', true);
+                    .select('*', { count: 'exact', head: true });
 
-                // Contar productos de la tienda
-                const { count: productosCount } = await supabase
-                    .from('productos')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('activo', true);
+                // Contar productos de la tienda (products_public)
+                const { count: productosCount } = await (supabase.from('products_public' as any) as any)
+                    .select('*', { count: 'exact', head: true });
 
-                // Calcular total de proyectos: Base 10 + Portafolio + Tienda
-                const totalProyectos = 10 + (proyectosCount || 0) + (productosCount || 0);
+                // Calcular total real de proyectos
+                const totalProyectos = (proyectosCount || 0) + (productosCount || 0);
 
                 // 1. Calcular descargas totales sumando TODOS los contadores de proyecto del localStorage
                 const allProjectStats = localStorage.getItem('projectStats');
@@ -39,14 +36,11 @@ export default function RealTimeStats({ className }: StatsProps) {
 
                 if (allProjectStats) {
                     const statsMap = JSON.parse(allProjectStats);
-                    // Sumar todas las descargas registradas en proyectos individuales
                     Object.values(statsMap).forEach((p: any) => {
                         if (p.downloads && typeof p.downloads === 'number') {
-                            // Sumamos el total completo de descargas del proyecto
                             totalAdditionalDownloads += p.downloads;
                         }
                         if (p.views && typeof p.views === 'number') {
-                            // Sumamos el total completo de vistas del proyecto
                             totalAdditionalViews += p.views;
                         }
                     });
@@ -60,7 +54,6 @@ export default function RealTimeStats({ className }: StatsProps) {
                     siteDownloads = Math.max(0, (parsed.downloads || 100) - 100);
                 }
 
-                // Lógica de conteo final
                 setStats({
                     proyectos: totalProyectos,
                     assets: 70 + totalAdditionalViews,
@@ -72,17 +65,13 @@ export default function RealTimeStats({ className }: StatsProps) {
             }
         };
 
-        // Cargar inmediatamente
         loadStats();
 
-        // 1. Intervalo corto para asegurar actualización
         const interval = setInterval(loadStats, 2000);
 
-        // 2. Escuchar evento storage (pestañas cruzadas)
         const handleStorageChange = () => loadStats();
         window.addEventListener('storage', handleStorageChange);
 
-        // 3. Escuchar evento personalizado 'statsUpdated' (dentro de la misma pestaña)
         const handleCustomEvent = () => loadStats();
         window.addEventListener('statsUpdated', handleCustomEvent);
 

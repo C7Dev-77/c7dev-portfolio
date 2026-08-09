@@ -2,15 +2,21 @@
 
 import {
     Palette,
+    Languages,
+    Accessibility,
+    Gauge,
+    PenTool,
     Type,
     Save,
     RotateCcw,
     CheckCircle2,
+    AlertCircle,
     User,
     Code,
     Plus,
     Trash2,
-    Heart
+    Heart,
+    Briefcase
 } from 'lucide-react';
 import { useState } from 'react';
 import { useConfig } from '@/context/ConfigContext';
@@ -44,7 +50,7 @@ export default function SettingsPage() {
 
     // Helper para actualizar config profundamente
     const updateSettings = (
-        section: 'theme' | 'texts' | 'bio' | 'stack' | 'donations',
+        section: 'theme' | 'texts' | 'bio' | 'stack' | 'accessibility' | 'performance' | 'language' | 'devMode' | 'donations' | 'services',
         key: string,
         value: any
     ) => {
@@ -60,6 +66,7 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'theme', label: 'Tema', icon: Palette },
         { id: 'perfil', label: 'Perfil', icon: User },
+        { id: 'servicios', label: 'Servicios', icon: Briefcase },
         { id: 'stack', label: 'Stack', icon: Code },
         { id: 'texts', label: 'Textos', icon: Type },
         { id: 'donations', label: 'Donaciones', icon: Heart },
@@ -94,7 +101,7 @@ export default function SettingsPage() {
                         ) : saved ? (
                             <>
                                 <CheckCircle2 className="w-4 h-4" />
-                                Guardado
+                                Guardado ✓
                             </>
                         ) : (
                             <>
@@ -105,6 +112,18 @@ export default function SettingsPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Error de guardado */}
+            {saveError && (
+                <div className="flex items-center gap-3 px-5 py-4 bg-red-500/10 border border-red-500/40 rounded-xl text-red-400 text-sm">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <div>
+                        <p className="font-semibold">Error al guardar</p>
+                        <p className="text-xs mt-0.5 text-red-400/80">{saveError}</p>
+                        <p className="text-xs mt-1 text-red-400/60">Asegúrate de que la tabla <code className="bg-red-900/30 px-1 rounded">site_settings</code> exista en Supabase. Corre el SQL de migración si no la has creado.</p>
+                    </div>
+                </div>
+            )}
 
             {/* Tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -186,7 +205,7 @@ export default function SettingsPage() {
                             </div>
                         </div>
                         <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
-                            ✅ Los cambios se reflejan en tiempo real en la página principal.
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
                         </div>
                     </div>
                 )}
@@ -282,7 +301,7 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
-                            ✅ Los cambios se reflejan en tiempo real en la página principal.
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
                         </div>
                     </div>
                 )}
@@ -337,6 +356,10 @@ export default function SettingsPage() {
                                 <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-gold"></div>
                             </label>
                         </div>
+
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
+                        </div>
                     </div>
                 )}
 
@@ -390,6 +413,9 @@ export default function SettingsPage() {
                                 />
                             </div>
                         </div>
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
+                        </div>
                     </div>
                 )}
 
@@ -425,7 +451,54 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
-                            ✅ Esta información se mostrará automáticamente en el pie de la tienda y en la sección de donaciones.
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
+                        </div>
+                    </div>
+                )}
+
+                {/* ===== SERVICIOS ===== */}
+                {activeTab === 'servicios' && (
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white mb-4">Sección "Mis Servicios" (Página de Inicio)</h2>
+                        <div className="space-y-6">
+                            {[1, 2, 3, 4].map((num) => {
+                                const sKey = `service${num}`;
+                                const sData = (config.services as any)?.[sKey] || {};
+                                return (
+                                    <div key={num} className="p-4 bg-white/5 border border-gray-800 rounded-xl space-y-3">
+                                        <h3 className="text-sm font-bold text-neon-gold uppercase tracking-wider">Servicio {num}</h3>
+                                        <div>
+                                            <label className="block text-xs text-gray-400 mb-1">Título del Servicio</label>
+                                            <input
+                                                type="text"
+                                                value={sData.title || ''}
+                                                onChange={(e) => {
+                                                    const curServices = (config.services as any) || {};
+                                                    const updated = { ...curServices, [sKey]: { ...sData, title: e.target.value } };
+                                                    updateConfig({ ...config, services: updated });
+                                                }}
+                                                className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white text-sm focus:border-neon-gold focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-400 mb-1">Descripción</label>
+                                            <textarea
+                                                value={sData.desc || ''}
+                                                onChange={(e) => {
+                                                    const curServices = (config.services as any) || {};
+                                                    const updated = { ...curServices, [sKey]: { ...sData, desc: e.target.value } };
+                                                    updateConfig({ ...config, services: updated });
+                                                }}
+                                                rows={2}
+                                                className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white text-sm focus:border-neon-gold focus:outline-none resize-none"
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="p-4 bg-neon-gold/10 border border-neon-gold/30 rounded-xl text-sm text-yellow-200/80">
+                            ✅ Haz clic en <strong>Guardar Cambios</strong> para persistir en la base de datos.
                         </div>
                     </div>
                 )}
