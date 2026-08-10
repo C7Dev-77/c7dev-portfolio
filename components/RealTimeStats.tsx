@@ -9,9 +9,9 @@ interface StatsProps {
 
 export default function RealTimeStats({ className }: StatsProps) {
     const [stats, setStats] = useState({
-        proyectos: 10, // Base 10
-        assets: 70,    // Base 70
-        downloads: 23 // Base 23
+        proyectos: 4,  // Base inicial
+        assets: 383,   // Base Views (383+)
+        downloads: 232 // Base Descargas (232+)
     });
 
     useEffect(() => {
@@ -57,11 +57,11 @@ export default function RealTimeStats({ className }: StatsProps) {
                     siteDownloads = Math.max(0, (parsed.downloads || 100) - 100);
                 }
 
-                // Lógica de conteo final
+                // Lógica de conteo final con base ajustada (383+ Views y 232+ Descargas)
                 setStats({
-                    proyectos: totalProyectos,
-                    assets: 70 + totalAdditionalViews,
-                    downloads: 23 + totalAdditionalDownloads + siteDownloads
+                    proyectos: totalProyectos || 4,
+                    assets: 383 + totalAdditionalViews,
+                    downloads: 232 + totalAdditionalDownloads + siteDownloads
                 });
 
             } catch (error) {
