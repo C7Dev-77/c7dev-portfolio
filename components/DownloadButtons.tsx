@@ -17,10 +17,22 @@ export default function DownloadButtons({ productId, linkFree, linkPaid, precio 
     const lang = (config?.language as 'es' | 'en') || 'es';
     const t = translations[lang] || translations.es;
 
-    const handleDownload = (type: 'free' | 'paid') => {
-        if (typeof window !== 'undefined' && (window as any)[`incrementDownload_${productId}`]) {
-            (window as any)[`incrementDownload_${productId}`]();
+    const handleDownload = async (type: 'free' | 'paid') => {
+        try {
+            if (typeof window !== 'undefined' && (window as any)[`incrementDownload_${productId}`]) {
+                (window as any)[`incrementDownload_${productId}`]();
+            } else {
+                await fetch('/api/stats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ projectId, action: 'download' }),
+                });
+                window.dispatchEvent(new Event('statsUpdated'));
+            }
+        } catch (e) {
+            console.error('Error recording download:', e);
         }
+
         let targetUrl = type === 'free' ? linkFree : linkPaid;
         if (!targetUrl || targetUrl.trim() === '') {
             alert('No hay un enlace configurado para este botón en este momento.');

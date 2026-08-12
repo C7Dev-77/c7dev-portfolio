@@ -20,13 +20,14 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const [totalViews, setTotalViews] = useState<number>(100);
 
   useEffect(() => {
-    const updateViews = () => {
+    const updateViews = async () => {
       try {
-        const allStats = localStorage.getItem('projectStats');
-        if (allStats) {
-          const parsed = JSON.parse(allStats);
-          if (parsed[producto.id] && typeof parsed[producto.id].views === 'number') {
-            setTotalViews(100 + parsed[producto.id].views);
+        const res = await fetch('/api/stats', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          const metric = data.projectStats?.[producto.id];
+          if (metric && typeof metric.views === 'number') {
+            setTotalViews(100 + metric.views);
             return;
           }
         }
@@ -39,31 +40,19 @@ export default function ProductCard({ producto }: ProductCardProps) {
     updateViews();
 
     window.addEventListener('statsUpdated', updateViews);
-    window.addEventListener('storage', updateViews);
 
     return () => {
       window.removeEventListener('statsUpdated', updateViews);
-      window.removeEventListener('storage', updateViews);
     };
   }, [producto.id]);
 
-  const handleIncrementView = () => {
+  const handleIncrementView = async () => {
     try {
-      const allStats = localStorage.getItem('projectStats');
-      let projectStats: any = {};
-      if (allStats) {
-        projectStats = JSON.parse(allStats);
-      }
-      if (!projectStats[producto.id]) {
-        const randomRating = (Math.random() * (5.0 - 3.9) + 3.9).toFixed(1);
-        projectStats[producto.id] = {
-          views: 0,
-          downloads: 0,
-          rating: parseFloat(randomRating)
-        };
-      }
-      projectStats[producto.id].views += 1;
-      localStorage.setItem('projectStats', JSON.stringify(projectStats));
+      await fetch('/api/stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId: producto.id, action: 'view' }),
+      });
       window.dispatchEvent(new Event('statsUpdated'));
     } catch (e) {
       console.error(e);

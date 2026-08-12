@@ -11,73 +11,101 @@ interface ProjectStatsProps {
 export default function ProjectStats({ projectId, type = 'portfolio', className }: ProjectStatsProps) {
     const [stats, setStats] = useState({
         views: 0,
-        downloads: 12,
-        rating: 4.5
+        downloads: 0,
+        rating: 4.8
     });
 
-    useEffect(() => {
-        const loadProjectStats = () => {
-            const allStats = localStorage.getItem('projectStats');
-            let projectStats: any = {};
-
-            if (allStats) {
-                projectStats = JSON.parse(allStats);
+    const loadAndIncrementView = async () => {
+        try {
+            // Incrementar vista en Supabase vía API
+            const res = await fetch('/api/stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectId, action: 'view' }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.projectMetric) {
+                    setStats(prev => ({
+                        ...prev,
+                        views: data.projectMetric.views || 0,
+                        downloads: data.projectMetric.downloads || 0,
+                    }));
+                }
+                window.dispatchEvent(new Event('statsUpdated'));
             }
-
-            // Si no existe este proyecto, inicializarlo (vistas reales comienzan en 0)
-            if (!projectStats[projectId]) {
-                const randomRating = (Math.random() * (5.0 - 3.9) + 3.9).toFixed(1);
-
-                projectStats[projectId] = {
-                    views: 0,
-                    downloads: Math.floor(Math.random() * 15) + 5,
-                    rating: parseFloat(randomRating)
-                };
-            }
-
-            // Incrementar vista real
-            projectStats[projectId].views += 1;
-
-            // Guardar de vuelta
-            localStorage.setItem('projectStats', JSON.stringify(projectStats));
-
-            // Disparar evento para actualizar stats globales
-            window.dispatchEvent(new Event('statsUpdated'));
-
-            setStats(projectStats[projectId]);
-        };
-
-        loadProjectStats();
-    }, [projectId]);
-
-    // Función para incrementar descargas (solo para productos)
-    const incrementDownloads = () => {
-        const allStats = localStorage.getItem('projectStats');
-        let projectStats: any = {};
-
-        if (allStats) {
-            projectStats = JSON.parse(allStats);
-        }
-
-        if (projectStats[projectId]) {
-            projectStats[projectId].downloads += 1;
-            localStorage.setItem('projectStats', JSON.stringify(projectStats));
-
-            // Disparar evento para actualizar stats globales
-            window.dispatchEvent(new Event('statsUpdated'));
-
-            setStats(projectStats[projectId]);
+        } catch (error) {
+            console.error('Error recording view:', error);
         }
     };
 
-    // Exponer función globalmente para que los botones de descarga puedan usarla
-    useEffect(() => {
-        if (type === 'product') {
-            (window as any)[`incrementDownload_${projectId}`] = incrementDownloads;
+    const fetchCurrentStats = async () => {
+        try {
+            const res = await fetch('/api/stats', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                const metric = data.projectStats?.[projectId] || { views: 0, downloads: 0 };
+                setStats(prev => ({
+                    ...prev,
+                    views: metric.views || 0,
+                    downloads: metric.downloads || 0,
+                }));
+            }
+        } catch (error) {
+            console.error('Error fetching project stats:', error);
         }
-    }, [projectId, type]);
+    };
 
+    useEffect(() => {
+        // Rating consistente derivado del ID
+        let hash = 0;
+        for (let i = 0; i < projectId.length; i++) {
+            hash = projectId.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const calculatedRating = parseFloat((4.3 + (Math.abs(hash) % 7) / 10).toFixed(1));
+        setStats(prev => ({ ...prev, rating: calculatedRating }));
+
+        loadAndIncrementView();
+
+        const interval = setInterval(fetchCurrentStats, 3000);
+        window.addEventListener('statsUpdated', fetchCurrentStats);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('statsUpdated', fetchCurrentStats);
+        };
+    }, [projectId]);
+
+    const incrementDownloads = async () => {
+        try {
+            const res = await fetch('/api/stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectId, action: 'download' }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.projectMetric) {
+                    setStats(prev => ({
+                        ...prev,
+                        downloads: data.projectMetric.downloads || 0,
+                        views: data.projectMetric.views || 0,
+                    }));
+                }
+                window.dispatchEvent(new Event('statsUpdated'));
+            }
+        } catch (error) {
+            console.error('Error incrementing download:', error);
+        }
+    };
+
+    useEffect(() => {
+        (window as any)[`incrementDownload_${projectId}`] = incrementDownloads;
+    }, [projectId]);
+
+    // Regla: Todo proyecto inicia en 100 vistas y 100 descargas
     const displayViews = 100 + (stats.views || 0);
+    const displayDownloads = 100 + (stats.downloads || 0);
 
     // Renderizado según tipo
     if (type === 'portfolio') {
@@ -104,7 +132,7 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
             </div>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                <div className="text-2xl font-bold text-neon-platinum">{stats.downloads}+</div>
+                <div className="text-2xl font-bold text-neon-platinum">{displayDownloads}+</div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Descargas</div>
             </div>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">

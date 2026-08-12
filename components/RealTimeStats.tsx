@@ -9,86 +9,42 @@ interface StatsProps {
 
 export default function RealTimeStats({ className }: StatsProps) {
     const [stats, setStats] = useState({
-        proyectos: 4,  // Base inicial
-        assets: 383,   // Base Views (383+)
-        downloads: 232 // Base Descargas (232+)
+        proyectos: 4,
+        assets: 400,
+        downloads: 400
     });
 
     useEffect(() => {
         const loadStats = async () => {
             try {
-                // Contar proyectos del portafolio
-                const { count: proyectosCount } = await supabase
-                    .from('proyectos')
-                    .select('*', { count: 'exact', head: true });
-
-                // Contar productos de la tienda (products_public)
-                const { count: productosCount } = await (supabase.from('products_public' as any) as any)
-                    .select('*', { count: 'exact', head: true });
-
-                // Calcular total real de proyectos
-                const totalProyectos = (proyectosCount || 0) + (productosCount || 0);
-
-                // 1. Calcular descargas totales sumando TODOS los contadores de proyecto del localStorage
-                const allProjectStats = localStorage.getItem('projectStats');
-                let totalAdditionalDownloads = 0;
-                let totalAdditionalViews = 0;
-
-                if (allProjectStats) {
-                    const statsMap = JSON.parse(allProjectStats);
-                    // Sumar todas las descargas registradas en proyectos individuales
-                    Object.values(statsMap).forEach((p: any) => {
-                        if (p.downloads && typeof p.downloads === 'number') {
-                            // Sumamos el total completo de descargas del proyecto
-                            totalAdditionalDownloads += p.downloads;
-                        }
-                        if (p.views && typeof p.views === 'number') {
-                            // Sumamos el total completo de vistas del proyecto
-                            totalAdditionalViews += p.views;
-                        }
+                const res = await fetch('/api/stats', { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats({
+                        proyectos: data.projectCount || 4,
+                        assets: data.totalViews || 400,
+                        downloads: data.totalDownloads || 400
                     });
                 }
-
-                // Obtener contador global del sitio
-                const savedSiteStats = localStorage.getItem('siteStats');
-                let siteDownloads = 0;
-                if (savedSiteStats) {
-                    const parsed = JSON.parse(savedSiteStats);
-                    siteDownloads = Math.max(0, (parsed.downloads || 100) - 100);
-                }
-
-                // Lógica de conteo final con base ajustada (383+ Views y 232+ Descargas)
-                setStats({
-                    proyectos: totalProyectos || 4,
-                    assets: 383 + totalAdditionalViews,
-                    downloads: 232 + totalAdditionalDownloads + siteDownloads
-                });
-
             } catch (error) {
-                console.error('Error loading stats:', error);
+                console.error('Error loading stats from server:', error);
             }
         };
 
         // Cargar inmediatamente
         loadStats();
 
-        // 1. Intervalo corto para asegurar actualización
-        const interval = setInterval(loadStats, 2000);
+        // Intervalo corto de 3s para sincronización en vivo entre navegadores
+        const interval = setInterval(loadStats, 3000);
 
-        // 2. Escuchar evento storage (pestañas cruzadas)
-        const handleStorageChange = () => loadStats();
-        window.addEventListener('storage', handleStorageChange);
-
-        // 3. Escuchar evento personalizado 'statsUpdated' (dentro de la misma pestaña)
+        // Escuchar eventos en vivo locales
         const handleCustomEvent = () => loadStats();
         window.addEventListener('statsUpdated', handleCustomEvent);
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('statsUpdated', handleCustomEvent);
         };
-
     }, []);
 
     return (
