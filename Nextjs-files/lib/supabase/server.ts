@@ -5,13 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 
 export function createServerSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing Supabase server environment variables (URL or SERVICE_ROLE_KEY)');
+  if (!supabaseUrl || (!serviceRoleKey && !anonKey)) {
+    throw new Error('Missing Supabase environment variables (URL or ANON_KEY)');
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
+  // Usar service role si está disponible, si no usar anon key como fallback
+  const keyToUse = serviceRoleKey || anonKey;
+
+  return createClient(supabaseUrl, keyToUse, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

@@ -3,68 +3,47 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface ProjectMetricItem {
-  views: number;
-  downloads: number;
-}
-
 export async function GET() {
   try {
     const supabase = createServerSupabaseClient();
 
-    // 1. Obtener conteo real de proyectos del portafolio y tienda
+    // 1. Contar proyectos del portafolio
     const { count: proyectosCount } = await supabase
       .from('proyectos')
       .select('*', { count: 'exact', head: true });
 
+    // 2. Contar productos de la tienda
     const { count: productosCount } = await (supabase.from('products_public' as any) as any)
       .select('*', { count: 'exact', head: true });
 
     const projectCount = (proyectosCount || 0) + (productosCount || 0);
 
-    // 2. Obtener métricas adicionales por proyecto desde Supabase
-    let projectStats: Record<string, ProjectMetricItem> = {};
-
-    // Primero intentamos consultar la tabla 'project_metrics'
+    // 3. Obtener métricas acumuladas desde project_metrics
     const { data: metricsData, error: metricsError } = await supabase
       .from('project_metrics' as any)
       .select('project_id, views, downloads');
 
-    if (!metricsError && metricsData) {
-      metricsData.forEach((row: any) => {
-        projectStats[row.project_id] = {
-          views: Number(row.views) || 0,
-          downloads: Number(row.downloads) || 0,
-        };
-      });
-    } else {
-      // Fallback a site_settings si project_metrics no existe en Supabase aún
-      const { data: settingsData } = await supabase
-        .from('site_settings')
-        .select('config')
-        .eq('id', 2)
-        .single();
-
-      if (settingsData?.config?.projectStats) {
-        projectStats = settingsData.config.projectStats;
-      }
+    if (metricsError) {
+      console.error('Error fetching project_metrics:', metricsError.message);
     }
 
-    // 3. Calcular totales globales acumulados
-    // Regla: Cada proyecto inicia en 100 vistas y 100 descargas
-    const baseViews = projectCount * 100;
-    const baseDownloads = projectCount * 100;
-
+    const projectStats: Record<string, { views: number; downloads: number }> = {};
     let extraViews = 0;
     let extraDownloads = 0;
 
-    Object.values(projectStats).forEach((item) => {
-      extraViews += item.views || 0;
-      extraDownloads += item.downloads || 0;
-    });
+    if (metricsData && Array.isArray(metricsData)) {
+      metricsData.forEach((row: any) => {
+        const v = Number(row.views) || 0;
+        const d = Number(row.downloads) || 0;
+        projectStats[row.project_id] = { views: v, downloads: d };
+        extraViews += v;
+        extraDownloads += d;
+      });
+    }
 
-    const totalViews = baseViews + extraViews;
-    const totalDownloads = baseDownloads + extraDownloads;
+    // 4. Totales: base 100 por proyecto + incrementos reales
+    const totalViews = (projectCount * 100) + extraViews;
+    const totalDownloads = (projectCount * 100) + extraDownloads;
 
     return NextResponse.json({
       projectCount,
@@ -74,7 +53,10 @@ export async function GET() {
     });
   } catch (err: any) {
     console.error('GET /api/stats error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -89,71 +71,39 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerSupabaseClient();
 
-    // 1. Obtener estado actual desde Supabase (intentando project_metrics o site_settings)
-    let currentStats: Record<string, ProjectMetricItem> = {};
-    let usingProjectMetricsTable = false;
+    // 1. Leer el registro actual de este proyecto (si existe)
+    const { data: existing } = await (supabase.from('project_metrics' as any) as any)
+      .select('project_id, views, downloads')
+      .eq('project_id', projectId)
+      .single();
 
-    const { data: metricsData, error: metricsError } = await supabase
-      .from('project_metrics' as any)
-      .select('project_id, views, downloads');
+    const currentViews = Number(existing?.views) || 0;
+    const currentDownloads = Number(existing?.downloads) || 0;
 
-    if (!metricsError && metricsData) {
-      usingProjectMetricsTable = true;
-      metricsData.forEach((row: any) => {
-        currentStats[row.project_id] = {
-          views: Number(row.views) || 0,
-          downloads: Number(row.downloads) || 0,
-        };
-      });
-    } else {
-      const { data: settingsData } = await supabase
-        .from('site_settings')
-        .select('config')
-        .eq('id', 2)
-        .single();
+    const newViews = action === 'view' ? currentViews + 1 : currentViews;
+    const newDownloads = action === 'download' ? currentDownloads + 1 : currentDownloads;
 
-      if (settingsData?.config?.projectStats) {
-        currentStats = settingsData.config.projectStats;
-      }
-    }
-
-    // 2. Incrementar contador para este proyecto
-    const currentProjectMetric = currentStats[projectId] || { views: 0, downloads: 0 };
-    if (action === 'view') {
-      currentProjectMetric.views += 1;
-    } else if (action === 'download') {
-      currentProjectMetric.downloads += 1;
-    }
-    currentStats[projectId] = currentProjectMetric;
-
-    // 3. Persistir en Supabase
-    if (usingProjectMetricsTable) {
-      await supabase
-        .from('project_metrics' as any)
-        .upsert(
-          {
-            project_id: projectId,
-            views: currentProjectMetric.views,
-            downloads: currentProjectMetric.downloads,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'project_id' }
-        );
-    }
-
-    // Siempre guardamos también en site_settings id=2 para garantizar persistencia absoluta
-    await supabase
-      .from('site_settings')
+    // 2. Upsert atómico usando project_id como clave
+    const { error: upsertError } = await (supabase.from('project_metrics' as any) as any)
       .upsert(
         {
-          id: 2,
-          config: { projectStats: currentStats },
+          project_id: projectId,
+          views: newViews,
+          downloads: newDownloads,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: 'id' }
+        { onConflict: 'project_id' }
       );
 
-    // 4. Calcular nuevos totales
+    if (upsertError) {
+      console.error('Error upserting project_metrics:', upsertError.message);
+      return NextResponse.json(
+        { error: 'Failed to update metrics: ' + upsertError.message },
+        { status: 500 }
+      );
+    }
+
+    // 3. Calcular totales actualizados
     const { count: proyectosCount } = await supabase
       .from('proyectos')
       .select('*', { count: 'exact', head: true });
@@ -163,26 +113,32 @@ export async function POST(req: NextRequest) {
 
     const projectCount = (proyectosCount || 0) + (productosCount || 0);
 
+    // Sumar todas las métricas actuales
+    const { data: allMetrics } = await (supabase.from('project_metrics' as any) as any)
+      .select('views, downloads');
+
     let extraViews = 0;
     let extraDownloads = 0;
 
-    Object.values(currentStats).forEach((item) => {
-      extraViews += item.views || 0;
-      extraDownloads += item.downloads || 0;
-    });
-
-    const totalViews = (projectCount * 100) + extraViews;
-    const totalDownloads = (projectCount * 100) + extraDownloads;
+    if (allMetrics && Array.isArray(allMetrics)) {
+      allMetrics.forEach((row: any) => {
+        extraViews += Number(row.views) || 0;
+        extraDownloads += Number(row.downloads) || 0;
+      });
+    }
 
     return NextResponse.json({
       success: true,
       projectCount,
-      totalViews,
-      totalDownloads,
-      projectMetric: currentProjectMetric,
+      totalViews: (projectCount * 100) + extraViews,
+      totalDownloads: (projectCount * 100) + extraDownloads,
+      projectMetric: { views: newViews, downloads: newDownloads },
     });
   } catch (err: any) {
     console.error('POST /api/stats error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
