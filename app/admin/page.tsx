@@ -103,15 +103,15 @@ export default function AdminDashboard() {
         created_at: p.created_at || new Date().toISOString()
       }));
 
-      // 3. Obtener métricas reales desde /api/stats
+      // 3. Obtener métricas reales desde /api/stats (iniciando desde 0 para el Panel Admin)
       let totalVisitas = 0;
       let totalDescargas = 0;
       try {
         const statsRes = await fetch('/api/stats');
         if (statsRes.ok) {
           const statsData = await statsRes.json();
-          totalVisitas = statsData.totalViews || 0;
-          totalDescargas = statsData.totalDownloads || 0;
+          totalVisitas = typeof statsData.rawViews === 'number' ? statsData.rawViews : 0;
+          totalDescargas = typeof statsData.rawDownloads === 'number' ? statsData.rawDownloads : 0;
         }
       } catch (err) {
         console.error('Error fetching /api/stats:', err);
