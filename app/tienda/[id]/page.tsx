@@ -131,11 +131,13 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
 
     // Características del producto (puedes personalizar)
     const caracteristicas = [
-        'Código fuente completo',
-        'Documentación incluida',
-        'Actualizaciones gratuitas',
-        'Soporte por email',
-        'Uso comercial permitido'
+        'Compra 100% segura y garantizada',
+        'Descarga automática del archivo .ZIP inmediatamente tras el pago',
+        'Descarga gratis: Requiere resolver CAPTCHA y esperar 60 segundos',
+        'Código fuente completo y estructurado',
+        'Documentación y guías de uso incluidas',
+        'Actualizaciones gratuitas y soporte directo por email',
+        'Uso comercial y personal permitido'
     ];
 
     return (

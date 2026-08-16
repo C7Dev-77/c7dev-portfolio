@@ -1,4 +1,4 @@
-import { Github, Linkedin, Terminal, Mail, ArrowRight, Heart, Send, Instagram, Youtube } from 'lucide-react';
+import { Github, Linkedin, Terminal, Mail, ArrowRight, Heart, Send, Instagram, Youtube, Facebook } from 'lucide-react';
 import Link from 'next/link';
 
 // Ícono de TikTok personalizado
@@ -76,16 +76,16 @@ export default function Footer() {
             </h4>
             <div className="flex gap-3 flex-wrap justify-center md:justify-start">
               <a
-                href="https://www.tiktok.com/@c7dev_"
+                href="https://www.facebook.com/profile.php?id=61584949321538"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-white hover:text-white hover:-translate-y-1 transition-all duration-300"
-                title="TikTok"
+                className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-[#1877F2] hover:text-[#1877F2] hover:-translate-y-1 transition-all duration-300"
+                title="Facebook"
               >
-                <TikTokIcon className="w-5 h-5" />
+                <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://www.instagram.com/c7dev_"
+                href="https://www.instagram.com/c7dev_?igsh=MW1ya21xcmxndnd2Yw==&igsi=MW1ya21xcmxndnd2Yw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-[#E4405F] hover:text-[#E4405F] hover:-translate-y-1 transition-all duration-300"
@@ -94,13 +94,22 @@ export default function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://www.youtube.com/@c7dev_"
+                href="https://youtube.com/@c7-dev?si=bqhH_FLhz4L3xsc9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-[#FF0000] hover:text-[#FF0000] hover:-translate-y-1 transition-all duration-300"
                 title="YouTube"
               >
                 <Youtube className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@c7dev__?_r=1&_t=ZS-98uDkdLgl0v"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-white hover:text-white hover:-translate-y-1 transition-all duration-300"
+                title="TikTok"
+              >
+                <TikTokIcon className="w-5 h-5" />
               </a>
               <a
                 href={telegramLink}

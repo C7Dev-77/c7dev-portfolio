@@ -23,6 +23,8 @@ import {
 interface Stats {
   totalProductos: number;
   totalProyectos: number;
+  totalVisitas: number;
+  totalDescargas: number;
   productosRecientes: any[];
   proyectosRecientes: any[];
 }
@@ -31,6 +33,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({
     totalProductos: 0,
     totalProyectos: 0,
+    totalVisitas: 0,
+    totalDescargas: 0,
     productosRecientes: [],
     proyectosRecientes: []
   });
@@ -42,25 +46,84 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      // Obtener productos
-      const { data: productos, count: productosCount } = await supabase
-        .from('productos')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .limit(5);
+      let productsList: any[] = [];
+      let totalProductsCount = 0;
 
-      // Obtener proyectos
-      const { data: proyectos, count: proyectosCount } = await supabase
-        .from('proyectos')
+      // 1. Obtener productos desde la tabla principal 'products'
+      const { data: prodData, count: prodCount, error: prodErr } = await (supabase.from('products' as any) as any)
         .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .limit(5);
+        .order('created_at', { ascending: false });
+
+      if (!prodErr && prodData && prodData.length > 0) {
+        productsList = prodData.map((p: any) => ({
+          id: p.id,
+          nombre: p.title || p.nombre || 'Sin nombre',
+          precio: typeof p.price_cents === 'number' ? (p.price_cents / 100).toFixed(2) : (p.precio || '0.00'),
+          imagen_url: p.image_url || p.imagen_url || '',
+          created_at: p.created_at || new Date().toISOString()
+        }));
+        totalProductsCount = prodCount || productsList.length;
+      } else {
+        // Fallback a 'products_public'
+        const { data: pubData, count: pubCount } = await (supabase.from('products_public' as any) as any)
+          .select('*', { count: 'exact' })
+          .order('created_at', { ascending: false });
+
+        if (pubData && pubData.length > 0) {
+          productsList = pubData.map((p: any) => ({
+            id: p.id,
+            nombre: p.title || p.nombre || 'Sin nombre',
+            precio: typeof p.price_cents === 'number' ? (p.price_cents / 100).toFixed(2) : (p.precio || '0.00'),
+            imagen_url: p.image_url || p.imagen_url || '',
+            created_at: p.created_at || new Date().toISOString()
+          }));
+          totalProductsCount = pubCount || productsList.length;
+        } else {
+          // Fallback legacy 'productos'
+          const { data: legData, count: legCount } = await (supabase.from('productos' as any) as any)
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false });
+          if (legData) {
+            productsList = legData;
+            totalProductsCount = legCount || legData.length;
+          }
+        }
+      }
+
+      // 2. Obtener proyectos desde la tabla 'proyectos'
+      const { data: proyectosData, count: proyectosCount } = await (supabase.from('proyectos' as any) as any)
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false });
+
+      const proyectosList = (proyectosData || []).map((p: any) => ({
+        id: p.id,
+        titulo: p.titulo || 'Sin título',
+        imagen_url: p.imagen_url || '',
+        tags: p.tags || [],
+        created_at: p.created_at || new Date().toISOString()
+      }));
+
+      // 3. Obtener métricas reales desde /api/stats
+      let totalVisitas = 0;
+      let totalDescargas = 0;
+      try {
+        const statsRes = await fetch('/api/stats');
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          totalVisitas = statsData.totalViews || 0;
+          totalDescargas = statsData.totalDownloads || 0;
+        }
+      } catch (err) {
+        console.error('Error fetching /api/stats:', err);
+      }
 
       setStats({
-        totalProductos: productosCount || productos?.length || 0,
-        totalProyectos: proyectosCount || proyectos?.length || 0,
-        productosRecientes: productos || [],
-        proyectosRecientes: proyectos || []
+        totalProductos: totalProductsCount,
+        totalProyectos: proyectosCount || proyectosList.length,
+        totalVisitas,
+        totalDescargas,
+        productosRecientes: productsList,
+        proyectosRecientes: proyectosList
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -69,12 +132,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const formatNumber = (num: number) => {
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
+
   const statCards = [
     {
       title: 'Total Productos',
       value: stats.totalProductos,
       icon: ShoppingBag,
-      change: '+12%',
+      change: '+ Real',
       changeType: 'positive',
       color: 'gold',
       href: '/admin/products'
@@ -83,26 +151,26 @@ export default function AdminDashboard() {
       title: 'Total Proyectos',
       value: stats.totalProyectos,
       icon: FolderGit2,
-      change: '+8%',
+      change: '+ Real',
       changeType: 'positive',
       color: 'platinum',
       href: '/admin/portfolio'
     },
     {
-      title: 'Visitas Mes',
-      value: '2.4K',
+      title: 'Visitas Totales',
+      value: formatNumber(stats.totalVisitas),
       icon: Eye,
-      change: '+23%',
+      change: '+ Real',
       changeType: 'positive',
       color: 'green',
       href: '#'
     },
     {
-      title: 'Conversión',
-      value: '4.2%',
+      title: 'Descargas Totales',
+      value: formatNumber(stats.totalDescargas),
       icon: Target,
-      change: '-2%',
-      changeType: 'negative',
+      change: '+ Real',
+      changeType: 'positive',
       color: 'blue',
       href: '#'
     }

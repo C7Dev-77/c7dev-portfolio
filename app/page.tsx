@@ -16,6 +16,7 @@ import {
   Briefcase,
   Instagram,
   Youtube,
+  Facebook,
   Github,
   Linkedin,
   Send
@@ -116,16 +117,16 @@ export default function HomePage() {
             {/* Social Icons - Margen reducido */}
             <div className="flex items-center justify-center gap-3 mb-6 flex-wrap animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
               <a
-                href="https://www.tiktok.com/@c7dev_"
+                href="https://www.facebook.com/profile.php?id=61584949321538"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 border border-white/10 rounded-xl hover:border-white hover:text-white hover:bg-white/5 transition-all hover:scale-110 group"
-                title="TikTok"
+                className="p-2.5 border border-white/10 rounded-xl hover:border-[#1877F2] hover:text-[#1877F2] hover:bg-[#1877F2]/10 transition-all hover:scale-110 group"
+                title="Facebook"
               >
-                <TikTokIcon className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+                <Facebook className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(24,119,242,0.5)]" />
               </a>
               <a
-                href="https://www.instagram.com/c7dev_/"
+                href="https://www.instagram.com/c7dev_?igsh=MW1ya21xcmxndnd2Yw==&igsi=MW1ya21xcmxndnd2Yw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 border border-white/10 rounded-xl hover:border-[#E4405F] hover:text-[#E4405F] hover:bg-[#E4405F]/10 transition-all hover:scale-110 group"
@@ -134,13 +135,22 @@ export default function HomePage() {
                 <Instagram className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(228,64,95,0.5)]" />
               </a>
               <a
-                href="https://www.youtube.com/@c7dev_"
+                href="https://youtube.com/@c7-dev?si=bqhH_FLhz4L3xsc9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 border border-white/10 rounded-xl hover:border-[#FF0000] hover:text-[#FF0000] hover:bg-[#FF0000]/10 transition-all hover:scale-110 group"
                 title="YouTube"
               >
                 <Youtube className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@c7dev__?_r=1&_t=ZS-98uDkdLgl0v"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 border border-white/10 rounded-xl hover:border-white hover:text-white hover:bg-white/5 transition-all hover:scale-110 group"
+                title="TikTok"
+              >
+                <TikTokIcon className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
               </a>
               <a
                 href={telegramLink}
