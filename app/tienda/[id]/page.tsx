@@ -16,7 +16,9 @@ import {
     Layers,
     Package,
     Check,
-    Sparkles
+    Sparkles,
+    ShieldCheck,
+    Clock
 } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
 import ProjectStats from '@/components/ProjectStats';
@@ -234,20 +236,41 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                             </div>
                         )}
 
-                        {/* Características */}
-                        <div className="glass-panel p-6 rounded-2xl">
-                            <h3 className="text-sm text-neon-platinum uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <Sparkles className="w-4 h-4" />
-                                ¿Qué incluye?
-                            </h3>
-                            <ul className="space-y-3">
-                                {caracteristicas.map((item, idx) => (
-                                    <li key={idx} className="flex items-center gap-3 text-gray-300 text-sm">
-                                        <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
+                        {/* Características y Especificaciones de Descarga */}
+                        <div className="glass-panel p-6 rounded-2xl space-y-6">
+                            <div>
+                                <h3 className="text-sm text-neon-platinum uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    ¿Qué incluye?
+                                </h3>
+                                <ul className="space-y-3">
+                                    {caracteristicas.map((item, idx) => (
+                                        <li key={idx} className="flex items-center gap-3 text-gray-300 text-sm">
+                                            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* Especificaciones sobre la compra y descarga */}
+                            <div className="pt-4 border-t border-gray-800/80 space-y-3">
+                                <div className="flex items-start gap-2.5 text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 p-3 rounded-xl">
+                                    <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                                    <div>
+                                        <span className="font-bold block text-emerald-300">Compra 100% Segura y Garantizada</span>
+                                        Al comprar el código, la descarga del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code> inicia automáticamente tras confirmarse el pago.
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-2.5 text-xs text-amber-400 bg-amber-950/20 border border-amber-800/30 p-3 rounded-xl">
+                                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
+                                    <div>
+                                        <span className="font-bold block text-amber-300">Descarga Gratis (Con Anuncios)</span>
+                                        Debes resolver un captcha de verificación y esperar 60 segundos para liberar la descarga gratis del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code>.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

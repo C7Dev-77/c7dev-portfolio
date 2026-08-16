@@ -89,25 +89,6 @@ export default function DownloadButtons({ productId, linkFree, linkPaid, precio 
                     {t.donateBtnText || 'Apoya el Desarrollo'}
                 </Link>
             </div>
-
-            {/* Especificaciones de seguridad y flujo de descarga */}
-            <div className="pt-4 border-t border-gray-800/80 space-y-3">
-                <div className="flex items-start gap-2.5 text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 p-3 rounded-xl">
-                    <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-400" />
-                    <div>
-                        <span className="font-bold block text-emerald-300">Compra 100% Segura y Garantizada</span>
-                        Al comprar el código, la descarga del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code> inicia automáticamente tras confirmarse el pago.
-                    </div>
-                </div>
-
-                <div className="flex items-start gap-2.5 text-xs text-amber-400 bg-amber-950/20 border border-amber-800/30 p-3 rounded-xl">
-                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
-                    <div>
-                        <span className="font-bold block text-amber-300">Descarga Gratis (Con Anuncios)</span>
-                        Debes resolver un captcha de verificación y esperar 60 segundos para liberar la descarga gratis del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code>.
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

@@ -41,9 +41,9 @@ export async function GET() {
       });
     }
 
-    // 4. Totales: base 100 por proyecto + incrementos reales
-    const totalViews = (projectCount * 100) + extraViews;
-    const totalDownloads = (projectCount * 100) + extraDownloads;
+    // 4. Totales reales desde 0 basados en la base de datos
+    const totalViews = extraViews;
+    const totalDownloads = extraDownloads;
 
     return NextResponse.json({
       projectCount,
@@ -130,8 +130,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       projectCount,
-      totalViews: (projectCount * 100) + extraViews,
-      totalDownloads: (projectCount * 100) + extraDownloads,
+      totalViews: extraViews,
+      totalDownloads: extraDownloads,
       projectMetric: { views: newViews, downloads: newDownloads },
     });
   } catch (err: any) {
