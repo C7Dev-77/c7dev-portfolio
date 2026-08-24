@@ -65,13 +65,12 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
         const calculatedRating = parseFloat((4.3 + (Math.abs(hash) % 7) / 10).toFixed(1));
         setStats(prev => ({ ...prev, rating: calculatedRating }));
 
+        // Cargar vista inicial
         loadAndIncrementView();
 
-        const interval = setInterval(fetchCurrentStats, 3000);
         window.addEventListener('statsUpdated', fetchCurrentStats);
 
         return () => {
-            clearInterval(interval);
             window.removeEventListener('statsUpdated', fetchCurrentStats);
         };
     }, [projectId]);

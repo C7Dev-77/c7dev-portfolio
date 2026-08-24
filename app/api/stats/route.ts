@@ -105,37 +105,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Calcular totales actualizados
-    const { count: proyectosCount } = await supabase
-      .from('proyectos')
-      .select('*', { count: 'exact', head: true });
-
-    const { count: productosCount } = await (supabase.from('products_public' as any) as any)
-      .select('*', { count: 'exact', head: true });
-
-    const projectCount = (proyectosCount || 0) + (productosCount || 0);
-
-    // Sumar todas las métricas actuales
-    const { data: allMetrics } = await (supabase.from('project_metrics' as any) as any)
-      .select('views, downloads');
-
-    let extraViews = 0;
-    let extraDownloads = 0;
-
-    if (allMetrics && Array.isArray(allMetrics)) {
-      allMetrics.forEach((row: any) => {
-        extraViews += Number(row.views) || 0;
-        extraDownloads += Number(row.downloads) || 0;
-      });
-    }
-
     return NextResponse.json({
       success: true,
-      projectCount,
-      totalViews: (projectCount * 100) + extraViews,
-      totalDownloads: (projectCount * 100) + extraDownloads,
-      rawViews: extraViews,
-      rawDownloads: extraDownloads,
       projectMetric: { views: newViews, downloads: newDownloads },
     });
   } catch (err: any) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     Upload,
@@ -69,11 +69,7 @@ export default function ProductsManager() {
 
     const [formData, setFormData] = useState<ProductoForm>(emptyForm);
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         setFetching(true);
         const { data, error } = await (supabase.from('products') as any)
             .select('*')
@@ -82,7 +78,11 @@ export default function ProductsManager() {
         if (data) setProducts(data);
         if (error) console.error('fetchProducts error:', error);
         setFetching(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
 
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este producto? Esta acción es irreversible.')) return;
@@ -245,10 +245,14 @@ export default function ProductsManager() {
 
 
 
-    const filteredProducts = products.filter(product =>
-        (product.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (product.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredProducts = useMemo(() => {
+        if (!searchQuery.trim()) return products;
+        const q = searchQuery.toLowerCase();
+        return products.filter(product =>
+            (product.title || '').toLowerCase().includes(q) ||
+            (product.description || '').toLowerCase().includes(q)
+        );
+    }, [products, searchQuery]);
 
     return (
         <div className="space-y-6">
@@ -703,6 +707,8 @@ export default function ProductsManager() {
                                     <img
                                         src={product.image_url || ''}
                                         alt={product.title}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="w-full h-full object-cover"
                                     />
                                     {product.video_url && (

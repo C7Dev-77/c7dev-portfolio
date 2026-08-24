@@ -2,10 +2,9 @@
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { cache } from 'react';
 import {
     ArrowLeft,
-    Download,
-    CreditCard,
     Play,
     Calendar,
     Tag,
@@ -14,7 +13,6 @@ import {
     Eye,
     Code2,
     Layers,
-    Package,
     Check,
     Sparkles,
     ShieldCheck,
@@ -24,30 +22,47 @@ import GlitchText from '@/components/GlitchText';
 import ProjectStats from '@/components/ProjectStats';
 import DownloadButtons from '@/components/DownloadButtons';
 
-interface Producto {
-    id: string;
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    imagen_url: string;
-    link_free: string;
-    link_paid: string;
-    video_url?: string;
-    capturas?: string[];
-    tags?: string[];
-    categoria?: string;
-    destacado?: boolean;
-    created_at: string;
-}
+// Revalidar en segundo plano cada 60 segundos (ISR para TTFB ultra rápido en CDN)
+export const revalidate = 60;
 
-export const dynamic = 'force-dynamic';
-
-// Generar metadata dinámica para SEO
-export async function generateMetadata({ params }: { params: { id: string } }) {
-    const { data: raw } = await (supabase.from('products_public' as any) as any)
+// Consulta en caché para evitar llamadas duplicadas entre generateMetadata y la Página
+const getProduct = cache(async (id: string) => {
+    let { data: raw, error } = await (supabase.from('products_public' as any) as any)
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single();
+
+    // Fallback a la tabla legacy si no existe en products_public
+    if (error || !raw) {
+        const { data: legacy } = await (supabase.from('productos' as any) as any)
+            .select('*')
+            .eq('id', id)
+            .single();
+        raw = legacy;
+    }
+
+    return raw;
+});
+
+// Consulta de productos relacionados
+const getRelatedProducts = cache(async (excludeId: string) => {
+    const { data: relRaw } = await (supabase.from('products_public' as any) as any)
+        .select('id, title, nombre, image_url, imagen_url, price_cents, precio, tags')
+        .neq('id', excludeId)
+        .limit(3);
+
+    return (relRaw || []).map((r: any) => ({
+        id: r.id,
+        nombre: r.title || r.nombre || 'Producto',
+        imagen_url: r.image_url || r.imagen_url || '',
+        precio: typeof r.price_cents === 'number' ? r.price_cents / 100 : (r.precio || 0),
+        tags: r.tags || []
+    }));
+});
+
+// Generar metadata dinámica para SEO (usa getProduct memorizado)
+export async function generateMetadata({ params }: { params: { id: string } }) {
+    const raw = await getProduct(params.id);
 
     if (!raw) {
         return { title: 'Producto no encontrado - C7Dev' };
@@ -63,25 +78,16 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
         openGraph: {
             title,
             description,
-            images: [imageUrl],
+            images: imageUrl ? [imageUrl] : [],
         },
     };
 }
 
 export default async function ProductoDetallePage({ params }: { params: { id: string } }) {
-    let { data: raw, error } = await (supabase.from('products_public' as any) as any)
-        .select('*')
-        .eq('id', params.id)
-        .single();
-
-    // Fallback a la tabla legacy si no existe en products_public
-    if (error || !raw) {
-        const { data: legacy } = await (supabase.from('productos') as any)
-            .select('*')
-            .eq('id', params.id)
-            .single();
-        raw = legacy;
-    }
+    const [raw, relacionados] = await Promise.all([
+        getProduct(params.id),
+        getRelatedProducts(params.id)
+    ]);
 
     if (!raw) {
         notFound();
@@ -104,21 +110,7 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
         created_at: raw.created_at || new Date().toISOString()
     };
 
-    // Obtener productos relacionados (misma categoría)
-    const { data: relRaw } = await (supabase.from('products_public' as any) as any)
-        .select('*')
-        .neq('id', params.id)
-        .limit(3);
-
-    const relacionados = (relRaw || []).map((r: any) => ({
-        id: r.id,
-        nombre: r.title || r.nombre,
-        imagen_url: r.image_url || r.imagen_url,
-        precio: typeof r.price_cents === 'number' ? r.price_cents / 100 : r.precio,
-        tags: r.tags || []
-    }));
-
-    const allImages = [producto.imagen_url, ...(producto.capturas || [])];
+    const allImages = [producto.imagen_url, ...(producto.capturas || [])].filter(Boolean);
     const fechaFormateada = new Date(producto.created_at).toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
@@ -131,7 +123,7 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
         return precio.toFixed(2);
     };
 
-    // Características del producto (puedes personalizar)
+    // Características del producto
     const caracteristicas = [
         'Compra 100% segura y garantizada',
         'Descarga automática del archivo .ZIP inmediatamente tras el pago',
@@ -187,6 +179,9 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                     src={producto.imagen_url}
                                     alt={producto.nombre}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    // @ts-ignore
+                                    fetchPriority="high"
+                                    decoding="async"
                                 />
                                 {/* Overlay con efecto */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -228,6 +223,8 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                             <img
                                                 src={img}
                                                 alt={`Captura ${idx + 1}`}
+                                                loading="lazy"
+                                                decoding="async"
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                             />
                                         </div>
@@ -363,6 +360,8 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                         <img
                                             src={rel.imagen_url}
                                             alt={rel.nombre}
+                                            loading="lazy"
+                                            decoding="async"
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                         <div className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm rounded-lg">
