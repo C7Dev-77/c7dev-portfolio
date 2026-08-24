@@ -87,6 +87,9 @@ export const metadata: Metadata = {
   verification: {
     google: "googlebeedeb2068387784",
   },
+  other: {
+    "google-adsense-account": "ca-pub-5843644780957870",
+  },
 };
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -99,11 +102,11 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${outfit.variable} ${inter.variable}`}>
       <head>
-        <Script
+        <meta name="google-adsense-account" content="ca-pub-5843644780957870" />
+        <script
           async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5843644780957870"}`}
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5843644780957870"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
       </head>
       <body className="font-sans antialiased scanlines flex flex-col min-h-screen bg-cyber-black text-white">
