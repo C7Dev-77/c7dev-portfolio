@@ -64,6 +64,7 @@ export async function middleware(request: NextRequest) {
         }
       }
     }
+    }
   } catch (e) {
     // Error parseando cookies — redirigir a login
     console.error('[middleware] Error parsing cookies:', e);
