@@ -17,57 +17,25 @@ export async function middleware(request: NextRequest) {
   // VALIDACIÓN CRIPTOGRÁFICA DEL JWT (reemplaza la validación por regex)
   // ============================================================
 
-  // Extraer el token de acceso de las cookies de Supabase
-  // Supabase almacena el JWT en cookies con formato:
-  //   sb-<project-ref>-auth-token (valor JSON) o chunked (.0, .1, etc.)
-  const cookieHeader = request.headers.get('cookie') || '';
-  
   // Buscar la cookie de auth-token de Supabase
   let accessToken: string | null = null;
+  const explicitCookie = request.cookies.get('sb-access-token');
 
-  try {
-    // Intentar encontrar la cookie del token de sesión
-    const cookies = parseCookies(cookieHeader);
+  if (explicitCookie) {
+    accessToken = explicitCookie.value;
+  } else {
+    // Buscar la cookie nativa de Supabase en caso de que exista (formato fallback)
+    const allCookies = request.cookies.getAll();
+    const authCookie = allCookies.find((c) => /^sb-.+-auth-token$/.test(c.name));
     
-    // Buscar cookies de Supabase (formato explícito o el de supabase-js)
-    accessToken = cookies['sb-access-token'] || null;
-
-    if (!accessToken) {
-      const authCookieName = Object.keys(cookies).find(
-        (name) => /^sb-.+-auth-token$/.test(name)
-      );
-
-      if (authCookieName) {
-      // El valor de la cookie puede ser un JSON con access_token
-      let cookieValue = cookies[authCookieName];
-      
-      // Si la cookie está chunked (sb-xxx-auth-token.0, .1, etc.), reconstruir
-      if (!cookieValue || cookieValue === '') {
-        const chunks: string[] = [];
-        let i = 0;
-        while (cookies[`${authCookieName}.${i}`] !== undefined) {
-          chunks.push(cookies[`${authCookieName}.${i}`]);
-          i++;
-        }
-        if (chunks.length > 0) {
-          cookieValue = chunks.join('');
-        }
-      }
-
-      if (cookieValue) {
-        try {
-          const parsed = JSON.parse(decodeURIComponent(cookieValue));
-          accessToken = parsed?.access_token || parsed?.[0]?.access_token || null;
-        } catch {
-          // Si no es JSON, intentar usar el valor directamente
-          accessToken = cookieValue;
-        }
+    if (authCookie) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(authCookie.value));
+        accessToken = parsed?.access_token || parsed?.[0]?.access_token || null;
+      } catch {
+        accessToken = authCookie.value;
       }
     }
-    }
-  } catch (e) {
-    // Error parseando cookies — redirigir a login
-    console.error('[middleware] Error parsing cookies:', e);
   }
 
   // Si no se encontró un access_token, redirigir a login
@@ -82,9 +50,11 @@ export async function middleware(request: NextRequest) {
   // ============================================================
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // Usamos ANON_KEY en lugar de SERVICE_ROLE_KEY porque este último podría no estar configurado en Vercel,
+    // y para verificar un JWT con getUser() el ANON_KEY es completamente suficiente.
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       // Si faltan variables, fallback seguro: denegar acceso
       console.error('[middleware] Missing Supabase env vars for auth validation');
       const loginUrl = new URL('/login', request.url);
@@ -92,8 +62,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Crear un cliente de Supabase con service_role para verificar el JWT
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    // Crear un cliente de Supabase para verificar el JWT
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
@@ -129,21 +99,7 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// Helper para parsear cookies de forma segura
-function parseCookies(cookieHeader: string): Record<string, string> {
-  const cookies: Record<string, string> = {};
-  if (!cookieHeader) return cookies;
-
-  cookieHeader.split(';').forEach((cookie) => {
-    const eqIndex = cookie.indexOf('=');
-    if (eqIndex === -1) return;
-    const name = cookie.substring(0, eqIndex).trim();
-    const value = cookie.substring(eqIndex + 1).trim();
-    cookies[name] = value;
-  });
-
-  return cookies;
-}
+// Helper removido porque request.cookies es nativo
 
 export const config = {
   matcher: ['/admin/:path*'],
