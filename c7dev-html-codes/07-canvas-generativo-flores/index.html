@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C7Dev — Canvas Generativo Floral WebGL</title>
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Lienzo floral generativo interactivo con simulación de fluidos y crecimiento botánico en shaders WebGL y Three.js.">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      background: #06060c;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+    }
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+    .hud-title {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 24px;
+      border-radius: 999px;
+      background: rgba(10, 12, 22, 0.75);
+      border: 1px solid rgba(0, 255, 180, 0.35);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0, 255, 180, 0.2);
+      color: #e0fff4;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      z-index: 10;
+    }
+    .hint-overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 180, 0.5);
+      pointer-events: none;
+      transition: opacity 1s ease;
+      z-index: 5;
+    }
+    .toolbar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+    .tool-btn {
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 18, 30, 0.75);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tool-btn:hover {
+      background: rgba(0, 255, 180, 0.2);
+      border-color: #00ffb4;
+      box-shadow: 0 0 15px rgba(0, 255, 180, 0.35);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="hud-title">✦ C7DEV BOTANICAL GENERATIVE CANVAS ✦</div>
+  <canvas id="canvas"></canvas>
+
+  <div class="hint-overlay" id="hint">
+    ✦ Toca o arrastra sobre el lienzo para cultivar flores ✦
+  </div>
+
+  <div class="toolbar">
+    <button class="tool-btn" id="randomGardenBtn">🌸 Jardín Aleatorio</button>
+    <button class="tool-btn" id="cleanBtn">🧹 Limpiar Lienzo</button>
+  </div>
+
+  <div class="watermark">&copy; C7Dev &bull; Shaders Generativos WebGL</div>
+
+  <script type="x-shader/x-fragment" id="fragmentShader">
+    #define PI 3.14159265359
+
+    uniform float u_ratio;
+    uniform vec2 u_cursor;
+    uniform float u_stop_time;
+    uniform float u_clean;
+    uniform vec2 u_stop_randomizer;
+    uniform sampler2D u_texture;
+    varying vec2 vUv;
+
+    // Simplex Noise 2D
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+
+    float snoise(vec2 v) {
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+      vec2 i = floor(v + dot(v, C.yy));
+      vec2 x0 = v - i + dot(i, C.xx);
+      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+      i = mod289(i);
+      vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+      vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+      m = m * m;
+      m = m * m;
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+      m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+      vec3 g;
+      g.x = a0.x * x0.x + h.x * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
+    float get_flower_shape(vec2 _p, float _pet_n, float _angle, float _outline) {
+      _p = vec2(_p.x * cos(_angle) - _p.y * sin(_angle), _p.x * sin(_angle) + _p.y * cos(_angle));
+      float a = atan(_p.y, _p.x);
+      float flower_sector = (a + PI) / (2.0 * PI) * _pet_n;
+      float circle = length(_p);
+      float rot = (floor(flower_sector) + 0.5) * (2.0 * PI / _pet_n);
+      vec2 circle_center = vec2(cos(rot), sin(rot)) * 0.1 * _outline;
+      float flower = length(_p - circle_center) - 0.08;
+      flower = step(0.0, -flower);
+      float blooming = smoothstep(0.0, 0.8, u_stop_time * (1.0 + 3.0 * u_stop_randomizer[0]));
+      flower *= blooming;
+      return flower;
+    }
+
+    float get_stem_shape(vec2 _p, vec2 _uv, float _w, float _angle) {
+      _p.x += _p.y * sin(_angle);
+      float x_offset = 0.1 * (snoise(3.0 * _uv) - 0.2);
+      x_offset *= pow(3.0 * _uv.y, 2.0);
+      _p.x -= x_offset;
+      float cursor_horizontal_noise = 0.5 * snoise(2.0 * _uv * u_stop_randomizer[0]);
+      cursor_horizontal_noise *= pow(dot(_p.y, _p.y), 0.6);
+      cursor_horizontal_noise *= pow(dot(_uv.y, _uv.y), 0.3);
+      _p.x += cursor_horizontal_noise;
+      float left = smoothstep(-_w, 0.0, _p.x);
+      float right = 1.0 - smoothstep(0.0, _w, _p.x);
+      float stem_shape = left * right;
+      float grow_time = 1.0 - smoothstep(0.0, 0.2, u_stop_time);
+      float stem_top_mask = smoothstep(0.0, pow(grow_time, 0.5), 0.03 - _p.y);
+      stem_shape *= stem_top_mask;
+      stem_shape *= (1.0 - step(0.17, u_stop_time));
+      return stem_shape;
+    }
+
+    void main() {
+      vec3 base = texture2D(u_texture, vUv).xyz;
+      vec2 uv = vUv;
+      uv.x *= u_ratio;
+      vec2 cursor = vUv - u_cursor.xy;
+      cursor.x *= u_ratio;
+
+      vec3 stem_color = vec3(0.05 + u_stop_randomizer[0] * 0.4, 0.85, 0.4);
+      vec3 flower_color = vec3(0.4 + 0.6 * u_stop_randomizer[1], 0.2, 0.8 - 0.4 * u_stop_randomizer[1]);
+
+      float angle = 0.5 * (u_stop_randomizer[0] - 0.5);
+      float stem_shape = get_stem_shape(cursor, uv, 0.003, angle);
+      stem_shape += get_stem_shape(cursor + vec2(0.0, 0.2 + 0.5 * u_stop_randomizer[0]), uv, 0.003, angle);
+      float stem_mask = 1.0 - get_stem_shape(cursor, uv, 0.004, angle);
+      stem_mask -= get_stem_shape(cursor + vec2(0.0, 0.2 + 0.5 * u_stop_randomizer[0]), uv, 0.004, angle);
+
+      float petals_back_number = 1.0 + floor(u_stop_randomizer[0] * 2.0);
+      float angle_offset = -(2.0 * step(0.0, angle) - 1.0) * 0.1 * u_stop_time;
+      float flower_back_shape = get_flower_shape(cursor, petals_back_number, angle + angle_offset, 1.5);
+      float flower_back_mask = 1.0 - get_flower_shape(cursor, petals_back_number, angle + angle_offset, 1.6);
+
+      float petals_front_number = 2.0 + floor(u_stop_randomizer[1] * 2.0);
+      float flower_front_shape = get_flower_shape(cursor, petals_front_number, angle, 1.0);
+      float flower_front_mask = 1.0 - get_flower_shape(cursor, petals_front_number, angle, 0.95);
+
+      vec3 color = base;
+      color *= stem_mask;
+      color *= flower_back_mask;
+      color *= flower_front_mask;
+      color += (stem_shape * stem_color);
+      color += (flower_back_shape * (flower_color + vec3(0.0, 0.8 * u_stop_time, 0.0)));
+      color += (flower_front_shape * flower_color);
+
+      color.r *= 1.0 - (0.5 * flower_back_shape * flower_front_shape);
+      color.b *= 1.0 - (flower_back_shape * flower_front_shape);
+      color *= u_clean;
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  </script>
+
+  <script type="x-shader/x-vertex" id="vertexShader">
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from "https://cdn.skypack.dev/three@0.133.1/build/three.module";
+
+    const canvasEl = document.querySelector("#canvas");
+    const cleanBtn = document.querySelector("#cleanBtn");
+    const gardenBtn = document.querySelector("#randomGardenBtn");
+    const hintEl = document.querySelector("#hint");
+
+    const pointer = {
+      x: 0.5,
+      y: 0.5,
+      clicked: true,
+      vanishCanvas: false
+    };
+
+    let renderer, sceneShader, sceneBasic, camera, clock;
+    let shaderMaterial, basicMaterial;
+    let renderTargets = [null, null];
+
+    function init() {
+      renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      sceneShader = new THREE.Scene();
+      sceneBasic = new THREE.Scene();
+      camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      clock = new THREE.Clock();
+
+      renderTargets = [
+        new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight),
+        new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight)
+      ];
+
+      createPlane();
+      updateSize();
+      window.addEventListener("resize", updateSize);
+      render();
+    }
+
+    function createPlane() {
+      shaderMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          u_stop_time: { type: "f", value: 0.0 },
+          u_stop_randomizer: { type: "v2", value: new THREE.Vector2(Math.random(), Math.random()) },
+          u_cursor: { type: "v2", value: new THREE.Vector2(pointer.x, pointer.y) },
+          u_ratio: { type: "f", value: window.innerWidth / window.innerHeight },
+          u_texture: { type: "t", value: null },
+          u_clean: { type: "f", value: 1.0 }
+        },
+        vertexShader: document.getElementById("vertexShader").textContent,
+        fragmentShader: document.getElementById("fragmentShader").textContent
+      });
+
+      basicMaterial = new THREE.MeshBasicMaterial();
+      const planeGeometry = new THREE.PlaneGeometry(2, 2);
+      sceneBasic.add(new THREE.Mesh(planeGeometry, basicMaterial));
+      sceneShader.add(new THREE.Mesh(planeGeometry, shaderMaterial));
+    }
+
+    function plantFlower(clientX, clientY) {
+      hintEl.style.opacity = '0';
+      pointer.x = clientX / window.innerWidth;
+      pointer.y = clientY / window.innerHeight;
+      pointer.clicked = true;
+    }
+
+    window.addEventListener("click", e => {
+      if (e.target.closest('.toolbar')) return;
+      plantFlower(e.clientX, e.clientY);
+    });
+
+    window.addEventListener("touchmove", e => {
+      if (e.target.closest('.toolbar')) return;
+      plantFlower(e.touches[0].clientX, e.touches[0].clientY);
+    });
+
+    cleanBtn.addEventListener("click", () => {
+      pointer.vanishCanvas = true;
+      setTimeout(() => { pointer.vanishCanvas = false; }, 50);
+    });
+
+    gardenBtn.addEventListener("click", () => {
+      hintEl.style.opacity = '0';
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          plantFlower(
+            (0.2 + Math.random() * 0.6) * window.innerWidth,
+            (0.3 + Math.random() * 0.5) * window.innerHeight
+          );
+        }, i * 350);
+      }
+    });
+
+    // Intro automática de florecimiento
+    setTimeout(() => {
+      plantFlower(window.innerWidth * 0.45, window.innerHeight * 0.45);
+      setTimeout(() => {
+        plantFlower(window.innerWidth * 0.55, window.innerHeight * 0.52);
+      }, 400);
+    }, 600);
+
+    function render() {
+      shaderMaterial.uniforms.u_clean.value = pointer.vanishCanvas ? 0.0 : 1.0;
+      shaderMaterial.uniforms.u_texture.value = renderTargets[0].texture;
+
+      if (pointer.clicked) {
+        shaderMaterial.uniforms.u_cursor.value = new THREE.Vector2(pointer.x, 1.0 - pointer.y);
+        shaderMaterial.uniforms.u_stop_randomizer.value = new THREE.Vector2(Math.random(), Math.random());
+        shaderMaterial.uniforms.u_stop_time.value = 0.0;
+        pointer.clicked = false;
+      }
+      shaderMaterial.uniforms.u_stop_time.value += clock.getDelta();
+
+      renderer.setRenderTarget(renderTargets[1]);
+      renderer.render(sceneShader, camera);
+      basicMaterial.map = renderTargets[1].texture;
+      renderer.setRenderTarget(null);
+      renderer.render(sceneBasic, camera);
+
+      let tmp = renderTargets[0];
+      renderTargets[0] = renderTargets[1];
+      renderTargets[1] = tmp;
+
+      requestAnimationFrame(render);
+    }
+
+    function updateSize() {
+      shaderMaterial.uniforms.u_ratio.value = window.innerWidth / window.innerHeight;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderTargets[0].setSize(window.innerWidth, window.innerHeight);
+      renderTargets[1].setSize(window.innerWidth, window.innerHeight);
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -28,6 +28,8 @@ import DynamicProjectCount from '@/components/DynamicProjectCount';
 import ServicesSection from '@/components/ServicesSection';
 import BioStackSection from '@/components/BioStackSection';
 import FAQSection from '@/components/FAQSection';
+import BlogPreview from '@/components/BlogPreview';
+import NewsletterForm from '@/components/NewsletterForm';
 
 // Lazy load componentes visuales pesados (mejora LCP/FCP)
 const ParticleNetwork = dynamic(() => import('@/components/ParticleNetwork'), { ssr: false });
@@ -298,6 +300,11 @@ export default function HomePage() {
           ======================================== */}
       <FAQSection />
 
+      {/* ========================================
+          SECCIÓN BLOG TÉCNICO
+          ======================================== */}
+      <BlogPreview />
+
 
       {/* ========================================
           CTA CONTRATACIÓN
@@ -329,6 +336,11 @@ export default function HomePage() {
           </div>
 
 
+
+          {/* ========== NEWSLETTER ========== */}
+          <div className="mt-8 max-w-sm mx-auto">
+            <NewsletterForm />
+          </div>
 
         </div>
       </section>

@@ -96,14 +96,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${outfit.variable} ${inter.variable}`}>
-      <head>
-        <meta name="google-adsense-account" content="ca-pub-5843644780957870" />
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5843644780957870"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="font-sans antialiased scanlines flex flex-col min-h-screen bg-cyber-black text-white">
         <ConfigProvider>
           <MusicProvider>
@@ -119,6 +111,13 @@ export default function RootLayout({
             <SpeedInsights />
           </MusicProvider>
         </ConfigProvider>
+        {/* AdSense: afterInteractive no bloquea el LCP — mejora Core Web Vitals */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5843644780957870"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
       </body>
     </html>
   );

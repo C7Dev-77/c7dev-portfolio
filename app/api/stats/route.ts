@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getClientIp, claimsLimiter } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +72,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
+    // Rate Limiting para evitar abusos
+    const ip = getClientIp(req as any);
+    const { success } = await claimsLimiter.limit(ip);
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const supabase = createServerSupabaseClient();
+
+    // Validar que el projectId exista en 'proyectos' o 'products'
+    const { count: isProject } = await supabase
+      .from('proyectos')
+      .select('id', { count: 'exact', head: true })
+      .eq('id', projectId);
+      
+    const { count: isProduct } = await supabase
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('id', projectId);
+
+    if ((isProject || 0) === 0 && (isProduct || 0) === 0) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
 
     // 1. Leer el registro actual de este proyecto (si existe)
     const { data: existing } = await (supabase.from('project_metrics' as any) as any)

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C7Dev — Nube Cuántica de Lluvia de Código</title>
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Simulación de nube cuántica interactiva con relámpagos cibernéticos y lluvia de caracteres de código fuente neon.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00ffd5;
+      --secondary: #0088ff;
+      --bg-color: #060c16;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #0a182a 0%, #03060c 100%);
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .c7dev-badge {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 24px;
+      border-radius: 999px;
+      background: rgba(10, 24, 42, 0.7);
+      border: 1px solid rgba(0, 255, 213, 0.4);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0, 255, 213, 0.25);
+      color: #b3fff2;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      z-index: 100;
+    }
+
+    .container {
+      position: relative;
+      width: 440px;
+      height: 480px;
+      display: flex;
+      justify-content: center;
+      border-bottom: 1px solid rgba(0, 255, 213, 0.2);
+      -webkit-box-reflect: below 2px linear-gradient(transparent, transparent 60%, rgba(0, 255, 213, 0.15));
+    }
+
+    /* Nube Holográfica Neón */
+    .cloud {
+      position: relative;
+      top: 45px;
+      z-index: 50;
+      width: 320px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 100px;
+      filter: drop-shadow(0 0 35px var(--primary));
+      transition: filter 0.4s ease, background 0.4s ease;
+      cursor: pointer;
+    }
+    .cloud::before {
+      content: "";
+      width: 110px;
+      height: 110px;
+      background: inherit;
+      border-radius: 50%;
+      position: absolute;
+      top: -50px;
+      left: 45px;
+      box-shadow: 95px 0 0 30px var(--primary);
+      transition: box-shadow 0.4s ease;
+    }
+
+    /* Relámpago cuántico */
+    .lightning {
+      position: absolute;
+      inset: -50px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.08s ease-out;
+    }
+    .lightning.flash {
+      opacity: 1;
+    }
+
+    /* Gotas de código que caen */
+    .cloud .code-drop {
+      position: absolute;
+      top: 60px;
+      height: 20px;
+      line-height: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 6px var(--primary), 0 0 14px var(--secondary);
+      transform-origin: bottom;
+      pointer-events: none;
+      animation: codeRain linear forwards;
+    }
+
+    @keyframes codeRain {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      85% {
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(370px) scale(0.7);
+        opacity: 0;
+      }
+    }
+
+    .controls-bar {
+      position: fixed;
+      bottom: 24px;
+      display: flex;
+      gap: 12px;
+      background: rgba(10, 24, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 8px 18px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .ctrl-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 213, 0.35);
+      background: rgba(0, 255, 213, 0.1);
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(0, 255, 213, 0.25);
+      border-color: var(--primary);
+      box-shadow: 0 0 14px rgba(0, 255, 213, 0.4);
+    }
+
+    .attribution {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .hint {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="c7dev-badge">✦ C7DEV QUANTUM CODE CLOUD ✦</div>
+
+  <div class="container">
+    <div class="lightning" id="lightning"></div>
+    <div class="cloud" id="cloud"></div>
+  </div>
+
+  <div class="controls-bar">
+    <button class="ctrl-btn" id="lightningBtn">⚡ Provocar Rayo</button>
+    <button class="ctrl-btn" id="themeBtn">🎨 Cambiar Espectro</button>
+  </div>
+
+  <div class="attribution">&copy; C7Dev &bull; Quantum Syntax Cascade</div>
+  <div class="hint">✦ Haz clic en la nube para invocar una tormenta ✦</div>
+
+  <script>
+    const tokens = [
+      'C7DEV', '<code/>', '{ async }', 'return', '0x1', '1010',
+      'const', 'export', 'WebGL', 'Three.js', 'lambda =>',
+      '&&', '===', '||', '!=', 'matrix.io', '200 OK', 'Promise',
+      '0', '1', '404', 'C7', 'dev.run()'
+    ];
+
+    function getRandomToken() {
+      return tokens[Math.floor(Math.random() * tokens.length)];
+    }
+
+    const cloud = document.getElementById("cloud");
+    const lightning = document.getElementById("lightning");
+
+    function spawnCodeDrop() {
+      const drop = document.createElement("div");
+      drop.innerText = getRandomToken();
+      drop.classList.add("code-drop");
+
+      const width = cloud.clientWidth;
+      const left = Math.random() * (width - 30);
+      const fontSize = Math.random() * 0.55 + 0.65;
+      const duration = 1.2 + Math.random() * 0.9;
+
+      Object.assign(drop.style, {
+        left: `${left}px`,
+        fontSize: `${fontSize}rem`,
+        animationDuration: `${duration}s`,
+      });
+
+      cloud.appendChild(drop);
+      setTimeout(() => drop.remove(), duration * 1000);
+    }
+
+    // Intervalo de lluvia suave
+    let rainInterval = setInterval(spawnCodeDrop, 35);
+
+    // Efecto de rayo y descarga
+    function triggerStorm() {
+      lightning.classList.add("flash");
+      setTimeout(() => lightning.classList.remove("flash"), 120);
+
+      // Rafaga de codigo
+      for (let i = 0; i < 25; i++) {
+        setTimeout(spawnCodeDrop, i * 15);
+      }
+    }
+
+    cloud.addEventListener("click", triggerStorm);
+    document.getElementById("lightningBtn").addEventListener("click", triggerStorm);
+
+    // Temas espectrales
+    const spectrums = [
+      { primary: '#00ffd5', secondary: '#0088ff' },
+      { primary: '#00ff66', secondary: '#00aa33' },
+      { primary: '#d946ef', secondary: '#8b5cf6' },
+      { primary: '#ffd700', secondary: '#ff6600' }
+    ];
+    let sIdx = 0;
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      sIdx = (sIdx + 1) % spectrums.length;
+      const s = spectrums[sIdx];
+      document.documentElement.style.setProperty('--primary', s.primary);
+      document.documentElement.style.setProperty('--secondary', s.secondary);
+      triggerStorm();
+    });
+  </script>
+</body>
+</html>

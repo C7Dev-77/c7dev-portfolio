@@ -1,5 +1,6 @@
 import { Github, Linkedin, Terminal, Mail, ArrowRight, Heart, Send, Instagram, Youtube, Facebook } from 'lucide-react';
 import Link from 'next/link';
+import NewsletterForm from '@/components/NewsletterForm';
 
 // Ícono de TikTok personalizado
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -22,7 +23,7 @@ export default function Footer() {
       <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12 text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12 text-center md:text-left">
 
 
           {/* Brand Column */}
@@ -63,6 +64,16 @@ export default function Footer() {
               <li>
                 <Link href="/portafolio" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 flex items-center gap-2 text-sm uppercase tracking-wider">
                   Portafolio
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 flex items-center gap-2 text-sm uppercase tracking-wider">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/contacto" className="text-gray-400 hover:text-white hover:pl-2 transition-all duration-300 flex items-center gap-2 text-sm uppercase tracking-wider">
+                  Contacto
                 </Link>
               </li>
             </ul>
@@ -159,19 +170,33 @@ export default function Footer() {
               </a>
             </div>
           </div>
-        </div>
 
+          {/* Newsletter — 4ta columna */}
+          <div>
+            <NewsletterForm />
+          </div>
+
+        </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-600 text-xs uppercase tracking-widest text-center md:text-left">
             © {year} C7Dev_. All rights reserved.
           </p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacidad" className="text-gray-700 hover:text-gray-400 text-xs transition-colors">
+              Política de Privacidad
+            </Link>
+            <span className="text-gray-800">·</span>
+            <Link href="/terminos" className="text-gray-700 hover:text-gray-400 text-xs transition-colors">
+              Términos de Uso
+            </Link>
+          </div>
           <p className="flex items-center gap-2 text-xs text-gray-600 uppercase tracking-widest">
-            Codeado con <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> & C7Dev_
+            Codeado con <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> &amp; C7Dev_
           </p>
         </div>
       </div>
     </footer>
   );
-}
+}

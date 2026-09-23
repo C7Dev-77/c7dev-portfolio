@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Sobre animado 3D interactivo con CSS puro y partículas flotantes doradas. Código original C7Dev.">
+  <title>Sobre Animado 3D Interactivo — C7Dev</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Playfair Display',serif;background:#0a0a0a;color:#e8e0d4;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;-webkit-tap-highlight-color:transparent}
+    .particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+    .particle{position:absolute;width:3px;height:3px;background:radial-gradient(circle,#FFD70088,transparent 70%);border-radius:50%;animation:floatUp var(--dur) var(--delay) infinite ease-in-out;opacity:0}
+    @keyframes floatUp{0%{transform:translateY(0) scale(0);opacity:0}15%{opacity:1}85%{opacity:.6}100%{transform:translateY(-100vh) scale(1.5);opacity:0}}
+    .envelope{--dur:800ms;--w:320px;--h:190px;--gold:#FFD700;--gold-dark:#B8860B;--bg:#1a1a1a;--bg-side:#151515;--bg-bottom:#1f1f1f;--bg-top:#181818;position:relative;width:var(--w);height:var(--h);perspective:1200px;cursor:pointer;z-index:2;animation:entranceEnvelope 1.2s cubic-bezier(.23,1,.32,1) both}
+    @keyframes entranceEnvelope{0%{transform:scale(.6) rotateX(15deg);opacity:0;filter:blur(8px)}100%{transform:scale(1) rotateX(0);opacity:1;filter:blur(0)}}
+    @media(min-width:720px){.envelope{--w:560px;--h:320px}.letter{--font:1.4rem}.front-label{font-size:1.15rem}}
+    .envelope::after{content:"";position:absolute;top:108%;left:50%;width:calc(var(--w)*.8);height:40px;translate:-50% 0;border-radius:50%;background:rgba(255,215,0,.12);filter:blur(18px);transition:var(--dur) ease}
+    .envelope-inner{position:relative;width:100%;height:100%;transition:var(--dur) cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;transform:rotateY(0)}
+    .envelope:hover .envelope-inner,.envelope.open .envelope-inner{transform:rotateY(180deg)}
+    .envelope-front,.envelope-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:6px;overflow:hidden}
+    .envelope-front{background:var(--bg);border:1px solid rgba(255,215,0,.15);display:grid;place-content:center;padding:2rem}
+    .envelope-front::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,215,0,.06),transparent 60%);pointer-events:none}
+    .stamp{position:absolute;top:.8rem;right:.8rem;width:48px;height:56px;background:var(--bg-side);border:2px dashed rgba(255,215,0,.25);border-radius:3px;display:grid;place-content:center;animation:stampGlow 3s ease-in-out infinite alternate}
+    .stamp svg{width:28px;height:28px}
+    @keyframes stampGlow{0%{box-shadow:0 0 4px rgba(255,215,0,.1)}100%{box-shadow:0 0 14px rgba(255,215,0,.3)}}
+    .front-label{font-family:'Inter',sans-serif;font-size:.9rem;color:rgba(255,215,0,.85);letter-spacing:.5px}
+    .front-label p{margin:.4rem 0}
+    .front-label span:first-child{font-weight:300;color:#888}
+    .front-label span:last-child{font-weight:600;color:var(--gold)}
+    .envelope-back{background:var(--bg);border:1px solid rgba(255,215,0,.12);transform:rotateY(180deg)}
+    .envelope-back::after{content:"";position:absolute;inset:0;z-index:3;background-image:conic-gradient(transparent 60deg,var(--bg-side) 60deg 120deg,var(--bg-bottom) 120deg 240deg,var(--bg-side) 240deg 300deg,transparent 300deg);border-radius:6px}
+    .top-fold{position:absolute;inset:0;z-index:10;background:var(--bg-top);clip-path:polygon(0% 0%,50% 55%,100% 0%);transform:rotateX(0);transform-origin:top;transition:var(--dur) cubic-bezier(.4,.2,.2,1);transition-delay:calc(var(--dur)*.75);border-top:1px solid rgba(255,215,0,.1)}
+    .envelope:hover .top-fold,.envelope.open .top-fold{transform:rotateX(180deg);z-index:0;transition-delay:calc(var(--dur)*.6)}
+    .letter{--font:1rem;position:absolute;bottom:6px;left:50%;width:72%;height:calc(var(--h) - 2.5rem);transform:translateX(-50%);background:linear-gradient(135deg,#fefefe,#f5f0e8);border-radius:4px 4px 0 0;z-index:2;padding:1.5em 1.8em;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.8rem;transition:height var(--dur) cubic-bezier(.4,.2,.2,1);transition-delay:0ms;overflow:hidden;box-shadow:0 -2px 20px rgba(255,215,0,.08)}
+    .envelope:hover .letter,.envelope.open .letter{height:calc(var(--h)*1.8);transition-delay:calc(var(--dur)*1.2)}
+    .letter svg.heart-icon{width:50px;height:50px;filter:drop-shadow(0 0 8px rgba(255,50,50,.4));animation:heartbeat 1.5s ease-in-out infinite}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.15)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+    .letter p{margin:0;font-size:var(--font);font-weight:400;color:#3a2a1a;line-height:1.6}
+    .letter .highlight{display:block;margin-top:.5rem;font-size:1.6em;font-weight:700;color:var(--gold-dark);text-shadow:0 0 12px rgba(255,215,0,.25);animation:glowText 2s ease-in-out infinite alternate}
+    @keyframes glowText{0%{text-shadow:0 0 8px rgba(255,215,0,.15)}100%{text-shadow:0 0 20px rgba(255,215,0,.45)}}
+    .letter .seal{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c0392b,#8b1a1a);display:grid;place-content:center;box-shadow:0 2px 12px rgba(192,57,43,.35)}
+    .seal svg{width:30px;height:30px}
+    .watermark{position:fixed;bottom:12px;right:16px;font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,215,0,.3);letter-spacing:1px;z-index:10}
+    .hint{position:fixed;bottom:16px;left:50%;translate:-50% 0;font-family:'Inter',sans-serif;font-size:12px;color:rgba(255,215,0,.4);animation:pulse 2s ease-in-out infinite;z-index:10}
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="envelope" id="envelope">
+    <div class="envelope-inner">
+      <div class="envelope-front">
+        <div class="stamp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <div class="front-label">
+          <p><span>Para: </span><span>Alguien Especial ❤️</span></p>
+          <p><span>De: </span><span>Con Todo Mi Cariño 💌</span></p>
+        </div>
+      </div>
+      <div class="envelope-back">
+        <div class="top-fold"></div>
+        <div class="letter">
+          <svg class="heart-icon" viewBox="0 0 24 24" fill="#e74c3c"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <p>Desde que llegaste a mi vida todo cambió para bien, mis días tienen más luz y mi corazón más calma.<span class="highlight">Te quiero</span></p>
+          <div class="seal"><svg viewBox="0 0 24 24" fill="#ffeaa7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hint">✦ Pasa el cursor para abrir ✦</div>
+  <div class="watermark">© C7Dev</div>
+  <script>
+    const pc=document.getElementById('particles');
+    for(let i=0;i<35;i++){const p=document.createElement('div');p.classList.add('particle');const s=Math.random()*4+2;Object.assign(p.style,{left:Math.random()*100+'%',top:(Math.random()*60+40)+'%',width:s+'px',height:s+'px','--dur':(6+Math.random()*10)+'s','--delay':(Math.random()*8)+'s'});pc.appendChild(p)}
+    document.getElementById('envelope').addEventListener('click',function(){this.classList.toggle('open')});
+  </script>
+</body>
+</html>

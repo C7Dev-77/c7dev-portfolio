@@ -24,11 +24,19 @@ export async function GET(req: Request, { params }: { params: { orderId: string 
   try {
     const supabase = createServerSupabaseClient();
     const { orderId } = params;
+    
+    // Extraer email de la URL para prevenir IDOR
+    const url = new URL(req.url);
+    const email = url.searchParams.get('email');
+
+    if (!email) {
+      return NextResponse.json({ error: 'Se requiere el email del comprador para verificar la descarga' }, { status: 400 });
+    }
 
     // 1. Validar que la compra existe y está pagada
     const { data: purchase, error: purchaseError } = await supabase
       .from('purchases')
-      .select('status, product_id')
+      .select('status, product_id, buyer_email')
       .eq('provider_order_id', orderId)
       .single();
 
@@ -38,6 +46,10 @@ export async function GET(req: Request, { params }: { params: { orderId: string 
 
     if (purchase.status !== 'paid') {
       return NextResponse.json({ error: 'El pago no ha sido verificado aún' }, { status: 403 });
+    }
+
+    if (purchase.buyer_email?.toLowerCase() !== email.toLowerCase()) {
+      return NextResponse.json({ error: 'No autorizado: el email no coincide con la compra' }, { status: 403 });
     }
 
     // 2. Obtener el path del archivo desde el producto

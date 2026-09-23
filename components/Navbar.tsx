@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Home, Store, Settings, Menu, X, Terminal, LogIn, User, Code, Music, Heart } from 'lucide-react';
+import { Home, Store, Settings, Menu, X, Terminal, LogIn, User, Code, Music, Heart, BookOpen } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import LogoWithSound from './LogoWithSound';
 import LanguageSelector from './LanguageSelector';
@@ -39,6 +39,7 @@ export default function Navbar() {
     { href: '/', label: t.navHome, icon: Home },
     { href: '/tienda', label: t.navCodes, icon: Code },
     { href: '/portafolio', label: t.navPortfolio, icon: Terminal },
+    { href: '/blog', label: 'Blog', icon: BookOpen },
   ];
 
   return (

@@ -44,6 +44,17 @@ export default function LoginPage() {
         setError(null);
 
         try {
+            // 1. Verificación de Rate Limit en el servidor
+            const rateLimitRes = await fetch('/api/auth/login', {
+                method: 'POST',
+            });
+            
+            if (!rateLimitRes.ok) {
+                const errorData = await rateLimitRes.json();
+                throw new Error(errorData.error || 'Demasiados intentos. Espera unos minutos.');
+            }
+
+            // 2. Intento real de login con Supabase
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
 

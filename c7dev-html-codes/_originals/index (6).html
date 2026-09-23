@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animación Interactiva</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 97vh;
+
+            background: linear-gradient(
+                160deg,
+                #ffe6f4 0%,
+                #fa168c 35%,
+                #f7b9de 70%,
+                #f444c8 100%
+            );
+        }
+
+        .flower {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: -1;
+        }
+
+        .flower__wrapper {
+            position: relative;
+            padding: 2vh 7vh;
+            border-radius: 50% 50% 0 0;
+            background: linear-gradient(#ff0000 -100%, transparent);
+            overflow: hidden;
+        }
+
+.flower__sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.flower__sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #fff 40%, #d7ecff 70%, transparent 100%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px #aeeaff);
+    animation: sparkle-flicker 2s infinite ease-in-out;
+    transform-origin: center;
+}
+
+.flower__sparkle::before,
+.flower__sparkle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+    transform: translate(-50%, -50%) rotate(0deg);
+    border-radius: 5px;
+    opacity: 0.9;
+}
+
+.flower__sparkle::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+@keyframes sparkle-flicker {
+    0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.4; }
+    50% { transform: scale(1.4) rotate(45deg); opacity: 1; }
+}
+
+.flower__sparkle:nth-child(1) { top: 12%; left: 35%; }
+.flower__sparkle:nth-child(2) { top: 28%; left: 18%; animation-delay: .3s; }
+.flower__sparkle:nth-child(3) { top: 42%; left: 32%; animation-delay: .8s; }
+.flower__sparkle:nth-child(4) { top: 58%; left: 10%; animation-delay: 1.2s; }
+.flower__sparkle:nth-child(5) { top: 76%; left: 70%; animation-delay: .5s; }
+.flower__sparkle:nth-child(6) { top: 65%; left: 25%; animation-delay: 1.5s; }
+.flower__sparkle:nth-child(7) { top: 52%; left: 80%; animation-delay: .9s; }
+.flower__sparkle:nth-child(8) { top: 33%; left: 75%; animation-delay: .4s; }
+
+        .imagen {
+            margin-top: 9vh;
+            height: 49vh;
+            width: 28vh;
+        }
+
+        .titulo {
+            position: absolute;
+            top: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            text-align: center;
+
+            color: rgb(255, 0, 0);
+            font-size: 3vh;
+            font-weight: bold;
+
+            opacity: 0;
+            animation: fadeIn 4s ease-in-out forwards;
+
+            /* ✔ Esto hace que el texto esté ENCIMA de todo */
+            z-index: 9999;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .titulo .abajo {
+    display: block;       
+    margin-top: 1vh;      
+    font-size: 2.5vh;     
+}
+
+
+    </style>
+ <h2 id="frase" style="
+    position:absolute;
+    top:80vh;        
+    left:50%;
+    transform:translateX(-50%);
+    width:90%;
+    text-align:center;
+
+    /* 🎨 Colores bonitos */
+    color: #ff0073;  /* color principal rosa fuerte */
+    text-shadow:
+        0 0 8px #ffb6ec,
+        0 0 15px #ff69b4,
+        0 0 25px #ff009d;
+
+    font-size:3vh;
+    font-weight:bold;
+    opacity:1;
+    transition: opacity .3s ease-in-out;
+    z-index:9999;
+"></h2>
+
+
+</head>
+
+<body>
+
+    <h1 class="titulo">
+    Este Detalle es para tí ❤️
+    <samp class="abajo">❤️🥰</samp>
+</h1>
+
+    <h2 id="frase"></h2>
+    <div class="flower__wrapper">
+    <div class="corazones"></div>
+
+        <div class="flower__sparkles">
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+            <div class="flower__sparkle"></div>
+        </div>
+
+        <div class="flower">
+            <img class="imagen" src="https://i.pinimg.com/originals/4d/80/56/4d80564c89721f9a75cd1df36e42a467.gif">
+        </div>
+        <audio id="musica" src="https://www.image2url.com/r2/default/audio/1778551049355-1ef40f36-d3bc-4af1-ba95-449979a1de80.mp3"></audio>
+
+ <script>
+   const frases = [
+  "Amarte es mi parte favorita del día ❤️",
+  "Tu sonrisa ilumina todo lo que soy ✨",
+  "Contigo todo es más bonito 🌸",
+  "Eres mi razón, mi paz y mi todo 💕",
+  "Si tú estás, todo vale la pena 💗",
+  "Mi corazón late más fuerte por ti 💞",
+  "Eres mi lugar favorito en el mundo 🌷",
+  "No sabía qué era el amor… hasta que te conocí 💘"
+];
+    let i = 0;
+    const fraseEl = document.getElementById('frase');
+    fraseEl.textContent = frases[0];
+    setInterval(() => {
+      i = (i + 1) % frases.length;
+      fraseEl.style.opacity = 0;
+      setTimeout(() => {
+        fraseEl.textContent = frases[i];
+        fraseEl.style.opacity = 1;
+      }, 300);
+    }, 3000);
+
+    document.addEventListener('click', () => {
+      const audio = document.getElementById('musica');
+      if (audio && audio.paused) {
+        audio.play().catch(()=>{/* bloqueo por navegador; ignoramos */});
+      }
+    }, { once: false });
+
+    document.addEventListener('click', (e) => {
+ 
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+      const flor = document.createElement('div');
+      flor.className = 'mini-flor';
+      flor.style.left = `${e.clientX}px`;
+      flor.style.top = `${e.clientY}px`;
+      document.body.appendChild(flor);
+      setTimeout(() => flor.remove(), 1000);
+    });
+  </script>
+</body>
+</html>

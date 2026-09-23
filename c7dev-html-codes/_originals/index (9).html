@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <title>lluvia de letras 🌦️</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  cursor: auto;
+}
+
+:root {
+  --body-color: #0e2636;
+  --primary-color: rgb(0, 255, 0);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--body-color);
+}
+
+.container {
+  width: 50%;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  -webkit-box-reflect: below 1px linear-gradient(transparent, transparent, transparent, transparent, #0005);
+}
+
+.cloud {
+  position: relative;
+  top: 50px;
+  z-index: 100;
+  width: 320px;
+  height: 100px;
+  background-color: var(--primary-color);
+  border-radius: 100px;
+  filter: drop-shadow(0 0 30px var(--primary-color));
+}
+.cloud::before {
+  content: "";
+  width: 110px;
+  height: 110px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  position: absolute;
+  top: -50px;
+  left: 40px;
+  box-shadow: 90px 0 0 30px var(--primary-color);
+}
+
+.cloud .text {
+  position: absolute;
+  top: 40px;
+  height: 20px;
+  line-height: 20px;
+
+  text-transform: uppercase;
+  color: var(--primary-color);
+  text-shadow: 0 0 5px var(--primary-color), 0 0 15px var(--primary-color), 0 0 30px var(--primary-color);
+  transform-origin: bottom;
+  animation: animate 2s linear forwards;
+}
+
+@keyframes animate {
+  0% {
+    transform: translateX(0);
+  }
+
+  70% {
+    transform: translateY(290px);
+  }
+
+  100% {
+    transform: translateY(290px);
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cloud"></div>
+  </div>
+  <script>
+    function generateText() {
+  const letters = ['B i e n v e n i d o', 'Ing. Sist. R A F A E L'];
+  const numbers = [];
+  const a = "a".charCodeAt(0);
+
+  for (let i = 0; i < 26; i++) {
+    letters.push(String.fromCharCode(a + i));
+    if (i < 9) numbers.push(i + 1);
+  }
+
+  return [...letters, ...numbers];
+}
+
+function randomText() {
+  const texts = generateText();
+  return texts[Math.floor(Math.random() * texts.length)];
+}
+
+function rainEffect() {
+  const cloudEle = document.querySelector(".cloud");
+  const textEle = document.createElement("div");
+
+  textEle.innerText = randomText();
+  textEle.classList.add("text");
+  const cloudWidth = cloudEle.clientWidth;
+  const left = Math.random() * (cloudWidth - 20); 
+  const fontSize = Math.random() * 1 + 0.5; 
+
+  const duration = 1 + Math.random();
+
+  Object.assign(textEle.style, {
+    left: `${left}px`,
+    fontSize: `${fontSize}em`,
+    animationDuration: `${duration}s`,
+  });
+
+  cloudEle.appendChild(textEle);
+  setTimeout(() => {
+    textEle.remove();
+  }, duration * 1000);
+}
+setInterval(rainEffect, 20);
+  </script>
+</body>
+</html>

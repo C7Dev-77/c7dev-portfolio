@@ -9,7 +9,7 @@ export default function FreeDownloadGate() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   
-  const [secondsLeft, setSecondsLeft] = useState(30);
+  const [secondsLeft, setSecondsLeft] = useState(15);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +50,9 @@ export default function FreeDownloadGate() {
   return (
     <div className="flex flex-col items-center w-full">
       <div className="mb-8 w-full">
-        <AdBanner dataAdSlot="INSERT_YOUR_AD_SLOT_TOP" />
+        {/* TODO: Reemplaza el slot con tu ID real de AdSense
+            Pasos: adsense.google.com → Anuncios → Por unidad de anuncio → Crear → Copiar el data-ad-slot */}
+        <AdBanner dataAdSlot="YOUR_AD_SLOT_ID_TOP" />
       </div>
       
       <div className="glass-panel p-8 text-center border-l-4 border-neon-gold mb-8 relative z-10 w-full max-w-lg">
@@ -91,7 +93,9 @@ export default function FreeDownloadGate() {
       </div>
 
       <div className="mt-8 w-full">
-        <AdBanner dataAdSlot="INSERT_YOUR_AD_SLOT_BOTTOM" />
+        {/* TODO: Reemplaza el slot con tu ID real de AdSense
+            Pasos: adsense.google.com → Anuncios → Por unidad de anuncio → Crear → Copiar el data-ad-slot */}
+        <AdBanner dataAdSlot="YOUR_AD_SLOT_ID_BOTTOM" />
       </div>
     </div>
   );

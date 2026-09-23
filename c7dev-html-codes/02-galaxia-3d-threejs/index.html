@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>C7Dev — Galaxia 3D Cósmica Interactiva</title>
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Simulación de galaxia espiral 3D interactiva creada con Three.js, partículas estelares, agujero negro y efectos de plasma.">
+  <style>
+    :root {
+      --primary: #00f0ff;
+      --secondary: #8b5cf6;
+      --accent: #d946ef;
+      --bg-hud: rgba(10, 15, 30, 0.75);
+      --border-glow: rgba(0, 240, 255, 0.3);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #020208;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+    #galaxy-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+    #fx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .hud-header {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 20px;
+      border-radius: 999px;
+      background: var(--bg-hud);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), inset 0 0 12px rgba(139, 92, 246, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+    .hud-header .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--primary);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+    }
+    .hud-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-hud);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 8px 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #e2e8f0;
+      font-size: 12px;
+      z-index: 10;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .hud-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      background: rgba(0, 240, 255, 0.08);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hud-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+      transform: translateY(-1px);
+    }
+    .hud-btn:active {
+      transform: translateY(1px);
+    }
+    .hud-info {
+      display: flex;
+      gap: 16px;
+      font-variant-numeric: tabular-nums;
+      color: #94a3b8;
+    }
+    .hud-info span b {
+      color: var(--primary);
+    }
+    .attribution {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+    .attribution a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .tip-pill {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+    .error-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1e0914;
+      color: #ffd9f7;
+      border: 1px solid #ff4ca3;
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 0 30px rgba(255, 76, 163, 0.4);
+    }
+    @media (max-width: 640px) {
+      .hud-controls {
+        flex-direction: column;
+        gap: 8px;
+        bottom: 10px;
+        width: 90%;
+      }
+      .attribution, .tip-pill {
+        display: none;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <canvas id="galaxy-canvas"></canvas>
+  <canvas id="fx"></canvas>
+
+  <div class="hud-header">
+    <span class="dot"></span>
+    <span>C7DEV • GALAXY EXPLORER 3D</span>
+  </div>
+
+  <div class="hud-controls">
+    <button class="hud-btn" id="warpBtn">⚡ Hiperimpulso</button>
+    <button class="hud-btn" id="rotateToggle">⏸ Pausar Giro</button>
+    <div class="hud-info">
+      <span>Cuerpos: <b>8,500+</b></span>
+      <span>Brazos: <b>5</b></span>
+    </div>
+  </div>
+
+  <div class="attribution">Desarrollado por <a href="#">C7Dev</a> &copy; 2026</div>
+  <div class="tip-pill">✦ Doble clic para generar Supernova ✦</div>
+  <div id="err" class="error-box"></div>
+
+  <script>
+    (function () {
+      const err = document.getElementById('err');
+      function showError(msg) {
+        err.textContent = msg;
+        err.style.display = 'block';
+      }
+
+      try {
+        const test = document.createElement('canvas').getContext('webgl') || document.createElement('canvas').getContext('experimental-webgl');
+        if (!test) throw new Error('WebGL no está soportado en este entorno');
+      } catch (e) {
+        showError('WebGL desactivado o no disponible en este navegador.');
+        return;
+      }
+
+      try {
+        const canvas = document.getElementById('galaxy-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+        renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2500);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 10;
+        controls.maxDistance = 260;
+        controls.target.set(0, 0, 0);
+
+        function updateCamera() {
+          const w = window.innerWidth, h = window.innerHeight;
+          const isMobile = w < 768 || w < h;
+          camera.fov = isMobile ? 88 : 72;
+          camera.position.set(0, isMobile ? 28 : 24, isMobile ? 115 : 80);
+          camera.updateProjectionMatrix();
+          controls.update();
+        }
+        updateCamera();
+        window.addEventListener('resize', () => {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          updateCamera();
+        });
+
+        // Fondo estelar 360
+        function createStarFieldTexture(size = 1024, count = 2200) {
+          const c = document.createElement('canvas');
+          c.width = c.height = size;
+          const g = c.getContext('2d');
+          const r = size / 2;
+          const bg = g.createRadialGradient(r, r, r * 0.15, r, r, r);
+          bg.addColorStop(0, '#03040c');
+          bg.addColorStop(1, '#010104');
+          g.fillStyle = bg;
+          g.fillRect(0, 0, size, size);
+
+          for (let i = 0; i < count; i++) {
+            const x = Math.random() * size, y = Math.random() * size;
+            const b = Math.random() * 0.7 + 0.3;
+            const glow = g.createRadialGradient(x, y, 0, x, y, Math.random() * 2.2 + 1.4);
+            const hue = Math.random();
+            let colInner = 'rgba(255,255,255,' + (0.75 * b) + ')';
+            let colOuter = hue < 0.4 ? 'rgba(0,240,255,' + (0.15 * b) + ')' :
+                            hue < 0.8 ? 'rgba(139,92,246,' + (0.15 * b) + ')' :
+                                       'rgba(217,70,239,' + (0.12 * b) + ')';
+            glow.addColorStop(0, colInner);
+            glow.addColorStop(1, colOuter);
+            g.fillStyle = glow;
+            g.beginPath();
+            g.arc(x, y, Math.random() * 1.3 + 0.5, 0, Math.PI * 2);
+            g.fill();
+          }
+          return new THREE.CanvasTexture(c);
+        }
+
+        const bgGeo = new THREE.SphereGeometry(700, 64, 64);
+        const starTex = createStarFieldTexture(1024, 2500);
+        starTex.wrapS = starTex.wrapT = THREE.RepeatWrapping;
+        const bgMesh = new THREE.Mesh(bgGeo, new THREE.MeshBasicMaterial({ map: starTex, side: THREE.BackSide, opacity: 0.9, transparent: false }));
+        scene.add(bgMesh);
+
+        // Estructura Galáctica
+        const galaxy = new THREE.Group();
+        scene.add(galaxy);
+
+        const techPhrases = [
+          "C7Dev Core ⚡", "Quantum Matrix ⚛️", "Deep Space 🌌", "Supernova Flow 💥",
+          "Singularity ♾️", "Dark Matter 🔮", "Nebula Grid 🌠", "Neural Link 🧠",
+          "Photon Pulse ⚡", "Hyperdrive 🚀", "Orbital Sync 🛰️", "Void Horizon 🌐",
+          "Starlight Code ✨", "Pulsar Beam 📡", "Cyber Cosmos 💠", "Zero Gravity 🛸"
+        ];
+        const phraseCount = 180;
+        const arms = 5, radius = 86, maxH = 24;
+
+        function createTextTexture(text) {
+          const c = document.createElement('canvas');
+          c.width = 1024;
+          c.height = 128;
+          const g = c.getContext('2d');
+          g.clearRect(0, 0, c.width, c.height);
+          g.font = '800 46px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+          g.textAlign = 'center';
+          g.textBaseline = 'middle';
+          g.shadowColor = 'rgba(0, 240, 255, 0.9)';
+          g.shadowBlur = 20;
+          g.fillStyle = '#ffffff';
+          g.fillText(text, c.width / 2, c.height / 2);
+          return new THREE.CanvasTexture(c);
+        }
+
+        // Cache de texturas para eficiencia
+        const textureCache = techPhrases.map(p => createTextTexture(p));
+
+        for (let i = 0; i < phraseCount; i++) {
+          const tex = textureCache[i % textureCache.length];
+          const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+          const perArm = phraseCount / arms;
+          const ang = (i % perArm) * (Math.PI * 2 / perArm);
+          const armAng = Math.floor(i / perArm) * (Math.PI * 2 / arms);
+          const dist = Math.pow(i / phraseCount, 0.72) * radius;
+          const thickness = Math.pow(1 - (dist / radius), 2);
+          const x = Math.cos(ang + armAng) * dist;
+          const z = Math.sin(ang + armAng) * dist;
+          const y = (Math.random() - 0.5) * maxH * thickness * 0.9;
+          spr.position.set(x, y, z);
+          spr.scale.set(20, 2.5, 1);
+          galaxy.add(spr);
+        }
+
+        // 8000 partículas estelares optimizadas
+        const starCount = 8500;
+        const geom = new THREE.BufferGeometry();
+        const pos = new Float32Array(starCount * 3);
+        const col = new Float32Array(starCount * 3);
+
+        const color1 = new THREE.Color(0x00f0ff);
+        const color2 = new THREE.Color(0x8b5cf6);
+        const color3 = new THREE.Color(0xd946ef);
+
+        for (let i = 0; i < starCount; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const dist = Math.random() * radius * 1.18;
+          const y = (Math.random() - 0.5) * 38 * Math.pow(1 - Math.min(dist, radius) / radius, 1.5);
+          pos[i * 3] = Math.cos(ang) * dist;
+          pos[i * 3 + 1] = y;
+          pos[i * 3 + 2] = Math.sin(ang) * dist;
+
+          const mixedColor = color1.clone().lerp(dist > radius * 0.5 ? color2 : color3, Math.random());
+          col[i * 3] = mixedColor.r;
+          col[i * 3 + 1] = mixedColor.g;
+          col[i * 3 + 2] = mixedColor.b;
+        }
+
+        geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geom.setAttribute('color', new THREE.BufferAttribute(col, 3));
+
+        const pMat = new THREE.PointsMaterial({
+          size: 0.32,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.75,
+          blending: THREE.AdditiveBlending
+        });
+        galaxy.add(new THREE.Points(geom, pMat));
+
+        // Núcleo Estelar / Agujero Negro Central
+        const coreR = 12;
+        const coreTexCanvas = document.createElement('canvas');
+        coreTexCanvas.width = coreTexCanvas.height = 256;
+        const cg = coreTexCanvas.getContext('2d');
+        const grd = cg.createRadialGradient(128, 128, 12, 128, 128, 128);
+        grd.addColorStop(0, '#001428');
+        grd.addColorStop(0.5, '#05021a');
+        grd.addColorStop(1, '#000000');
+        cg.fillStyle = grd;
+        cg.beginPath();
+        cg.arc(128, 128, 128, 0, Math.PI * 2);
+        cg.fill();
+
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(coreR, 64, 64),
+          new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(coreTexCanvas) })
+        );
+        core.renderOrder = 1;
+        scene.add(core);
+
+        // Anillo de Fotones brillante
+        const photonRing = new THREE.Mesh(
+          new THREE.RingGeometry(coreR * 1.05, coreR * 1.25, 128),
+          new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.95, side: THREE.DoubleSide })
+        );
+        photonRing.rotation.x = -Math.PI / 2;
+        photonRing.renderOrder = 0.5;
+        scene.add(photonRing);
+
+        // Halo de radiación galáctica
+        function makeHaloTexture(size = 1024) {
+          const c = document.createElement('canvas');
+          c.width = c.height = size;
+          const g = c.getContext('2d');
+          const r = size / 2;
+          const grd = g.createRadialGradient(r, r, r * 0.42, r, r, r);
+          grd.addColorStop(0.0, 'rgba(0, 240, 255, 0.4)');
+          grd.addColorStop(0.35, 'rgba(139, 92, 246, 0.3)');
+          grd.addColorStop(0.7, 'rgba(217, 70, 239, 0.2)');
+          grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          g.fillStyle = grd;
+          g.fillRect(0, 0, size, size);
+          return new THREE.CanvasTexture(c);
+        }
+
+        const haloPlane = new THREE.Mesh(
+          new THREE.PlaneGeometry(330, 330),
+          new THREE.MeshBasicMaterial({
+            map: makeHaloTexture(1024),
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            opacity: 0.9
+          })
+        );
+        haloPlane.rotation.x = -Math.PI / 2;
+        haloPlane.renderOrder = 0.2;
+        scene.add(haloPlane);
+
+        // Controles y Animación
+        let isRotating = true;
+        let rotSpeed = 0.05;
+        let warpActive = false;
+        let starDrift = 0;
+
+        document.getElementById('rotateToggle').onclick = function () {
+          isRotating = !isRotating;
+          this.textContent = isRotating ? '⏸ Pausar Giro' : '▶ Reanudar Giro';
+        };
+
+        const warpBtn = document.getElementById('warpBtn');
+        warpBtn.onclick = function () {
+          warpActive = !warpActive;
+          if (warpActive) {
+            rotSpeed = 0.35;
+            this.textContent = '🚀 Velocidad Normal';
+            this.style.background = 'rgba(217, 70, 239, 0.3)';
+            this.style.borderColor = '#d946ef';
+          } else {
+            rotSpeed = 0.05;
+            this.textContent = '⚡ Hiperimpulso';
+            this.style.background = 'rgba(0, 240, 255, 0.08)';
+            this.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+          }
+        };
+
+        function animate() {
+          requestAnimationFrame(animate);
+          const t = performance.now() * 0.001;
+
+          starDrift = (starDrift + 0.0002) % 1;
+          starTex.offset.set(starDrift, 0);
+
+          if (isRotating) {
+            galaxy.rotation.y += rotSpeed * 0.016;
+            core.rotation.y = t * 0.12;
+            photonRing.rotation.z = t * 0.22;
+            haloPlane.rotation.z = t * 0.03;
+          }
+
+          controls.update();
+          renderer.render(scene, camera);
+        }
+        animate();
+
+        // Efecto FX 2D: Supernovas de Plasma en doble clic
+        const fx = document.getElementById('fx');
+        const ctx2 = fx.getContext('2d');
+        const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+        function resizeFx() {
+          fx.width = Math.floor(window.innerWidth * DPR);
+          fx.height = Math.floor(window.innerHeight * DPR);
+          fx.style.width = window.innerWidth + 'px';
+          fx.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', resizeFx);
+        resizeFx();
+
+        const plasmaSparks = [];
+        const sparkColors = ['#00f0ff', '#8b5cf6', '#d946ef', '#ffffff', '#ffd700'];
+
+        function spawnSupernova(clientX, clientY, count = 35) {
+          const x = clientX * DPR;
+          const y = clientY * DPR;
+          for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 1.5 + Math.random() * 4.5;
+            plasmaSparks.push({
+              x, y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 1.0,
+              decay: 0.015 + Math.random() * 0.02,
+              size: 2.5 + Math.random() * 4,
+              color: sparkColors[Math.floor(Math.random() * sparkColors.length)]
+            });
+          }
+        }
+
+        let lastClick = 0;
+        window.addEventListener('click', (e) => {
+          if (e.target.closest('.hud-controls, .hud-header, .attribution')) return;
+          const now = performance.now();
+          if (now - lastClick < 320) spawnSupernova(e.clientX, e.clientY, 40);
+          lastClick = now;
+        }, { passive: true });
+
+        function loopFx() {
+          ctx2.clearRect(0, 0, fx.width, fx.height);
+          for (let i = plasmaSparks.length - 1; i >= 0; i--) {
+            const s = plasmaSparks[i];
+            s.x += s.vx;
+            s.y += s.vy;
+            s.vx *= 0.98;
+            s.vy *= 0.98;
+            s.life -= s.decay;
+
+            if (s.life <= 0) {
+              plasmaSparks.splice(i, 1);
+              continue;
+            }
+
+            ctx2.save();
+            ctx2.globalAlpha = Math.max(0, s.life);
+            ctx2.fillStyle = s.color;
+            ctx2.shadowColor = s.color;
+            ctx2.shadowBlur = 10;
+            ctx2.beginPath();
+            ctx2.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+            ctx2.fill();
+            ctx2.restore();
+          }
+          requestAnimationFrame(loopFx);
+        }
+        loopFx();
+
+      } catch (e) {
+        showError('Error en la simulación 3D: ' + e.message);
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>

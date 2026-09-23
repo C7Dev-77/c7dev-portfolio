@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C7Dev — Esfera Cristal Cuántica CSS 3D</title>
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Esfera de cristal holográfica hiperrealista con efectos 3D en CSS puro, iluminación volumétrica, partículas de aura y respuesta al mouse.">
+  <style>
+    :root {
+      --sphere-size: 240px;
+      --glow-c1: #ff7700;
+      --glow-c2: #9d00ff;
+      --glow-c3: #00f0ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #0e0e1a 0%, #030308 100%);
+      overflow: hidden;
+      perspective: 1000px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+    }
+
+    .c7dev-badge {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 22px;
+      border-radius: 999px;
+      background: rgba(14, 15, 30, 0.7);
+      border: 1px solid rgba(255, 120, 0, 0.4);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(255, 120, 0, 0.2);
+      color: #ffd080;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      z-index: 100;
+    }
+
+    .scene {
+      position: relative;
+      width: var(--sphere-size);
+      height: var(--sphere-size);
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out;
+      cursor: pointer;
+    }
+
+    /* Aura energética orbital */
+    .energy-ring {
+      position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(255, 140, 0, 0.4);
+      animation: spinRing 12s linear infinite;
+      box-shadow: 0 0 30px rgba(157, 0, 255, 0.2);
+      pointer-events: none;
+    }
+    .energy-ring:nth-child(2) {
+      inset: -50px;
+      border: 1px dotted rgba(0, 240, 255, 0.35);
+      animation: spinRing 18s linear infinite reverse;
+    }
+    @keyframes spinRing {
+      0% { transform: rotate(0deg) rotateX(60deg); }
+      100% { transform: rotate(360deg) rotateX(60deg); }
+    }
+
+    /* Cuerpo esférico con gradientes de cristal 3D */
+    .crystal-sphere {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%, #ffaa00 0%, #ff4d00 35%, #7a00cc 75%, #180036 100%);
+      box-shadow:
+        inset -18px -18px 40px rgba(0, 0, 0, 0.85),
+        inset 15px 15px 35px rgba(255, 220, 150, 0.7),
+        inset 0 0 50px rgba(255, 77, 0, 0.6),
+        0 15px 45px rgba(255, 77, 0, 0.35),
+        0 0 80px rgba(157, 0, 255, 0.25);
+      animation: levitate 4s ease-in-out infinite alternate;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes levitate {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-18px) scale(1.02); }
+    }
+
+    /* Reflejo superior especular vítreo */
+    .crystal-sphere::before {
+      content: "";
+      position: absolute;
+      top: 6%;
+      left: 14%;
+      width: 68%;
+      height: 42%;
+      background: radial-gradient(ellipse at 45% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.3) 45%, transparent 75%);
+      border-radius: 50%;
+      filter: blur(4px);
+      transform: rotate(-22deg);
+      pointer-events: none;
+    }
+
+    /* Reflejo secundario inferior translúcido */
+    .crystal-sphere::after {
+      content: "";
+      position: absolute;
+      bottom: 8%;
+      right: 18%;
+      width: 48%;
+      height: 25%;
+      background: radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(8px);
+      transform: rotate(20deg);
+      pointer-events: none;
+    }
+
+    /* Núcleo holográfico C7Dev */
+    .core-emblem {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px #ffaa00);
+      animation: corePulse 3s ease-in-out infinite alternate;
+    }
+    .core-emblem svg {
+      width: 72px;
+      height: 72px;
+    }
+    @keyframes corePulse {
+      0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.85; }
+      100% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+    }
+
+    /* Sombra dinámica en la superficie inferior */
+    .floor-shadow {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 190px;
+      height: 36px;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(255, 77, 0, 0.15) 45%, transparent 70%);
+      border-radius: 50%;
+      animation: shadowPulse 4s ease-in-out infinite alternate;
+    }
+    @keyframes shadowPulse {
+      0% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+      100% { transform: translateX(-50%) scale(0.8); opacity: 0.4; }
+    }
+
+    /* Efecto de estallido al hacer clic */
+    .burst {
+      animation: burstEnergy 1.2s ease-out forwards;
+    }
+    @keyframes burstEnergy {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      40% {
+        transform: scale(1.22);
+        box-shadow:
+          0 0 120px rgba(255, 200, 0, 0.9),
+          0 0 200px rgba(157, 0, 255, 0.7);
+        filter: brightness(1.5);
+      }
+      100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+    }
+
+    .controls-box {
+      position: fixed;
+      bottom: 24px;
+      display: flex;
+      gap: 12px;
+      background: rgba(14, 15, 30, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 8px 18px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .ctrl-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 140, 0, 0.35);
+      background: rgba(255, 140, 0, 0.1);
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255, 140, 0, 0.25);
+      border-color: #ff9900;
+      box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);
+    }
+    .attribution {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .hint {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="c7dev-badge">✦ C7DEV QUANTUM CRYSTAL SPHERE ✦</div>
+
+  <div class="scene" id="scene">
+    <div class="energy-ring"></div>
+    <div class="energy-ring"></div>
+    <div class="crystal-sphere" id="sphere">
+      <div class="core-emblem">
+        <svg viewBox="0 0 100 100" fill="none">
+          <!-- Logo C7 estilizado -->
+          <path d="M 68 25 C 42 20 22 35 22 55 C 22 75 42 85 65 78 C 72 75 75 70 75 70" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+          <path d="M 44 38 L 76 38 L 52 74" stroke="#ffd700" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="floor-shadow"></div>
+  </div>
+
+  <div class="controls-box">
+    <button class="ctrl-btn" id="pulseBtn">⚡ Descarga de Energía</button>
+    <button class="ctrl-btn" id="colorBtn">🌈 Mutar Espectro</button>
+  </div>
+
+  <div class="attribution">&copy; C7Dev &bull; CSS 3D Shader-like Core</div>
+  <div class="hint">✦ Haz clic o mueve el mouse para inclinar ✦</div>
+
+  <script>
+    const scene = document.getElementById('scene');
+    const sphere = document.getElementById('sphere');
+    const pulseBtn = document.getElementById('pulseBtn');
+    const colorBtn = document.getElementById('colorBtn');
+
+    // Efecto de inclinación 3D en tiempo real con el cursor
+    window.addEventListener('mousemove', (e) => {
+      const { innerWidth: w, innerHeight: h } = window;
+      const x = (e.clientX - w / 2) / (w / 2);
+      const y = (e.clientY - h / 2) / (h / 2);
+      scene.style.transform = `rotateY(${x * 28}deg) rotateX(${-y * 28}deg)`;
+    });
+
+    // Descarga de energía
+    function triggerBurst() {
+      sphere.classList.remove('burst');
+      void sphere.offsetWidth; // Forzar reflow
+      sphere.classList.add('burst');
+    }
+
+    sphere.addEventListener('click', triggerBurst);
+    pulseBtn.addEventListener('click', triggerBurst);
+
+    // Variaciones espectrales de color
+    const spectrums = [
+      {
+        bg: 'radial-gradient(circle at 32% 28%, #ffaa00 0%, #ff4d00 35%, #7a00cc 75%, #180036 100%)',
+        box: 'inset -18px -18px 40px rgba(0, 0, 0, 0.85), inset 15px 15px 35px rgba(255, 220, 150, 0.7), inset 0 0 50px rgba(255, 77, 0, 0.6), 0 15px 45px rgba(255, 77, 0, 0.35)'
+      },
+      {
+        bg: 'radial-gradient(circle at 32% 28%, #00ffff 0%, #0066ff 35%, #9900ff 75%, #050020 100%)',
+        box: 'inset -18px -18px 40px rgba(0, 0, 0, 0.85), inset 15px 15px 35px rgba(180, 240, 255, 0.7), inset 0 0 50px rgba(0, 255, 255, 0.6), 0 15px 45px rgba(0, 150, 255, 0.35)'
+      },
+      {
+        bg: 'radial-gradient(circle at 32% 28%, #39ff14 0%, #00b050 35%, #004d40 75%, #001a14 100%)',
+        box: 'inset -18px -18px 40px rgba(0, 0, 0, 0.85), inset 15px 15px 35px rgba(200, 255, 180, 0.7), inset 0 0 50px rgba(57, 255, 20, 0.6), 0 15px 45px rgba(57, 255, 20, 0.35)'
+      }
+    ];
+    let specIdx = 0;
+    colorBtn.addEventListener('click', () => {
+      specIdx = (specIdx + 1) % spectrums.length;
+      sphere.style.background = spectrums[specIdx].bg;
+      sphere.style.boxShadow = spectrums[specIdx].box;
+      triggerBurst();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C7Dev — Acceso Seguro Cyberpunk Grid</title>
+  <meta name="author" content="C7Dev">
+  <meta name="description" content="Portal de autenticación cyberpunk futurista con grid reactivo animado, validación de credenciales y efectos neon.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-green: #00ff88;
+      --neon-cyan: #00f0ff;
+      --bg-dark: #05080e;
+      --card-bg: rgba(12, 18, 28, 0.82);
+      --tile-bg: #0d121c;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: var(--bg-dark);
+      overflow: hidden;
+    }
+    .grid-container {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 3px;
+      flex-wrap: wrap;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .grid-container::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, transparent 0%, var(--neon-green) 50%, transparent 100%);
+      animation: scanline 6s linear infinite;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .grid-tile {
+      position: relative;
+      display: block;
+      width: calc(6.25vw - 3px);
+      height: calc(6.25vw - 3px);
+      background: var(--tile-bg);
+      z-index: 2;
+      transition: background 1.6s ease;
+      border-radius: 2px;
+    }
+    .grid-tile:hover {
+      background: var(--neon-green);
+      transition: background 0s;
+      box-shadow: 0 0 15px var(--neon-green);
+    }
+    @media (max-width: 1024px) {
+      .grid-tile {
+        width: calc(10vw - 3px);
+        height: calc(10vw - 3px);
+      }
+    }
+    @media (max-width: 600px) {
+      .grid-tile {
+        width: calc(16.66vw - 3px);
+        height: calc(16.66vw - 3px);
+      }
+    }
+
+    /* Tarjeta de Autenticación Cyberpunk */
+    .signin-card {
+      position: relative;
+      width: 420px;
+      max-width: 90vw;
+      background: var(--card-bg);
+      z-index: 100;
+      padding: 44px 38px;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.85),
+        0 0 35px rgba(0, 255, 136, 0.15),
+        inset 0 0 20px rgba(0, 255, 136, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .badge-terminal {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--neon-green);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--neon-green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--neon-green);
+      animation: blinkDot 1s infinite alternate;
+    }
+    @keyframes blinkDot {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+    .card-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .card-header h2 span {
+      color: var(--neon-green);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .input-box {
+      position: relative;
+      width: 100%;
+    }
+    .input-box input {
+      width: 100%;
+      background: rgba(6, 10, 18, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      outline: none;
+      padding: 22px 14px 8px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.3s ease;
+    }
+    .input-box input:focus {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+      background: rgba(10, 18, 28, 0.95);
+    }
+    .input-box label {
+      position: absolute;
+      left: 14px;
+      top: 15px;
+      color: #718096;
+      font-size: 14px;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      font-family: 'Outfit', sans-serif;
+    }
+    .input-box input:focus ~ label,
+    .input-box input:valid ~ label {
+      top: 6px;
+      font-size: 11px;
+      color: var(--neon-green);
+      font-weight: 600;
+    }
+
+    .links-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .links-row a {
+      color: #a0aec0;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .links-row a:hover {
+      color: #fff;
+    }
+    .links-row a.highlight {
+      color: var(--neon-green);
+      font-weight: 600;
+    }
+    .links-row a.highlight:hover {
+      text-shadow: 0 0 10px var(--neon-green);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      color: #03140b;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+      transition: all 0.25s ease;
+      margin-top: 6px;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.7);
+      filter: brightness(1.1);
+    }
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Estado de verificación biométrica */
+    .status-box {
+      margin-top: 16px;
+      display: none;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--neon-cyan);
+    }
+    .progress-bar {
+      height: 3px;
+      background: rgba(0, 240, 255, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 8px var(--neon-cyan);
+      transition: width 1.2s ease-out;
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.35);
+      z-index: 100;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Grid animado generado dinámicamente con JS -->
+  <section class="grid-container" id="gridContainer"></section>
+
+  <!-- Login Card C7Dev -->
+  <div class="signin-card">
+    <div class="card-header">
+      <div class="badge-terminal">
+        <span class="badge-dot"></span>
+        <span>C7DEV // SECURE TERMINAL v2.4</span>
+      </div>
+      <h2>ACCESO AL <span>SISTEMA</span></h2>
+    </div>
+
+    <form class="form-group" id="loginForm" onsubmit="event.preventDefault(); handleAuth();">
+      <div class="input-box">
+        <input type="text" id="username" required autocomplete="off">
+        <label for="username">Identificador de Usuario</label>
+      </div>
+
+      <div class="input-box">
+        <input type="password" id="password" required autocomplete="off">
+        <label for="password">Clave Criptográfica</label>
+      </div>
+
+      <div class="links-row">
+        <a href="#" onclick="alert('Instrucción: Contacta al soporte de C7Dev para restablecer acceso.'); return false;">¿Olvidaste tu clave?</a>
+        <a href="#" class="highlight" onclick="alert('Solicitud de registro enviada a la consola C7Dev.'); return false;">Nueva Terminal</a>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">INGRESAR AL SISTEMA</button>
+
+      <div class="status-box" id="statusBox">
+        <span id="statusText">Autenticando credenciales cuánticas...</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="watermark">&copy; C7Dev &bull; Cyber Security System</div>
+
+  <script>
+    // Generación dinámica y eficiente del grid según la resolución
+    const grid = document.getElementById('gridContainer');
+    const cols = Math.ceil(window.innerWidth / (window.innerWidth < 600 ? window.innerWidth * 0.1666 : window.innerWidth < 1024 ? window.innerWidth * 0.1 : window.innerWidth * 0.0625));
+    const rows = Math.ceil(window.innerHeight / (window.innerWidth < 600 ? window.innerWidth * 0.1666 : window.innerWidth < 1024 ? window.innerWidth * 0.1 : window.innerWidth * 0.0625));
+    const totalTiles = cols * rows;
+
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < totalTiles; i++) {
+      const tile = document.createElement('span');
+      tile.className = 'grid-tile';
+      fragment.appendChild(tile);
+    }
+    grid.appendChild(fragment);
+
+    // Animación interactiva de autenticación
+    function handleAuth() {
+      const btn = document.getElementById('submitBtn');
+      const statusBox = document.getElementById('statusBox');
+      const statusText = document.getElementById('statusText');
+      const progress = document.getElementById('progressFill');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      statusBox.style.display = 'block';
+      statusText.textContent = 'Autenticando enlace cuántico...';
+      progress.style.width = '40%';
+
+      setTimeout(() => {
+        statusText.textContent = 'Verificando huella criptográfica...';
+        progress.style.width = '85%';
+      }, 700);
+
+      setTimeout(() => {
+        statusText.textContent = '✓ Acceso Concedido. Bienvenido a C7Dev.';
+        statusText.style.color = '#00ff88';
+        progress.style.width = '100%';
+        progress.style.background = '#00ff88';
+
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }, 1500);
+      }, 1400);
+    }
+  </script>
+</body>
+</html>
