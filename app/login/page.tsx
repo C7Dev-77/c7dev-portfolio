@@ -55,8 +55,13 @@ export default function LoginPage() {
             }
 
             // 2. Intento real de login con Supabase
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
+
+            // 3. Guardar el token en una cookie explícita para que el middleware lo lea
+            if (data?.session?.access_token) {
+                document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; Secure; SameSite=Lax`;
+            }
 
             setAttempts(0);
             router.push('/admin');

@@ -29,12 +29,15 @@ export async function middleware(request: NextRequest) {
     // Intentar encontrar la cookie del token de sesión
     const cookies = parseCookies(cookieHeader);
     
-    // Buscar cookies de Supabase (formato: sb-<ref>-auth-token)
-    const authCookieName = Object.keys(cookies).find(
-      (name) => /^sb-.+-auth-token$/.test(name)
-    );
+    // Buscar cookies de Supabase (formato explícito o el de supabase-js)
+    accessToken = cookies['sb-access-token'] || null;
 
-    if (authCookieName) {
+    if (!accessToken) {
+      const authCookieName = Object.keys(cookies).find(
+        (name) => /^sb-.+-auth-token$/.test(name)
+      );
+
+      if (authCookieName) {
       // El valor de la cookie puede ser un JSON con access_token
       let cookieValue = cookies[authCookieName];
       

@@ -39,7 +39,6 @@ export default function Navbar() {
     { href: '/', label: t.navHome, icon: Home },
     { href: '/tienda', label: t.navCodes, icon: Code },
     { href: '/portafolio', label: t.navPortfolio, icon: Terminal },
-    { href: '/blog', label: 'Blog', icon: BookOpen },
   ];
 
   return (
