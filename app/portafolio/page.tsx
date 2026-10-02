@@ -1,4 +1,4 @@
-// app/portafolio/page.tsx
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import GlitchText from '@/components/GlitchText';
@@ -6,7 +6,15 @@ import PortfolioGrid from '@/components/PortfolioGrid';
 import { Folder, ChevronRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: 'Portafolio de Proyectos | C7Dev_',
+  description: 'Colección de proyectos de desarrollo web, videojuegos interactivos, aplicaciones 3D y soluciones de software creadas por Cristian Morales (C7Dev_).',
+  alternates: {
+    canonical: '/portafolio',
+  },
+};
 
 interface Proyecto {
   id: string;
@@ -28,8 +36,28 @@ export default async function PortfolioPage() {
     .eq('activo', true)
     .order('orden', { ascending: true });
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Proyectos de Portafolio de C7Dev_',
+    description: 'Proyectos y aplicaciones web desarrolladas por Cristian Morales (C7Dev_).',
+    numberOfItems: proyectos?.length || 0,
+    itemListElement: (proyectos || []).map((p: Proyecto, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: p.titulo,
+      description: p.descripcion,
+      url: `https://c7dev-portfolio.vercel.app/portafolio/${p.id}`,
+      image: p.imagen_url,
+    })),
+  };
+
   return (
     <main className="min-h-screen pt-24 pb-16 px-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}

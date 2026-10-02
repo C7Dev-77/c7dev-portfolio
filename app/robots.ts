@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/login/'],
       },
     ],
-    sitemap: 'https://c7dev.vercel.app/sitemap.xml',
-    host: 'https://c7dev.vercel.app',
+    sitemap: 'https://c7dev-portfolio.vercel.app/sitemap.xml',
+    host: 'https://c7dev-portfolio.vercel.app',
   }
 }

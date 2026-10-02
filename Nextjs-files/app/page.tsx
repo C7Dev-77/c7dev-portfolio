@@ -144,7 +144,7 @@ export default function HomePage() {
                 <Youtube className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]" />
               </a>
               <a
-                href="https://www.tiktok.com/@c7dev__?_r=1&_t=ZS-98uDkdLgl0v"
+                href="https://www.tiktok.com/@c7dev_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 border border-white/10 rounded-xl hover:border-white hover:text-white hover:bg-white/5 transition-all hover:scale-110 group"

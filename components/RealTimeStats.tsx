@@ -5,13 +5,18 @@ import { supabase } from '@/lib/supabase';
 
 interface StatsProps {
     className?: string;
+    initialStats?: {
+        proyectos: number;
+        assets: number;
+        downloads: number;
+    };
 }
 
-export default function RealTimeStats({ className }: StatsProps) {
-    const [stats, setStats] = useState({
-        proyectos: 4,
-        assets: 400,
-        downloads: 400
+export default function RealTimeStats({ className, initialStats }: StatsProps) {
+    const [stats, setStats] = useState(initialStats || {
+        proyectos: 5,
+        assets: 246,
+        downloads: 24
     });
 
     useEffect(() => {

@@ -12,8 +12,10 @@ export function createServerSupabaseClient() {
     throw new Error('Missing Supabase environment variables (URL or ANON_KEY)');
   }
 
-  // Usar service role si está disponible, si no usar anon key como fallback
-  const keyToUse = serviceRoleKey || anonKey;
+  // Usar service role si es un JWT válido, si no usar anon key como fallback seguro
+  const trimmedServiceKey = serviceRoleKey?.trim();
+  const isServiceRoleValid = trimmedServiceKey && trimmedServiceKey.startsWith('eyJ') && !trimmedServiceKey.includes(' ') && !trimmedServiceKey.includes('#');
+  const keyToUse = isServiceRoleValid ? trimmedServiceKey : anonKey.trim();
 
   return createClient(supabaseUrl, keyToUse, {
     auth: {

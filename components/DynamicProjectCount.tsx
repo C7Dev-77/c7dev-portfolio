@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export default function DynamicProjectCount() {
-    const [count, setCount] = useState<number | null>(null);
+export default function DynamicProjectCount({ initialCount }: { initialCount?: number } = {}) {
+    const [count, setCount] = useState<number | null>(initialCount ?? null);
 
     useEffect(() => {
         const fetchCount = async () => {

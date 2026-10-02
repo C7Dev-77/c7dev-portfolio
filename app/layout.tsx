@@ -44,9 +44,9 @@ export const metadata: Metadata = {
     "portafolio programador",
     "creador contenido tech"
   ],
-  authors: [{ name: "Cristian Morales", url: "https://c7dev.vercel.app" }],
+  authors: [{ name: "Cristian Morales", url: "https://c7dev-portfolio.vercel.app" }],
   creator: "Cristian Morales — C7Dev_",
-  metadataBase: new URL("https://c7dev.vercel.app"),
+  metadataBase: new URL("https://c7dev-portfolio.vercel.app"),
   alternates: {
     canonical: "/",
   },
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_CO",
-    url: "https://c7dev.vercel.app",
+    url: "https://c7dev-portfolio.vercel.app",
     siteName: "C7Dev_ Portafolio",
     title: "C7Dev_ | Cristian Morales — Desarrollador Web",
     description: "Portafolio profesional de C7Dev_. Soluciones digitales modernas: sitios web, apps, automatización y más.",

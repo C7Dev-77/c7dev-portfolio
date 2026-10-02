@@ -103,7 +103,7 @@ export default function Footer() {
                 <Youtube className="w-5 h-5" />
               </a>
               <a
-                href="https://www.tiktok.com/@c7dev__?_r=1&_t=ZS-98uDkdLgl0v"
+                href="https://www.tiktok.com/@c7dev_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-gray-700 rounded bg-black/50 flex items-center justify-center text-gray-400 hover:border-white hover:text-white hover:-translate-y-1 transition-all duration-300"

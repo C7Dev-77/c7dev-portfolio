@@ -1,9 +1,13 @@
-import { MetadataRoute } from 'next'
-import { supabase } from '@/lib/supabase'
+import { MetadataRoute } from 'next';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://c7dev-portfolio.vercel.app'
-  const now = new Date()
+  const baseUrl = 'https://c7dev-portfolio.vercel.app';
+  const now = new Date();
+  const supabase = createServerSupabaseClient();
 
   // Páginas estáticas principales
   const staticPages: MetadataRoute.Sitemap = [
@@ -18,26 +22,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Proyectos del portafolio (dinámico desde Supabase)
   const { data: proyectos } = await (supabase.from('proyectos') as any)
-    .select('id, updated_at, created_at')
-    .eq('activo', true)
+    .select('id, created_at')
+    .eq('activo', true);
 
   const projectPages: MetadataRoute.Sitemap = (proyectos || []).map((proy: any) => ({
     url: `${baseUrl}/portafolio/${proy.id}`,
-    lastModified: proy.updated_at ? new Date(proy.updated_at) : new Date(proy.created_at || now),
+    lastModified: new Date(proy.created_at || now),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
-  }))
+  }));
 
   // Productos de la tienda (dinámico desde Supabase)
   const { data: productos } = await (supabase.from('products_public') as any)
-    .select('id, updated_at, created_at')
+    .select('id, created_at');
 
   const productPages: MetadataRoute.Sitemap = (productos || []).map((prod: any) => ({
     url: `${baseUrl}/tienda/${prod.id}`,
-    lastModified: prod.updated_at ? new Date(prod.updated_at) : new Date(prod.created_at || now),
+    lastModified: new Date(prod.created_at || now),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
-  }))
+  }));
 
   // Artículos del blog (dinámico desde Supabase)
   const { data: posts } = await (supabase.from('blog_posts') as any)

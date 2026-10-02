@@ -29,7 +29,10 @@ import ServicesSection from '@/components/ServicesSection';
 import BioStackSection from '@/components/BioStackSection';
 import FAQSection from '@/components/FAQSection';
 import BlogPreview from '@/components/BlogPreview';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
+// Revalidar cada 60s para que Vercel CDN y los bots de IA siempre vean datos frescos (ISR)
+export const revalidate = 60;
 
 // Lazy load componentes visuales pesados (mejora LCP/FCP)
 const ParticleNetwork = dynamic(() => import('@/components/ParticleNetwork'), { ssr: false });
@@ -43,14 +46,112 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function HomePage() {
+export default async function HomePage() {
   // Telegram link con mensaje predeterminado
   const telegramNumber = '573244259132';
   const telegramMessage = encodeURIComponent('¡Hola C7Dev! Me interesa trabajar contigo.');
   const telegramLink = `https://t.me/+${telegramNumber}?text=${telegramMessage}`;
 
+  let projectCount = 5;
+  let productCount = 7;
+  let totalProjectsAndProducts = 12;
+  let rawViews = 246;
+  let rawDownloads = 24;
+  let featuredProjects: any[] = [];
+  let featuredProducts: any[] = [];
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const [proyRes, prodRes, metricsRes] = await Promise.all([
+      supabase.from('proyectos').select('id, titulo, descripcion, categoria').eq('activo', true).order('orden', { ascending: true }),
+      (supabase.from('products_public' as any) as any).select('id, title, description, price_cents, tags').order('created_at', { ascending: false }).limit(7),
+      (supabase.from('project_metrics' as any) as any).select('views, downloads'),
+    ]);
+
+    if (proyRes.data && proyRes.data.length > 0) {
+      featuredProjects = proyRes.data;
+      projectCount = proyRes.data.length;
+    }
+    if (prodRes.data && prodRes.data.length > 0) {
+      featuredProducts = prodRes.data;
+      productCount = prodRes.data.length;
+    }
+    totalProjectsAndProducts = projectCount + productCount;
+
+    if (metricsRes.data && Array.isArray(metricsRes.data) && metricsRes.data.length > 0) {
+      rawViews = metricsRes.data.reduce((acc: number, curr: any) => acc + (Number(curr.views) || 0), 0);
+      rawDownloads = metricsRes.data.reduce((acc: number, curr: any) => acc + (Number(curr.downloads) || 0), 0);
+    }
+  } catch (e) {
+    console.error('Error fetching data in HomePage SSR:', e);
+  }
+
+  // Schema.org Graph para indexación completa por IAs y buscadores
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': 'https://c7dev-portfolio.vercel.app/#person',
+        name: 'Cristian Morales',
+        alternateName: 'C7Dev_',
+        jobTitle: 'Desarrollador Web Full Stack & Ingeniero de Sistemas',
+        url: 'https://c7dev-portfolio.vercel.app',
+        image: 'https://c7dev-portfolio.vercel.app/images/profile.png',
+        sameAs: [
+          'https://github.com/C7Dev-77',
+          'https://www.linkedin.com/in/christiandev7/',
+          'https://www.tiktok.com/@c7dev_',
+          'https://youtube.com/@c7-dev',
+          'https://www.facebook.com/profile.php?id=61584949321538',
+          'https://www.instagram.com/c7dev_'
+        ],
+        knowsAbout: ['Next.js', 'React', 'TypeScript', 'JavaScript', 'Python', 'FastAPI', 'Java', 'Tailwind CSS', 'Supabase', 'WebGL', 'Three.js'],
+        description: 'Ingeniero de Sistemas y desarrollador web especializado en software escalable, diseño de interfaces de alto impacto visual y creación de contenidos tecnológicos.'
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://c7dev-portfolio.vercel.app/#website',
+        url: 'https://c7dev-portfolio.vercel.app',
+        name: 'C7Dev_ | Portafolio Profesional & Tienda de Códigos',
+        publisher: { '@id': 'https://c7dev-portfolio.vercel.app/#person' },
+        description: 'Portafolio profesional, catálogo de templates, códigos fuente y proyectos de desarrollo web por Cristian Morales (C7Dev_).'
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://c7dev-portfolio.vercel.app/#proyectos',
+        name: 'Proyectos del Portafolio de C7Dev_',
+        numberOfItems: featuredProjects.length,
+        itemListElement: featuredProjects.map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: p.titulo,
+          description: p.descripcion,
+          url: `https://c7dev-portfolio.vercel.app/portafolio/${p.id}`
+        }))
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://c7dev-portfolio.vercel.app/#codigos',
+        name: 'Códigos y Templates Digitales de C7Dev_',
+        numberOfItems: featuredProducts.length,
+        itemListElement: featuredProducts.map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: p.title,
+          description: p.description,
+          url: `https://c7dev-portfolio.vercel.app/tienda/${p.id}`
+        }))
+      }
+    ]
+  };
+
   return (
     <main className="relative overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ParticleNetwork />
       <FloatingCode />
       {/* Background Grid - Global for Home */}
@@ -146,7 +247,7 @@ export default function HomePage() {
                 <Youtube className="w-5 h-5 md:w-6 md:h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]" />
               </a>
               <a
-                href="https://www.tiktok.com/@c7dev__?_r=1&_t=ZS-98uDkdLgl0v"
+                href="https://www.tiktok.com/@c7dev_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 border border-white/10 rounded-xl hover:border-white hover:text-white hover:bg-white/5 transition-all hover:scale-110 group"
@@ -205,7 +306,7 @@ export default function HomePage() {
 
             {/* Stats - Estadísticas en tiempo real desde la base de datos */}
             <div className="mt-2 bg-[#050505] backdrop-blur-md rounded-2xl border border-gray-800 py-4 px-8 animate-[fadeInUp_0.8s_ease-out_1s_both] w-full max-w-2xl shadow-lg">
-              <RealTimeStats className="" />
+              <RealTimeStats className="" initialStats={{ proyectos: projectCount, assets: rawViews, downloads: rawDownloads }} />
             </div>
           </div>
 
@@ -260,7 +361,7 @@ export default function HomePage() {
               <div>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FolderGit2 className="w-5 h-5 text-neon-platinum" />
-                  <DynamicProjectCount />
+                  <DynamicProjectCount initialCount={totalProjectsAndProducts} />
                 </div>
                 <p className="text-gray-500 text-sm uppercase tracking-wider">Proyectos</p>
               </div>

@@ -51,7 +51,7 @@ const socials = [
   { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/c7dev_', color: 'hover:border-[#E4405F] hover:text-[#E4405F] hover:bg-[#E4405F]/10' },
   { icon: Youtube, label: 'YouTube', href: 'https://youtube.com/@c7-dev', color: 'hover:border-[#FF0000] hover:text-[#FF0000] hover:bg-[#FF0000]/10' },
   { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61584949321538', color: 'hover:border-[#1877F2] hover:text-[#1877F2] hover:bg-[#1877F2]/10' },
-  { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@c7dev__', color: 'hover:border-white hover:text-white hover:bg-white/5' },
+  { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@c7dev_', color: 'hover:border-white hover:text-white hover:bg-white/5' },
 ];
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
