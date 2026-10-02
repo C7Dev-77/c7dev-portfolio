@@ -22,8 +22,8 @@ import GlitchText from '@/components/GlitchText';
 import ProjectStats from '@/components/ProjectStats';
 import DownloadButtons from '@/components/DownloadButtons';
 
-// Revalidar en segundo plano cada 60 segundos (ISR para TTFB ultra rápido en CDN)
-export const revalidate = 60;
+// Revalidar cada 10 segundos (ISR — bots de IA y CDN siempre ven datos frescos)
+export const revalidate = 10;
 
 // Consulta en caché para evitar llamadas duplicadas entre generateMetadata y la Página
 const getProduct = cache(async (id: string) => {

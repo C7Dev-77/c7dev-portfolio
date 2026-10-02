@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidar cada 60 segundos para mantener la caché del CDN fresca (ISR)
-export const revalidate = 60;
+// Revalidar cada 10 segundos para mantener la caché del CDN fresca (ISR)
+export const revalidate = 10;
 
 export default async function TiendaPage() {
   let initialProducts: MonetizationProduct[] = [];

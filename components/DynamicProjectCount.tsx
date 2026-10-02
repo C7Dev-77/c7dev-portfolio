@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useCountUp } from '@/hooks/useCountUp';
 
 export default function DynamicProjectCount({ initialCount }: { initialCount?: number } = {}) {
-    const [count, setCount] = useState<number | null>(initialCount ?? null);
+    // Arranca en 0 — sin flash de valor estático
+    const [target, setTarget] = useState<number>(0);
+
+    // Anima desde 0 hasta el total real
+    const animated = useCountUp(target, 1300);
 
     useEffect(() => {
+        // Si llega valor SSR, úsalo como target inicial para que empiece a animar desde ya
+        if (initialCount !== undefined) {
+            setTarget(initialCount);
+        }
+
         const fetchCount = async () => {
             try {
                 const { count: proyectosCount } = await supabase
@@ -17,10 +27,9 @@ export default function DynamicProjectCount({ initialCount }: { initialCount?: n
                     .select('*', { count: 'exact', head: true });
 
                 const total = (proyectosCount || 0) + (productosCount || 0);
-                setCount(total);
+                setTarget(total);
             } catch (e) {
                 console.error(e);
-                setCount(0);
             }
         };
 
@@ -37,8 +46,8 @@ export default function DynamicProjectCount({ initialCount }: { initialCount?: n
     }, []);
 
     return (
-        <span className="text-3xl md:text-4xl font-bold text-white">
-            {count !== null ? `${count}+` : '...'}
+        <span className="text-3xl md:text-4xl font-bold text-white tabular-nums">
+            {animated}+
         </span>
     );
 }

@@ -31,8 +31,8 @@ import FAQSection from '@/components/FAQSection';
 import BlogPreview from '@/components/BlogPreview';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-// Revalidar cada 60s para que Vercel CDN y los bots de IA siempre vean datos frescos (ISR)
-export const revalidate = 60;
+// Revalidar cada 10s para que Vercel CDN y los bots de IA siempre vean datos frescos (ISR)
+export const revalidate = 10;
 
 // Lazy load componentes visuales pesados (mejora LCP/FCP)
 const ParticleNetwork = dynamic(() => import('@/components/ParticleNetwork'), { ssr: false });

@@ -4,8 +4,8 @@ import { BookOpen, ArrowRight, PenLine } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import BlogCard, { BlogPost } from '@/components/BlogCard';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: revalidar cada 10s — permite indexación por IAs y buscadores con datos frescos
+export const revalidate = 10;
 
 export const metadata: Metadata = {
   title: 'Blog Técnico | C7Dev_ — Desarrollo Web y Programación',

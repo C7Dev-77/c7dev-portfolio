@@ -43,6 +43,7 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Cabeceras de seguridad para todas las rutas
         source: '/(.*)',
         headers: [
           {
@@ -61,6 +62,27 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: "frame-ancestors 'none';",
           }
+        ],
+      },
+      {
+        // Cache ISR: el CDN sirve páginas cacheadas y revalida en background cada 10s
+        // Bots de IA (ChatGPT, Claude, Perplexity) y buscadores verán siempre datos frescos
+        source: '/(portafolio|tienda|blog)(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 's-maxage=10, stale-while-revalidate=59',
+          },
+        ],
+      },
+      {
+        // Home page: caché ISR igual
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 's-maxage=10, stale-while-revalidate=59',
+          },
         ],
       },
     ];

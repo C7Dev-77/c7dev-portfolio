@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import BlogCard, { BlogPost } from '@/components/BlogCard';
 import AdBanner from '@/components/AdBanner';
 
-export const revalidate = 3600; // Revalidar cada hora
+export const revalidate = 10; // Revalidar cada 10s para contenido siempre fresco
 
 // Obtener post en caché para reutilizar entre generateMetadata y la página
 const getPost = cache(async (slug: string) => {

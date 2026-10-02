@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 60;
+export const revalidate = 10;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://c7dev-portfolio.vercel.app';
@@ -11,10 +11,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Páginas estáticas principales
   const staticPages: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: now, changeFrequency: 'weekly', priority: 1.0 },
-    { url: `${baseUrl}/portafolio`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${baseUrl}/portafolio`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/tienda`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/contacto`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/privacidad`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
     { url: `${baseUrl}/terminos`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },

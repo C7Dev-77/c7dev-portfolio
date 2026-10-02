@@ -6,7 +6,7 @@ import PortfolioGrid from '@/components/PortfolioGrid';
 import { Folder, ChevronRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 60;
+export const revalidate = 10;
 
 export const metadata: Metadata = {
   title: 'Portafolio de Proyectos | C7Dev_',

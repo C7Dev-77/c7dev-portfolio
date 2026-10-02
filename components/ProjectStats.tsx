@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useCountUp } from '@/hooks/useCountUp';
 
 interface ProjectStatsProps {
     projectId: string;
@@ -9,15 +10,19 @@ interface ProjectStatsProps {
 }
 
 export default function ProjectStats({ projectId, type = 'portfolio', className }: ProjectStatsProps) {
-    const [stats, setStats] = useState({
+    const [targets, setTargets] = useState({
         views: 0,
         downloads: 0,
         rating: 4.8
     });
 
+    // Animar desde 0 → 100 + real
+    // Los targets ya incluyen los 100 base, así el contador va de 0 al número final correcto
+    const animViews     = useCountUp(targets.views,     1400);
+    const animDownloads = useCountUp(targets.downloads, 1500);
+
     const loadAndIncrementView = async () => {
         try {
-            // Incrementar vista en Supabase vía API
             const res = await fetch('/api/stats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -26,10 +31,10 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
             if (res.ok) {
                 const data = await res.json();
                 if (data.projectMetric) {
-                    setStats(prev => ({
+                    setTargets(prev => ({
                         ...prev,
-                        views: data.projectMetric.views || 0,
-                        downloads: data.projectMetric.downloads || 0,
+                        views:     100 + (data.projectMetric.views     || 0),
+                        downloads: 100 + (data.projectMetric.downloads || 0),
                     }));
                 }
                 window.dispatchEvent(new Event('statsUpdated'));
@@ -45,10 +50,10 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
             if (res.ok) {
                 const data = await res.json();
                 const metric = data.projectStats?.[projectId] || { views: 0, downloads: 0 };
-                setStats(prev => ({
+                setTargets(prev => ({
                     ...prev,
-                    views: metric.views || 0,
-                    downloads: metric.downloads || 0,
+                    views:     100 + (metric.views     || 0),
+                    downloads: 100 + (metric.downloads || 0),
                 }));
             }
         } catch (error) {
@@ -63,7 +68,7 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
             hash = projectId.charCodeAt(i) + ((hash << 5) - hash);
         }
         const calculatedRating = parseFloat((4.3 + (Math.abs(hash) % 7) / 10).toFixed(1));
-        setStats(prev => ({ ...prev, rating: calculatedRating }));
+        setTargets(prev => ({ ...prev, rating: calculatedRating }));
 
         // Cargar vista inicial
         loadAndIncrementView();
@@ -85,10 +90,10 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
             if (res.ok) {
                 const data = await res.json();
                 if (data.projectMetric) {
-                    setStats(prev => ({
+                    setTargets(prev => ({
                         ...prev,
-                        downloads: data.projectMetric.downloads || 0,
-                        views: data.projectMetric.views || 0,
+                        downloads: 100 + (data.projectMetric.downloads || 0),
+                        views:     100 + (data.projectMetric.views     || 0),
                     }));
                 }
                 window.dispatchEvent(new Event('statsUpdated'));
@@ -102,21 +107,16 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
         (window as any)[`incrementDownload_${projectId}`] = incrementDownloads;
     }, [projectId]);
 
-    // Regla: Todo proyecto inicia en 100 vistas y 100 descargas
-    const displayViews = 100 + (stats.views || 0);
-    const displayDownloads = 100 + (stats.downloads || 0);
-
     // Renderizado según tipo
     if (type === 'portfolio') {
-        // Portafolio: Solo Vistas y Rating
         return (
             <div className={`grid grid-cols-2 gap-4 ${className}`}>
                 <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                    <div className="text-2xl font-bold text-neon-gold">{displayViews}</div>
+                    <div className="text-2xl font-bold text-neon-gold tabular-nums">{animViews}</div>
                     <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
                 </div>
                 <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                    <div className="text-2xl font-bold text-white">{stats.rating}</div>
+                    <div className="text-2xl font-bold text-white">{targets.rating}</div>
                     <div className="text-[10px] text-gray-500 uppercase tracking-wider">Rating</div>
                 </div>
             </div>
@@ -127,17 +127,18 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
     return (
         <div className={`grid grid-cols-3 gap-4 ${className}`}>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                <div className="text-2xl font-bold text-neon-gold">{displayViews}</div>
+                <div className="text-2xl font-bold text-neon-gold tabular-nums">{animViews}</div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Vistas</div>
             </div>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                <div className="text-2xl font-bold text-neon-platinum">{displayDownloads}+</div>
+                <div className="text-2xl font-bold text-neon-platinum tabular-nums">{animDownloads}+</div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Descargas</div>
             </div>
             <div className="text-center p-4 bg-[#111] rounded-xl border border-gray-800">
-                <div className="text-2xl font-bold text-white">{stats.rating}</div>
+                <div className="text-2xl font-bold text-white">{targets.rating}</div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider">Rating</div>
             </div>
         </div>
     );
 }
+

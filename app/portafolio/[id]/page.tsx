@@ -1,6 +1,6 @@
 // app/portafolio/[id]/page.tsx
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: revalidar cada 10s — permite indexación por IAs y buscadores con datos frescos
+export const revalidate = 10;
 
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
