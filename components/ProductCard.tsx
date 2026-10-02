@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Package, Play, Star, Eye, Code } from 'lucide-react';
+import { Package, Play, Star, Eye, Code, Download } from 'lucide-react';
 import { MonetizationProduct } from '@/types';
 import { useConfig } from '@/context/ConfigContext';
 import { translations } from '@/lib/i18n';
+import { useCountUp } from '@/hooks/useCountUp';
 
 interface ProductCardProps {
   producto: MonetizationProduct;
@@ -17,7 +18,13 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const t = translations[lang] || translations.es;
 
   const [imageError, setImageError] = useState(false);
-  const [totalViews, setTotalViews] = useState<number>(100);
+  const [targetStats, setTargetStats] = useState({
+    views: 100,
+    downloads: 100,
+  });
+
+  const animViews = useCountUp(targetStats.views, 1200, 0);
+  const animDownloads = useCountUp(targetStats.downloads, 1300, 0);
 
   useEffect(() => {
     const updateViews = async () => {
@@ -26,15 +33,19 @@ export default function ProductCard({ producto }: ProductCardProps) {
         if (res.ok) {
           const data = await res.json();
           const metric = data.projectStats?.[producto.id];
-          if (metric && typeof metric.views === 'number') {
-            setTotalViews(100 + metric.views);
-            return;
-          }
+          setTargetStats({
+            views: 100 + (metric?.views || 0),
+            downloads: 100 + (metric?.downloads || 0),
+          });
+          return;
         }
       } catch (e) {
         console.error(e);
       }
-      setTotalViews(100);
+      setTargetStats({
+        views: 100,
+        downloads: 100,
+      });
     };
 
     updateViews();
@@ -59,9 +70,9 @@ export default function ProductCard({ producto }: ProductCardProps) {
     }
   };
 
-  const formattedVisitas = totalViews >= 1000 
-    ? `${(totalViews / 1000).toFixed(1)}k` 
-    : `${totalViews}`;
+  const formatCount = (val: number) => (val >= 1000 ? `${(val / 1000).toFixed(1)}k` : `${val}`);
+  const formattedVisitas = formatCount(animViews);
+  const formattedDescargas = formatCount(animDownloads);
 
   return (
     <div className="bg-[#09090b]/90 border border-gray-800/80 hover:border-neon-gold/60 transition-all duration-300 hover:-translate-y-1.5 group rounded-2xl flex flex-col backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)]">
@@ -147,12 +158,20 @@ export default function ProductCard({ producto }: ProductCardProps) {
           </div>
         )}
 
-        {/* Bottom Bar: Visitas & Ver más */}
+        {/* Bottom Bar: Visitas, Descargas & Ver más */}
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-800/80">
-          {/* Contador de Visitas */}
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
-            <Eye className="w-3.5 h-3.5 text-neon-gold" />
-            <span>{formattedVisitas}</span>
+          <div className="flex items-center gap-3">
+            {/* Contador de Visitas */}
+            <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono" title="Vistas">
+              <Eye className="w-3.5 h-3.5 text-neon-gold" />
+              <span className="tabular-nums">{formattedVisitas}</span>
+            </div>
+
+            {/* Contador de Descargas */}
+            <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono" title="Descargas">
+              <Download className="w-3.5 h-3.5 text-neon-platinum" />
+              <span className="tabular-nums">{formattedDescargas}</span>
+            </div>
           </div>
 
           {/* Botón Ver más compacto */}

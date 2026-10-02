@@ -9,6 +9,7 @@ import GlitchText from '@/components/GlitchText';
 import ParticleNetwork from '@/components/ParticleNetwork';
 import { useConfig } from '@/context/ConfigContext';
 import { translations } from '@/lib/i18n';
+import { useCountUp } from '@/hooks/useCountUp';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -23,6 +24,7 @@ export default function TiendaClient({ initialProducts = [] }: TiendaClientProps
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const { config } = useConfig();
+  const animProductCount = useCountUp(productos.length, 1000, 0);
 
   const lang = (config?.language as 'es' | 'en') || 'es';
   const t = translations[lang] || translations.es;
@@ -117,7 +119,8 @@ export default function TiendaClient({ initialProducts = [] }: TiendaClientProps
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <div className="bg-[#09090b]/80 border border-gray-800/80 px-3.5 py-2 rounded-xl backdrop-blur-md">
               <span className="text-gray-400 text-xs font-mono">
-                {filteredProductos.length} <span className="text-neon-gold">{filteredProductos.length === 1 ? t.codesCount : t.codesCountPlural}</span>
+                <span className="tabular-nums font-semibold text-white">{animProductCount}</span>{' '}
+                <span className="text-neon-gold">{filteredProductos.length === 1 ? t.codesCount : t.codesCountPlural}</span>
                 {totalPages > 1 && ` · pág ${currentPage}/${totalPages}`}
               </span>
             </div>
