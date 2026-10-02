@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getClientIp, claimsLimiter } from '@/lib/ratelimit';
+import { getClientIp, statsLimiter } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,25 +74,49 @@ export async function POST(req: NextRequest) {
 
     // Rate Limiting para evitar abusos
     const ip = getClientIp(req as any);
-    const { success } = await claimsLimiter.limit(ip);
+    const { success } = await statsLimiter.limit(ip);
     if (!success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const supabase = createServerSupabaseClient();
 
-    // Validar que el projectId exista en 'proyectos' o 'products'
+    // Validar que el projectId exista en 'proyectos', 'products', 'products_public' o 'productos'
+    let isValid = false;
+
     const { count: isProject } = await supabase
       .from('proyectos')
       .select('id', { count: 'exact', head: true })
       .eq('id', projectId);
-      
-    const { count: isProduct } = await supabase
-      .from('products')
-      .select('id', { count: 'exact', head: true })
-      .eq('id', projectId);
 
-    if ((isProject || 0) === 0 && (isProduct || 0) === 0) {
+    if ((isProject || 0) > 0) {
+      isValid = true;
+    } else {
+      const { count: isProduct } = await (supabase.from('products' as any) as any)
+        .select('id', { count: 'exact', head: true })
+        .eq('id', projectId);
+
+      if ((isProduct || 0) > 0) {
+        isValid = true;
+      } else {
+        const { count: isProductPublic } = await (supabase.from('products_public' as any) as any)
+          .select('id', { count: 'exact', head: true })
+          .eq('id', projectId);
+
+        if ((isProductPublic || 0) > 0) {
+          isValid = true;
+        } else {
+          const { count: isLegacyProduct } = await (supabase.from('productos' as any) as any)
+            .select('id', { count: 'exact', head: true })
+            .eq('id', projectId);
+          if ((isLegacyProduct || 0) > 0) {
+            isValid = true;
+          }
+        }
+      }
+    }
+
+    if (!isValid) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 

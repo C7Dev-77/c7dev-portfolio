@@ -11,15 +11,15 @@ interface ProjectStatsProps {
 
 export default function ProjectStats({ projectId, type = 'portfolio', className }: ProjectStatsProps) {
     const [targets, setTargets] = useState({
-        views: 0,
-        downloads: 0,
+        views: 100,
+        downloads: 100,
         rating: 4.8
     });
 
     // Animar desde 0 → 100 + real
     // Los targets ya incluyen los 100 base, así el contador va de 0 al número final correcto
-    const animViews     = useCountUp(targets.views,     1400);
-    const animDownloads = useCountUp(targets.downloads, 1500);
+    const animViews     = useCountUp(targets.views,     1400, 0);
+    const animDownloads = useCountUp(targets.downloads, 1500, 0);
 
     const loadAndIncrementView = async () => {
         try {
@@ -49,12 +49,14 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
             const res = await fetch('/api/stats', { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
-                const metric = data.projectStats?.[projectId] || { views: 0, downloads: 0 };
-                setTargets(prev => ({
-                    ...prev,
-                    views:     100 + (metric.views     || 0),
-                    downloads: 100 + (metric.downloads || 0),
-                }));
+                const metric = data.projectStats?.[projectId];
+                if (metric) {
+                    setTargets(prev => ({
+                        ...prev,
+                        views:     100 + (metric.views     || 0),
+                        downloads: 100 + (metric.downloads || 0),
+                    }));
+                }
             }
         } catch (error) {
             console.error('Error fetching project stats:', error);
@@ -70,7 +72,10 @@ export default function ProjectStats({ projectId, type = 'portfolio', className 
         const calculatedRating = parseFloat((4.3 + (Math.abs(hash) % 7) / 10).toFixed(1));
         setTargets(prev => ({ ...prev, rating: calculatedRating }));
 
-        // Cargar vista inicial
+        // Cargar inmediatamente métricas actuales
+        fetchCurrentStats();
+
+        // Registrar incremento de vista
         loadAndIncrementView();
 
         window.addEventListener('statsUpdated', fetchCurrentStats);

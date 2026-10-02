@@ -32,6 +32,7 @@ function safeRatelimit(prefix: string, limiter: any) {
 }
 
 const _claimsLimiter = safeRatelimit('rl:claims', Ratelimit.slidingWindow(5, '10 m'));
+const _statsLimiter = safeRatelimit('rl:stats', Ratelimit.slidingWindow(60, '1 m'));
 const _claimDownloadLimiter = safeRatelimit('rl:claim-download', Ratelimit.slidingWindow(10, '5 m'));
 const _purchaseDownloadLimiter = safeRatelimit('rl:purchase-download', Ratelimit.slidingWindow(10, '5 m'));
 
@@ -43,6 +44,16 @@ export const claimsLimiter = {
   limit: async (ip: string) => {
     if (!_claimsLimiter) return ALLOW_RESULT;
     try { return await _claimsLimiter.limit(ip); } catch { return ALLOW_RESULT; }
+  }
+};
+
+/**
+ * Limitador para el registro de métricas y visitas (/api/stats).
+ */
+export const statsLimiter = {
+  limit: async (ip: string) => {
+    if (!_statsLimiter) return ALLOW_RESULT;
+    try { return await _statsLimiter.limit(ip); } catch { return ALLOW_RESULT; }
   }
 };
 

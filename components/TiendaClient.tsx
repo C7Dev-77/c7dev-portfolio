@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { MonetizationProduct } from '@/types';
 import { Search, Filter, ShoppingBag, AlertCircle, Package, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -13,12 +13,26 @@ import { useCountUp } from '@/hooks/useCountUp';
 
 const ITEMS_PER_PAGE = 6;
 
+/** Ordena productos: destacados primero (por display_order), luego los demás (por display_order) */
+function sortProducts(products: any[]): any[] {
+  const featured = products
+    .filter(p => p.is_featured)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999));
+  const rest = products
+    .filter(p => !p.is_featured)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999));
+  return [...featured, ...rest];
+}
+
+
+
+
 interface TiendaClientProps {
   initialProducts?: MonetizationProduct[];
 }
 
 export default function TiendaClient({ initialProducts = [] }: TiendaClientProps) {
-  const [productos, setProductos] = useState<MonetizationProduct[]>(initialProducts);
+  const [productos, setProductos] = useState<MonetizationProduct[]>(() => sortProducts(initialProducts) as MonetizationProduct[]);
   const [loading, setLoading] = useState(initialProducts.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +63,8 @@ export default function TiendaClient({ initialProducts = [] }: TiendaClientProps
       const { data, error: fetchError } = await supabase
         .from('products_public' as any)
         .select('*')
+        .order('is_featured' as any, { ascending: false })
+        .order('display_order' as any, { ascending: true })
         .order('created_at', { ascending: false });
 
       if (fetchError) {
@@ -56,7 +72,7 @@ export default function TiendaClient({ initialProducts = [] }: TiendaClientProps
         setError('Error al conectar con la base de datos');
         if (productos.length === 0) setProductos([]);
       } else {
-        setProductos((data as MonetizationProduct[]) || []);
+        setProductos(sortProducts((data as any[]) || []) as MonetizationProduct[]);
       }
     } catch (err) {
       console.error('Error:', err);

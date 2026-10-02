@@ -5,22 +5,20 @@ import Link from 'next/link';
 import { cache } from 'react';
 import {
     ArrowLeft,
-    Play,
     Calendar,
     Tag,
     ChevronRight,
-    Star,
-    Eye,
     Code2,
-    Layers,
     Check,
     Sparkles,
     ShieldCheck,
-    Clock
+    Clock,
+    Star
 } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
 import ProjectStats from '@/components/ProjectStats';
 import DownloadButtons from '@/components/DownloadButtons';
+import ProductMediaGallery from '@/components/ProductMediaGallery';
 
 // Revalidar cada 10 segundos (ISR — bots de IA y CDN siempre ven datos frescos)
 export const revalidate = 10;
@@ -103,14 +101,14 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
         link_free: raw.link_free || raw.download_url || raw.free_download_url || (raw.has_free_version ? `/descargar/${raw.id}` : ''),
         link_paid: raw.link_paid || raw.external_product_id || raw.paid_url || raw.checkout_url || '',
         video_url: raw.video_url || undefined,
-        capturas: raw.capturas || [],
+        capturas: (Array.isArray(raw.capturas) ? raw.capturas : []).filter(Boolean) as string[],
         tags: raw.tags || [],
         categoria: raw.category || raw.categoria || 'Código',
         destacado: raw.is_featured || raw.destacado || false,
+        display_order: raw.display_order ?? raw.orden ?? 0,
         created_at: raw.created_at || new Date().toISOString()
     };
 
-    const allImages = [producto.imagen_url, ...(producto.capturas || [])].filter(Boolean);
     const fechaFormateada = new Date(producto.created_at).toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
@@ -155,83 +153,16 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                     {/* ========== COLUMNA IZQUIERDA: MEDIA ========== */}
                     <div className="space-y-6">
 
-                        {/* Video Demo (si existe) */}
-                        {producto.video_url && (
-                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-neon-gold/30 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
-                                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                                    <Play className="w-4 h-4 text-neon-gold" />
-                                    <span className="text-xs text-white uppercase tracking-wider">Demo en Vivo</span>
-                                </div>
-                                <iframe
-                                    src={producto.video_url}
-                                    title={`Demo de ${producto.nombre}`}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full"
-                                />
-                            </div>
-                        )}
-
-                        {/* Imagen Principal (si NO hay video) */}
-                        {!producto.video_url && (
-                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-gray-800 group">
-                                <img
-                                    src={producto.imagen_url}
-                                    alt={producto.nombre}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                    // @ts-ignore
-                                    fetchPriority="high"
-                                    decoding="async"
-                                />
-                                {/* Overlay con efecto */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                                {/* Badge de categoría */}
-                                <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                                    <Layers className="w-4 h-4 text-neon-gold" />
-                                    <span className="text-xs text-white uppercase tracking-wider">{producto.categoria || 'Código'}</span>
-                                </div>
-
-                                {/* Badge destacado */}
-                                {producto.destacado && (
-                                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-neon-gold/90 text-black px-3 py-1.5 rounded-full">
-                                        <Star className="w-3 h-3 fill-current" />
-                                        <span className="text-xs font-bold uppercase">Destacado</span>
-                                    </div>
-                                )}
-
-                                {/* Precio superpuesto */}
-                                <div className="absolute bottom-4 right-4 px-4 py-2 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-xl rounded-xl shadow-lg">
-                                    ${formatPrice(producto.precio)}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Galería de Capturas */}
-                        {allImages.length > 1 && (
-                            <div className="space-y-3">
-                                <h3 className="text-sm text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Eye className="w-4 h-4" />
-                                    Capturas del Código
-                                </h3>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {allImages.map((img, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="aspect-video rounded-lg overflow-hidden border border-gray-800 hover:border-neon-gold/50 transition-colors cursor-pointer group"
-                                        >
-                                            <img
-                                                src={img}
-                                                alt={`Captura ${idx + 1}`}
-                                                loading="lazy"
-                                                decoding="async"
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {/* Galería interactiva: video + imagen principal + capturas */}
+                        <ProductMediaGallery
+                            imagenUrl={producto.imagen_url}
+                            videoUrl={producto.video_url}
+                            capturas={producto.capturas}
+                            nombre={producto.nombre}
+                            categoria={producto.categoria}
+                            destacado={producto.destacado}
+                            precio={formatPrice(producto.precio)}
+                        />
 
                         {/* Características y Especificaciones de Descarga */}
                         <div className="glass-panel p-6 rounded-2xl space-y-6">

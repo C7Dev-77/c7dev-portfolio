@@ -21,6 +21,8 @@ export default async function TiendaPage() {
     const supabase = createServerSupabaseClient();
     const { data, error } = await (supabase.from('products_public' as any) as any)
       .select('*')
+      .order('is_featured', { ascending: false })
+      .order('display_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (error) {
