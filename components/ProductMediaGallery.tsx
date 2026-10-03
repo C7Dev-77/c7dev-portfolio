@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers } from 'lucide-react';
 
 interface ProductMediaGalleryProps {
