@@ -90,7 +90,8 @@ export default function ProjectMediaGallery({
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
 
-    const activeItem = mediaItems[activeIndex] ?? null;
+    const safeActiveIndex = activeIndex >= mediaItems.length ? 0 : activeIndex;
+    const activeItem = mediaItems[safeActiveIndex] ?? null;
 
     // Solo imágenes para el lightbox
     const imageItems = useMemo(() => mediaItems.filter(m => m.type === 'image'), [mediaItems]);

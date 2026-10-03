@@ -66,18 +66,33 @@ export default function ProductMediaGallery({
     precio,
 }: ProductMediaGalleryProps) {
     // Construir lista ordenada de items: video primero (si existe), luego imagen principal, luego capturas
-    const mediaItems: MediaItem[] = [
-        ...(videoUrl ? [{ type: 'video' as const, url: videoUrl }] : []),
-        ...(imagenUrl ? [{ type: 'image' as const, url: imagenUrl }] : []),
-        ...capturas.filter(Boolean).map(url => ({ type: 'image' as const, url })),
-    ];
+    const cleanCapturas = useMemo(() => {
+        return (Array.isArray(capturas) ? capturas : []).filter(Boolean);
+    }, [capturas]);
+
+    const mediaItems: MediaItem[] = useMemo(() => {
+        const items: MediaItem[] = [];
+        if (videoUrl && videoUrl.trim()) {
+            items.push({ type: 'video' as const, url: videoUrl.trim() });
+        }
+        if (imagenUrl && imagenUrl.trim()) {
+            items.push({ type: 'image' as const, url: imagenUrl.trim() });
+        }
+        cleanCapturas.forEach((url) => {
+            if (url !== imagenUrl) {
+                items.push({ type: 'image' as const, url });
+            }
+        });
+        return items;
+    }, [videoUrl, imagenUrl, cleanCapturas]);
 
     // El ítem activo en el visor principal (por defecto: video si hay, o imagen principal)
     const [activeIndex, setActiveIndex] = useState(0);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
 
-    const activeItem = mediaItems[activeIndex] ?? null;
+    const safeActiveIndex = activeIndex >= mediaItems.length ? 0 : activeIndex;
+    const activeItem = mediaItems[safeActiveIndex] ?? null;
 
     const openLightbox = useCallback((idx: number) => {
         setLightboxIndex(idx);

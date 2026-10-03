@@ -158,7 +158,8 @@ export default function ProductsManager() {
             image_url: formData.imagen_url || null,
             link_free: formData.link_free || null,
             link_paid: formData.link_paid || null,
-            video_url: formData.video_url || null,
+            video_url: formData.video_url ? formData.video_url.trim() : null,
+            capturas: formData.capturas ? formData.capturas.split(',').map(c => c.trim()).filter(Boolean) : [],
             tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
             category: formData.categoria,
             is_featured: formData.destacado,
@@ -471,8 +472,9 @@ export default function ProductsManager() {
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    const newCaps = formData.capturas.split(',').map(c => c.trim()).filter((_, idx) => idx !== i).join(', ');
-                                                    setFormData({ ...formData, capturas: newCaps });
+                                                    const list = formData.capturas.split(',').map(c => c.trim()).filter(Boolean);
+                                                    list.splice(i, 1);
+                                                    setFormData({ ...formData, capturas: list.join(', ') });
                                                 }}
                                                 className="absolute top-1 right-1 p-0.5 bg-black/70 hover:bg-red-500/80 rounded text-white"
                                             >

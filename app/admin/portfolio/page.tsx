@@ -141,11 +141,11 @@ export default function PortfolioManager() {
         const payload = {
             titulo: formData.titulo,
             descripcion: formData.descripcion,
-            imagen_url: formData.imagen_url,
+            imagen_url: formData.imagen_url || null,
             repo_url: formData.repo_url || null,
             demo_url: formData.demo_url || null,
-            video_url: formData.video_url || null,
-            capturas: formData.capturas.split(',').map(c => c.trim()).filter(Boolean),
+            video_url: formData.video_url ? formData.video_url.trim() : null,
+            capturas: formData.capturas ? formData.capturas.split(',').map(c => c.trim()).filter(Boolean) : [],
             tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
             categoria: formData.categoria,
             destacado: formData.destacado,
@@ -432,8 +432,9 @@ export default function PortfolioManager() {
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    const newCaps = formData.capturas.split(',').map(c => c.trim()).filter((_, idx) => idx !== i).join(', ');
-                                                    setFormData({ ...formData, capturas: newCaps });
+                                                    const list = formData.capturas.split(',').map(c => c.trim()).filter(Boolean);
+                                                    list.splice(i, 1);
+                                                    setFormData({ ...formData, capturas: list.join(', ') });
                                                 }}
                                                 className="absolute top-1 right-1 p-0.5 bg-black/70 hover:bg-red-500/80 rounded text-white"
                                             >
