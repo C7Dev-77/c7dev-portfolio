@@ -34,7 +34,9 @@ export default async function PortfolioPage() {
   const { data: proyectos, error } = await (supabase.from('proyectos') as any)
     .select('*')
     .eq('activo', true)
-    .order('orden', { ascending: true });
+    .order('destacado', { ascending: false })
+    .order('orden', { ascending: true })
+    .order('created_at', { ascending: false });
 
   const jsonLd = {
     '@context': 'https://schema.org',

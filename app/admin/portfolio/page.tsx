@@ -76,6 +76,7 @@ export default function PortfolioManager() {
         setFetching(true);
         const { data } = await (supabase.from('proyectos') as any)
             .select('*')
+            .order('destacado', { ascending: false })
             .order('orden', { ascending: true });
 
         if (data) setProjects(data);

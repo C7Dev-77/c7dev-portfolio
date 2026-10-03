@@ -9,19 +9,16 @@ import {
     ArrowLeft,
     Github,
     ExternalLink,
-    Play,
     Calendar,
     Tag,
-    ChevronLeft,
     ChevronRight,
     Star,
-    Eye,
     Code2,
-    Layers,
     Send
 } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
 import ProjectStats from '@/components/ProjectStats';
+import ProjectMediaGallery from '@/components/ProjectMediaGallery';
 
 interface Proyecto {
     id: string;
@@ -77,7 +74,6 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
         .eq('categoria', proyecto.categoria || 'Web')
         .limit(3);
 
-    const allImages = [proyecto.imagen_url, ...(proyecto.capturas || [])];
     const fechaFormateada = new Date(proyecto.created_at).toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
@@ -114,74 +110,15 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
 
                     {/* ========== COLUMNA IZQUIERDA: MEDIA ========== */}
                     <div className="space-y-6">
-
-                        {/* Video Demo (si existe) */}
-                        {proyecto.video_url && (
-                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-neon-gold/30 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
-                                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                                    <Play className="w-4 h-4 text-neon-gold" />
-                                    <span className="text-xs text-white uppercase tracking-wider">Demo en Vivo</span>
-                                </div>
-                                <iframe
-                                    src={proyecto.video_url}
-                                    title={`Demo de ${proyecto.titulo}`}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full"
-                                />
-                            </div>
-                        )}
-
-                        {/* Imagen Principal (si NO hay video) */}
-                        {!proyecto.video_url && (
-                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-gray-800 group">
-                                <img
-                                    src={proyecto.imagen_url}
-                                    alt={proyecto.titulo}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                />
-                                {/* Overlay con efecto */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                                {/* Badge de categoría */}
-                                <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                                    <Layers className="w-4 h-4 text-neon-platinum" />
-                                    <span className="text-xs text-white uppercase tracking-wider">{proyecto.categoria || 'Proyecto'}</span>
-                                </div>
-
-                                {/* Badge destacado */}
-                                {proyecto.destacado && (
-                                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-neon-gold/90 text-black px-3 py-1.5 rounded-full">
-                                        <Star className="w-3 h-3 fill-current" />
-                                        <span className="text-xs font-bold uppercase">Destacado</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Galería de Capturas */}
-                        {allImages.length > 1 && (
-                            <div className="space-y-3">
-                                <h3 className="text-sm text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Eye className="w-4 h-4" />
-                                    Capturas del Proyecto
-                                </h3>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {allImages.map((img, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="aspect-video rounded-lg overflow-hidden border border-gray-800 hover:border-neon-gold/50 transition-colors cursor-pointer group"
-                                        >
-                                            <img
-                                                src={img}
-                                                alt={`Captura ${idx + 1}`}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {/* Galería interactiva con video embed inteligente y miniaturas clicables */}
+                        <ProjectMediaGallery
+                            imagenUrl={proyecto.imagen_url}
+                            videoUrl={proyecto.video_url}
+                            capturas={proyecto.capturas}
+                            titulo={proyecto.titulo}
+                            categoria={proyecto.categoria}
+                            destacado={proyecto.destacado}
+                        />
                     </div>
 
                     {/* ========== COLUMNA DERECHA: INFO ========== */}

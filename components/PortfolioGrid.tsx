@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Github, Folder, Play, Star, Filter, ChevronRight, Layers } from 'lucide-react';
 import GlitchText from '@/components/GlitchText';
@@ -17,22 +17,44 @@ interface Proyecto {
     categoria?: string;
     destacado?: boolean;
     orden?: number;
+    created_at?: string;
 }
 
 interface PortfolioGridProps {
     proyectos: Proyecto[];
 }
 
+/** Ordena proyectos: Destacados primero (por orden ASC), luego No Destacados (por orden ASC) */
+function sortProyectos(list: Proyecto[]): Proyecto[] {
+    return [...list].sort((a, b) => {
+        const destA = a.destacado ? 1 : 0;
+        const destB = b.destacado ? 1 : 0;
+        if (destB !== destA) return destB - destA;
+        const ordA = a.orden ?? 0;
+        const ordB = b.orden ?? 0;
+        if (ordA !== ordB) return ordA - ordB;
+        return 0;
+    });
+}
+
 export default function PortfolioGrid({ proyectos }: PortfolioGridProps) {
     const [activeFilter, setActiveFilter] = useState<string>('Todos');
 
-    // Obtener categorías únicas
-    const categorias = ['Todos', ...Array.from(new Set(proyectos.map(p => p.categoria || 'Otros')))];
+    // Ordenar proyectos asegurando que destacados siempre vayan primero
+    const sortedProyectos = useMemo(() => sortProyectos(proyectos), [proyectos]);
 
-    // Filtrar proyectos según categoría seleccionada
-    const proyectosFiltrados = activeFilter === 'Todos'
-        ? proyectos
-        : proyectos.filter(p => p.categoria === activeFilter);
+    // Obtener categorías únicas
+    const categorias = useMemo(() => {
+        return ['Todos', ...Array.from(new Set(sortedProyectos.map(p => p.categoria || 'Otros')))];
+    }, [sortedProyectos]);
+
+    // Filtrar proyectos según categoría seleccionada preservando el orden prioritario
+    const proyectosFiltrados = useMemo(() => {
+        const filtrados = activeFilter === 'Todos'
+            ? sortedProyectos
+            : sortedProyectos.filter(p => p.categoria === activeFilter);
+        return sortProyectos(filtrados);
+    }, [activeFilter, sortedProyectos]);
 
     return (
         <>

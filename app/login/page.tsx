@@ -60,7 +60,8 @@ export default function LoginPage() {
 
             // 3. Guardar el token en una cookie explícita para que el middleware lo lea
             if (data?.session?.access_token) {
-                document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; Secure; SameSite=Lax`;
+                const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+                document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; ${isSecure ? 'Secure;' : ''} SameSite=Lax`;
             }
 
             setAttempts(0);
