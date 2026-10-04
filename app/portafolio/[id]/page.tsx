@@ -116,6 +116,7 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
                     <div className="space-y-6">
                         {/* Galería interactiva con video embed inteligente y miniaturas clicables */}
                         <ProjectMediaGallery
+                            projectId={proyecto.id}
                             imagenUrl={proyecto.imagen_url}
                             videoUrl={proyecto.video_url}
                             capturas={proyecto.capturas}

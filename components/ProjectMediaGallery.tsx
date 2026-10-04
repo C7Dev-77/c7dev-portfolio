@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers, ShoppingCart, Download } from 'lucide-react';
+import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers, ShoppingCart, Download, CreditCard } from 'lucide-react';
 
 interface ProjectMediaGalleryProps {
+    projectId?: string;
     imagenUrl: string;
     videoUrl?: string;
     capturas?: string[];
@@ -75,6 +76,7 @@ type MediaItem =
     | { type: 'image'; url: string; label: string };
 
 export default function ProjectMediaGallery({
+    projectId,
     imagenUrl,
     videoUrl,
     capturas = [],
@@ -84,6 +86,39 @@ export default function ProjectMediaGallery({
     buyUrl,
     freeUrl,
 }: ProjectMediaGalleryProps) {
+    const handleDownload = async (type: 'buy' | 'free') => {
+        const targetUrl = type === 'buy' ? buyUrl : freeUrl;
+
+        // Registrar estadística de descarga de proyecto (idéntico a Códigos)
+        if (projectId) {
+            try {
+                if (typeof window !== 'undefined' && (window as any)[`incrementDownload_${projectId}`]) {
+                    (window as any)[`incrementDownload_${projectId}`]();
+                } else {
+                    await fetch('/api/stats', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ projectId, action: 'download' }),
+                    });
+                    window.dispatchEvent(new Event('statsUpdated'));
+                }
+            } catch (e) {
+                console.error('Error recording download:', e);
+            }
+        }
+
+        if (!targetUrl || targetUrl.trim() === '') {
+            alert('No hay un enlace de descarga configurado para este proyecto en este momento.');
+            return;
+        }
+
+        let finalUrl = targetUrl.trim();
+        if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('/')) {
+            finalUrl = `https://${finalUrl}`;
+        }
+        window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    };
+
     // Normalizar lista de capturas
     const cleanCapturas = useMemo(() => {
         return (Array.isArray(capturas) ? capturas : []).filter(Boolean);
@@ -333,54 +368,48 @@ export default function ProjectMediaGallery({
                 </div>
             )}
 
-            {/* ── BOTONES DESCARGAR BUY / FREE ── */}
-            {(buyUrl || freeUrl) && (
-                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                    {buyUrl && (
-                        <a
-                            href={buyUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="
-                                flex-1 flex items-center justify-center gap-2
-                                px-4 py-2.5 rounded-xl
-                                bg-gradient-to-r from-neon-gold to-amber-500
-                                text-black font-bold text-xs uppercase tracking-widest
-                                shadow-[0_0_18px_rgba(255,215,0,0.3)]
-                                hover:shadow-[0_0_28px_rgba(255,215,0,0.55)]
-                                hover:scale-[1.03]
-                                transition-all duration-200
-                                group
-                            "
-                        >
-                            <ShoppingCart className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                            Descargar — Buy
-                        </a>
-                    )}
-                    {freeUrl && (
-                        <a
-                            href={freeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="
-                                flex-1 flex items-center justify-center gap-2
-                                px-4 py-2.5 rounded-xl
-                                bg-white/5 border border-gray-700
-                                text-gray-200 font-bold text-xs uppercase tracking-widest
-                                hover:border-neon-gold/60 hover:text-neon-gold
-                                hover:bg-neon-gold/5
-                                hover:shadow-[0_0_18px_rgba(255,215,0,0.2)]
-                                hover:scale-[1.03]
-                                transition-all duration-200
-                                group
-                            "
-                        >
-                            <Download className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                            Descargar — Free
-                        </a>
-                    )}
-                </div>
-            )}
+            {/* ── BOTONES DESCARGAR BUY / FREE (COMPACTOS Y MEZCLADOS CON EL DISEÑO) ── */}
+            <div className="flex items-center gap-2 pt-1">
+                <button
+                    type="button"
+                    onClick={() => handleDownload('buy')}
+                    title={buyUrl ? 'Comprar y descargar código completo' : 'Descargar Buy (Enlace no configurado aún)'}
+                    className="
+                        flex-1 flex items-center justify-center gap-1.5
+                        px-3 py-2 rounded-xl
+                        bg-neon-gold/10 hover:bg-neon-gold/20
+                        border border-neon-gold/30 hover:border-neon-gold
+                        text-neon-gold font-bold text-[11px] sm:text-xs uppercase tracking-wider
+                        shadow-[0_0_12px_rgba(255,215,0,0.12)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]
+                        hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200
+                        group
+                    "
+                >
+                    <CreditCard className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <span>Descargar Buy</span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => handleDownload('free')}
+                    title={freeUrl ? 'Descargar versión gratuita' : 'Descargar Free (Enlace no configurado aún)'}
+                    className="
+                        flex-1 flex items-center justify-center gap-1.5
+                        px-3 py-2 rounded-xl
+                        bg-emerald-500/10 hover:bg-emerald-500/20
+                        border border-emerald-500/30 hover:border-emerald-500/60
+                        text-emerald-400 font-bold text-[11px] sm:text-xs uppercase tracking-wider
+                        shadow-[0_0_12px_rgba(16,185,129,0.12)] hover:shadow-[0_0_20px_rgba(16,185,129,0.25)]
+                        hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200
+                        group
+                    "
+                >
+                    <Download className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <span>Descargar Free</span>
+                </button>
+            </div>
 
             {/* ── MODAL LIGHTBOX (PANTALLA COMPLETA) ── */}
             {lightboxOpen && imageItems.length > 0 && (

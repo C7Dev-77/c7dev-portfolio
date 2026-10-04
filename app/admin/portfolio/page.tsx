@@ -22,7 +22,9 @@ import {
     Eye,
     EyeOff,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    CreditCard,
+    Download
 } from 'lucide-react';
 
 interface ProyectoForm {
@@ -38,6 +40,8 @@ interface ProyectoForm {
     destacado: boolean;
     activo: boolean;
     orden: number;
+    link_buy: string;
+    link_free: string;
 }
 
 const CATEGORIAS = ['Web', 'Componentes', 'Templates', 'Web Apps', 'APIs', 'Animaciones', 'Otros'];
@@ -63,7 +67,9 @@ export default function PortfolioManager() {
         categoria: 'Web',
         destacado: false,
         activo: true,
-        orden: 0
+        orden: 0,
+        link_buy: '',
+        link_free: ''
     };
 
     const [formData, setFormData] = useState<ProyectoForm>(emptyForm);
@@ -107,7 +113,9 @@ export default function PortfolioManager() {
             categoria: project.categoria || 'Web',
             destacado: project.destacado || false,
             activo: project.activo !== false, // Por defecto true
-            orden: project.orden || 0
+            orden: project.orden || 0,
+            link_buy: project.link_buy || '',
+            link_free: project.link_free || ''
         });
         setShowForm(true);
     };
@@ -150,7 +158,9 @@ export default function PortfolioManager() {
             categoria: formData.categoria,
             destacado: formData.destacado,
             activo: formData.activo,
-            orden: formData.orden
+            orden: formData.orden,
+            link_buy: formData.link_buy ? formData.link_buy.trim() : null,
+            link_free: formData.link_free ? formData.link_free.trim() : null
         };
 
         let error;
@@ -536,6 +546,38 @@ export default function PortfolioManager() {
                             </div>
                         </div>
 
+                        {/* Enlaces de Descarga (Monetización / Free) - NUEVO */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-[#0a0a0a] rounded-xl border border-gray-800">
+                            <div className="space-y-2">
+                                <label className="text-neon-gold text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                    <CreditCard className="w-3.5 h-3.5" /> Enlace Descargar Buy (Pago)
+                                </label>
+                                <input
+                                    placeholder="https://gumroad.com/l/... o enlace de compra"
+                                    className="w-full bg-[#111111] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    value={formData.link_buy}
+                                    onChange={e => setFormData({ ...formData, link_buy: e.target.value })}
+                                />
+                                <p className="text-gray-600 text-[11px]">
+                                    💡 URL para comprar y descargar (Gumroad, Stripe, LemonSqueezy, etc.)
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-emerald-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                    <Download className="w-3.5 h-3.5" /> Enlace Descargar Free (Gratis)
+                                </label>
+                                <input
+                                    placeholder="https://github.com/... o enlace de descarga gratuita"
+                                    className="w-full bg-[#111111] border border-gray-800 focus:border-emerald-500 outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    value={formData.link_free}
+                                    onChange={e => setFormData({ ...formData, link_free: e.target.value })}
+                                />
+                                <p className="text-gray-600 text-[11px]">
+                                    💡 URL para descarga gratuita (GitHub, Drive, Mediafire, etc.)
+                                </p>
+                            </div>
+                        </div>
+
                         {/* Checkboxes */}
                         <div className="flex flex-wrap gap-6 p-4 bg-[#0a0a0a] rounded-xl border border-gray-800">
                             <label className="flex items-center gap-3 cursor-pointer group">
@@ -748,6 +790,28 @@ export default function PortfolioManager() {
                                             title="Ver demo"
                                         >
                                             <ExternalLink className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {project.link_buy && (
+                                        <a
+                                            href={project.link_buy}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 hover:bg-neon-gold/20 rounded-lg transition-colors text-neon-gold"
+                                            title={`Enlace Buy: ${project.link_buy}`}
+                                        >
+                                            <CreditCard className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {project.link_free && (
+                                        <a
+                                            href={project.link_free}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 hover:bg-emerald-500/20 rounded-lg transition-colors text-emerald-400"
+                                            title={`Enlace Free: ${project.link_free}`}
+                                        >
+                                            <Download className="w-4 h-4" />
                                         </a>
                                     )}
                                 </div>
