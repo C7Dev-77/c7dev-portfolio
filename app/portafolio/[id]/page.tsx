@@ -33,6 +33,10 @@ interface Proyecto {
     categoria?: string;
     destacado?: boolean;
     created_at: string;
+    /** URL de compra / descarga de pago (Gumroad, etc.) */
+    link_buy?: string;
+    /** URL de descarga gratuita */
+    link_free?: string;
 }
 
 // Generar metadata dinámica para SEO
@@ -118,6 +122,8 @@ export default async function ProyectoDetallePage({ params }: { params: { id: st
                             titulo={proyecto.titulo}
                             categoria={proyecto.categoria}
                             destacado={proyecto.destacado}
+                            buyUrl={proyecto.link_buy}
+                            freeUrl={proyecto.link_free}
                         />
                     </div>
 

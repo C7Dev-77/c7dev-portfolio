@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers } from 'lucide-react';
+import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers, ShoppingCart, Download } from 'lucide-react';
 
 interface ProjectMediaGalleryProps {
     imagenUrl: string;
@@ -10,11 +10,16 @@ interface ProjectMediaGalleryProps {
     titulo: string;
     categoria?: string;
     destacado?: boolean;
+    /** URL para comprar / descargar versión de pago */
+    buyUrl?: string;
+    /** URL para descargar versión gratuita */
+    freeUrl?: string;
 }
 
 /**
  * Convierte cualquier URL de YouTube o Vimeo a su versión embed interactiva y segura.
  * Soporta: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID,
+ *          youtube.com/shorts/ID, youtu.be/shorts/ID,
  *          vimeo.com/ID, player.vimeo.com/video/ID
  */
 function getEmbedUrl(url: string): string {
@@ -23,6 +28,12 @@ function getEmbedUrl(url: string): string {
     // Si ya es embed de YouTube
     if (url.includes('youtube.com/embed/') || url.includes('youtube-nocookie.com/embed/')) {
         return url;
+    }
+
+    // YouTube Shorts: youtube.com/shorts/VIDEO_ID  o  youtu.be/shorts/VIDEO_ID
+    const ytShorts = url.match(/(?:youtube\.com|youtu\.be)\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (ytShorts) {
+        return `https://www.youtube.com/embed/${ytShorts[1]}?rel=0&modestbranding=1&playsinline=1`;
     }
 
     // youtube.com/watch?v=VIDEO_ID o youtu.be/VIDEO_ID
@@ -46,6 +57,19 @@ function getEmbedUrl(url: string): string {
     return url;
 }
 
+/**
+ * Extrae el VIDEO_ID de cualquier URL de YouTube (watch, shorts, embed, youtu.be)
+ */
+function getYoutubeId(url: string): string | null {
+    // Shorts
+    const shorts = url.match(/(?:youtube\.com|youtu\.be)\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (shorts) return shorts[1];
+    // watch?v= / youtu.be / embed
+    const std = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (std) return std[1];
+    return null;
+}
+
 type MediaItem =
     | { type: 'video'; url: string; label: string }
     | { type: 'image'; url: string; label: string };
@@ -57,6 +81,8 @@ export default function ProjectMediaGallery({
     titulo,
     categoria = 'Proyecto',
     destacado = false,
+    buyUrl,
+    freeUrl,
 }: ProjectMediaGalleryProps) {
     // Normalizar lista de capturas
     const cleanCapturas = useMemo(() => {
@@ -264,11 +290,11 @@ export default function ProjectMediaGallery({
                             >
                                 {item.type === 'video' ? (
                                     <>
-                                        {/* Thumbnail de video si es YouTube */}
+                                        {/* Thumbnail de video si es YouTube (watch, shorts, embed) */}
                                         {(() => {
-                                            const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-                                            const thumbUrl = ytMatch
-                                                ? `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`
+                                            const ytId = getYoutubeId(item.url);
+                                            const thumbUrl = ytId
+                                                ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`
                                                 : null;
                                             return thumbUrl ? (
                                                 <img src={thumbUrl} alt="Video Demo" className="w-full h-full object-cover" />
@@ -304,6 +330,55 @@ export default function ProjectMediaGallery({
                             </button>
                         ))}
                     </div>
+                </div>
+            )}
+
+            {/* ── BOTONES DESCARGAR BUY / FREE ── */}
+            {(buyUrl || freeUrl) && (
+                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                    {buyUrl && (
+                        <a
+                            href={buyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="
+                                flex-1 flex items-center justify-center gap-2
+                                px-4 py-2.5 rounded-xl
+                                bg-gradient-to-r from-neon-gold to-amber-500
+                                text-black font-bold text-xs uppercase tracking-widest
+                                shadow-[0_0_18px_rgba(255,215,0,0.3)]
+                                hover:shadow-[0_0_28px_rgba(255,215,0,0.55)]
+                                hover:scale-[1.03]
+                                transition-all duration-200
+                                group
+                            "
+                        >
+                            <ShoppingCart className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                            Descargar — Buy
+                        </a>
+                    )}
+                    {freeUrl && (
+                        <a
+                            href={freeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="
+                                flex-1 flex items-center justify-center gap-2
+                                px-4 py-2.5 rounded-xl
+                                bg-white/5 border border-gray-700
+                                text-gray-200 font-bold text-xs uppercase tracking-widest
+                                hover:border-neon-gold/60 hover:text-neon-gold
+                                hover:bg-neon-gold/5
+                                hover:shadow-[0_0_18px_rgba(255,215,0,0.2)]
+                                hover:scale-[1.03]
+                                transition-all duration-200
+                                group
+                            "
+                        >
+                            <Download className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                            Descargar — Free
+                        </a>
+                    )}
                 </div>
             )}
 
