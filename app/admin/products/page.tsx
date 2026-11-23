@@ -26,6 +26,7 @@ import {
 
 interface ProductoForm {
     nombre: string;
+    slug: string;
     descripcion: string;
     precio: number; // En USD (ej: 9.99)
     imagen_url: string;
@@ -53,6 +54,7 @@ export default function ProductsManager() {
 
     const emptyForm: ProductoForm = {
         nombre: '',
+        slug: '',
         descripcion: '',
         precio: 0,
         imagen_url: '',
@@ -99,6 +101,7 @@ export default function ProductsManager() {
         setEditingId(product.id);
         setFormData({
             nombre: product.title || '',
+            slug: product.slug || '',
             descripcion: product.description || '',
             precio: product.price_cents ? product.price_cents / 100 : 0, // Convertir centavos → USD
             imagen_url: product.image_url || '',
@@ -144,15 +147,17 @@ export default function ProductsManager() {
         // Convertir precio USD → centavos para la tabla products
         const priceCents = Math.round(formData.precio * 100);
 
-        // Generar slug a partir del nombre si es nuevo
-        const slug = formData.nombre
+        // Generar o limpiar slug
+        const rawSlug = formData.slug.trim() || formData.nombre;
+        const cleanSlug = rawSlug
             .toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/[^a-z0-9-]+/g, '-')
             .replace(/^-+|-+$/g, '');
 
         const payload: any = {
             title: formData.nombre,
+            slug: cleanSlug,
             description: formData.descripcion,
             price_cents: priceCents,
             image_url: formData.imagen_url || null,
@@ -176,9 +181,8 @@ export default function ProductsManager() {
                 .eq('id', editingId);
             error = updateError;
         } else {
-            // slug y storage_path son requeridos en INSERT
-            payload.slug = slug;
-            payload.storage_path = formData.link_paid || formData.link_free || slug;
+            // storage_path es requerido en INSERT
+            payload.storage_path = formData.link_paid || formData.link_free || cleanSlug;
             const { error: insertError } = await (supabase.from('products') as any)
                 .insert([payload]);
             error = insertError;
@@ -316,37 +320,57 @@ export default function ProductsManager() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                        {/* Fila 1: Nombre, Precio, Categoría */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Fila 1: Nombre del Producto y Slug / URL Amigable */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
                                     <Package className="w-3 h-3" /> Nombre del Producto *
                                 </label>
                                 <input
                                     required
-                                    placeholder="Ej: Cyberpunk UI Kit"
+                                    placeholder="Ej: Carta Real - web"
                                     className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
                                     value={formData.nombre}
-                                    onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        const autoSlug = val
+                                            .toLowerCase()
+                                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                                            .replace(/[^a-z0-9]+/g, '-')
+                                            .replace(/^-+|-+$/g, '');
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            nombre: val,
+                                            slug: (!editingId && (!prev.slug || prev.slug === '')) ? autoSlug : prev.slug
+                                        }));
+                                    }}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <DollarSign className="w-3 h-3" /> Precio (USD) *
+                                <label className="text-neon-gold text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                    <LinkIcon className="w-3 h-3 text-neon-gold" /> Slug / URL Amigable *
                                 </label>
                                 <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
                                     required
-                                    placeholder="29.99"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.precio || ''}
-                                    onChange={e => setFormData({ ...formData, precio: parseFloat(e.target.value) || 0 })}
+                                    placeholder="Ej: carta-real-web"
+                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm font-mono"
+                                    value={formData.slug}
+                                    onChange={e => {
+                                        const clean = e.target.value
+                                            .toLowerCase()
+                                            .replace(/[^a-z0-9-]/g, '-');
+                                        setFormData({ ...formData, slug: clean });
+                                    }}
                                 />
+                                <p className="text-gray-500 text-[11px] font-mono truncate">
+                                    URL: /tienda/<span className="text-neon-gold font-bold">{formData.slug || 'nombre-del-codigo'}</span>
+                                </p>
                             </div>
+                        </div>
 
+                        {/* Fila 2: Categoría y Precio Referencial */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
                                     <Layers className="w-3 h-3" /> Categoría
@@ -360,6 +384,21 @@ export default function ProductsManager() {
                                         <option key={cat} value={cat}>{cat}</option>
                                     ))}
                                 </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                    <DollarSign className="w-3 h-3" /> Precio Referencial USD (Opcional)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    value={formData.precio || ''}
+                                    onChange={e => setFormData({ ...formData, precio: parseFloat(e.target.value) || 0 })}
+                                />
                             </div>
                         </div>
 
@@ -554,7 +593,7 @@ export default function ProductsManager() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-green-500 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <LinkIcon className="w-3 h-3" /> Link Gratuito (con anuncios) *
+                                    <LinkIcon className="w-3 h-3" /> Link Gratuito de Descarga *
                                 </label>
                                 <input
                                     required
@@ -565,13 +604,12 @@ export default function ProductsManager() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-neon-gold text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <LinkIcon className="w-3 h-3" /> Link de Pago *
+                                <label className="text-gray-500 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                    <LinkIcon className="w-3 h-3" /> Link de Pago (Opcional - ya no se muestra en web)
                                 </label>
                                 <input
-                                    required
                                     placeholder="https://gumroad.com/... o https://stripe.com/..."
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm opacity-80"
                                     value={formData.link_paid}
                                     onChange={e => setFormData({ ...formData, link_paid: e.target.value })}
                                 />
@@ -729,6 +767,11 @@ export default function ProductsManager() {
                                         )}
                                     </div>
                                     <div className="flex gap-1.5 flex-wrap">
+                                        {product.slug && (
+                                            <span className="text-[10px] bg-blue-500/10 text-blue-400 font-mono px-2 py-0.5 rounded border border-blue-500/20">
+                                                /{product.slug}
+                                            </span>
+                                        )}
                                         <span className="text-[10px] bg-neon-gold/10 text-neon-gold px-2 py-0.5 rounded">
                                             {product.category || 'Código'}
                                         </span>

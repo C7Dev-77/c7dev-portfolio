@@ -46,7 +46,7 @@ export default async function TiendaPage() {
       position: index + 1,
       name: p.title,
       description: p.description,
-      url: `https://c7dev-portfolio.vercel.app/tienda/${p.id}`,
+      url: `https://c7dev-portfolio.vercel.app/tienda/${p.slug || p.id}`,
     })),
   };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers, ShoppingCart, Download, CreditCard } from 'lucide-react';
+import { Play, Image as ImageIcon, Maximize2, X, ChevronLeft, ChevronRight, Star, Layers, ShoppingCart, Download, CreditCard, Check, Sparkles } from 'lucide-react';
 
 interface ProjectMediaGalleryProps {
     projectId?: string;
@@ -368,47 +368,48 @@ export default function ProjectMediaGallery({
                 </div>
             )}
 
-            {/* ── BOTONES DESCARGAR BUY / FREE (COMPACTOS Y MEZCLADOS CON EL DISEÑO) ── */}
-            <div className="flex items-center gap-2 pt-1">
+            {/* ── BOTÓN DESCARGAR BUY (ANCHO COMPLETO) ── */}
+            <div className="pt-1">
                 <button
                     type="button"
                     onClick={() => handleDownload('buy')}
-                    title={buyUrl ? 'Comprar y descargar código completo' : 'Descargar Buy (Enlace no configurado aún)'}
+                    title={buyUrl ? 'Comprar y descargar código completo del proyecto' : 'Descargar Buy (Enlace no configurado aún)'}
                     className="
-                        flex-1 flex items-center justify-center gap-1.5
-                        px-3 py-2 rounded-xl
-                        bg-neon-gold/10 hover:bg-neon-gold/20
-                        border border-neon-gold/30 hover:border-neon-gold
-                        text-neon-gold font-bold text-[11px] sm:text-xs uppercase tracking-wider
-                        shadow-[0_0_12px_rgba(255,215,0,0.12)] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]
-                        hover:scale-[1.02] active:scale-[0.98]
+                        w-full flex items-center justify-center gap-2.5
+                        px-4 py-3.5 rounded-xl
+                        bg-gradient-to-r from-neon-gold to-amber-600 hover:from-amber-500 hover:to-neon-gold
+                        text-black font-extrabold text-xs sm:text-sm uppercase tracking-wider
+                        shadow-[0_0_20px_rgba(255,215,0,0.25)] hover:shadow-[0_0_30px_rgba(255,215,0,0.45)]
+                        hover:scale-[1.01] active:scale-[0.99]
                         transition-all duration-200
                         group
                     "
                 >
-                    <CreditCard className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <CreditCard className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
                     <span>Descargar Buy</span>
                 </button>
+            </div>
 
-                <button
-                    type="button"
-                    onClick={() => handleDownload('free')}
-                    title={freeUrl ? 'Descargar versión gratuita' : 'Descargar Free (Enlace no configurado aún)'}
-                    className="
-                        flex-1 flex items-center justify-center gap-1.5
-                        px-3 py-2 rounded-xl
-                        bg-emerald-500/10 hover:bg-emerald-500/20
-                        border border-emerald-500/30 hover:border-emerald-500/60
-                        text-emerald-400 font-bold text-[11px] sm:text-xs uppercase tracking-wider
-                        shadow-[0_0_12px_rgba(16,185,129,0.12)] hover:shadow-[0_0_20px_rgba(16,185,129,0.25)]
-                        hover:scale-[1.02] active:scale-[0.98]
-                        transition-all duration-200
-                        group
-                    "
-                >
-                    <Download className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                    <span>Descargar Free</span>
-                </button>
+            {/* ── RESUMEN DE LO QUE INCLUYE EL PROYECTO ── */}
+            <div className="glass-panel p-5 rounded-2xl border border-gray-800/80 bg-[#09090b]/80 space-y-3.5">
+                <h4 className="text-xs text-neon-gold uppercase tracking-widest font-semibold flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-neon-gold" />
+                    ¿Qué incluye este proyecto?
+                </h4>
+                <ul className="space-y-2.5">
+                    {[
+                        'Código fuente completo y estructurado',
+                        'Archivos y recursos del proyecto',
+                        'Manual de instalación y despliegue paso a paso',
+                        'Documentación técnica y guías de arquitectura',
+                        'Soporte directo para dudas e implementación'
+                    ].map((item, idx) => (
+                        <li key={idx} className="flex items-center gap-2.5 text-gray-300 text-xs">
+                            <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                            <span>{item}</span>
+                        </li>
+                    ))}
+                </ul>
             </div>
 
             {/* ── MODAL LIGHTBOX (PANTALLA COMPLETA) ── */}

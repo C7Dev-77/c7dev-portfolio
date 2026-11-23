@@ -57,7 +57,7 @@ export const translations = {
 
     // Product page
     buyNow: 'Comprar Ahora',
-    downloadFree: 'Descargar Gratis (con anuncios)',
+    downloadFree: 'Descargar Gratis',
     donateBtnText: 'Apoya el Desarrollo',
 
     // Home Page
@@ -135,7 +135,7 @@ export const translations = {
 
     // Product page
     buyNow: 'Buy Now',
-    downloadFree: 'Free Download (with ads)',
+    downloadFree: 'Free Download',
     donateBtnText: 'Support Development',
 
     // Home Page

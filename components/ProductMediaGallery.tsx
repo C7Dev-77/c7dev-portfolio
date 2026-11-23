@@ -10,7 +10,7 @@ interface ProductMediaGalleryProps {
     nombre: string;
     categoria?: string;
     destacado?: boolean;
-    precio: string;
+    precio?: string;
 }
 
 /**
@@ -159,10 +159,7 @@ export default function ProductMediaGallery({
                             </div>
                         )}
 
-                        {/* Precio */}
-                        <div className="absolute bottom-4 right-4 px-4 py-2 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-xl rounded-xl shadow-lg pointer-events-none">
-                            ${precio}
-                        </div>
+
 
                         {/* Botón expandir lightbox */}
                         <button

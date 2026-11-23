@@ -24,17 +24,50 @@ import ProductMediaGallery from '@/components/ProductMediaGallery';
 export const revalidate = 10;
 
 // Consulta en caché para evitar llamadas duplicadas entre generateMetadata y la Página
-const getProduct = cache(async (id: string) => {
-    let { data: raw, error } = await (supabase.from('products_public' as any) as any)
-        .select('*')
-        .eq('id', id)
-        .single();
+const getProduct = cache(async (idOrSlug: string) => {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
 
-    // Fallback a la tabla legacy si no existe en products_public
-    if (error || !raw) {
+    let raw: any = null;
+
+    // 1. Intentar en products_public
+    if (isUUID) {
+        const { data } = await (supabase.from('products_public' as any) as any)
+            .select('*')
+            .eq('id', idOrSlug)
+            .single();
+        raw = data;
+    } else {
+        const { data } = await (supabase.from('products_public' as any) as any)
+            .select('*')
+            .eq('slug', idOrSlug)
+            .single();
+        raw = data;
+    }
+
+    // Fallback: si no encontró por slug (o por id), intentar la otra columna
+    if (!raw) {
+        const fallbackCol = isUUID ? 'slug' : 'id';
+        const { data } = await (supabase.from('products_public' as any) as any)
+            .select('*')
+            .eq(fallbackCol, idOrSlug)
+            .single();
+        raw = data;
+    }
+
+    // 2. Fallback a la tabla products directamente
+    if (!raw) {
+        const { data: direct } = await (supabase.from('products' as any) as any)
+            .select('*')
+            .eq(isUUID ? 'id' : 'slug', idOrSlug)
+            .single();
+        raw = direct;
+    }
+
+    // 3. Fallback a la tabla legacy si no existe en products_public
+    if (!raw) {
         const { data: legacy } = await (supabase.from('productos' as any) as any)
             .select('*')
-            .eq('id', id)
+            .eq(isUUID ? 'id' : 'slug', idOrSlug)
             .single();
         raw = legacy;
     }
@@ -45,12 +78,13 @@ const getProduct = cache(async (id: string) => {
 // Consulta de productos relacionados
 const getRelatedProducts = cache(async (excludeId: string) => {
     const { data: relRaw } = await (supabase.from('products_public' as any) as any)
-        .select('id, title, nombre, image_url, imagen_url, price_cents, precio, tags')
+        .select('id, title, nombre, image_url, imagen_url, price_cents, precio, tags, slug')
         .neq('id', excludeId)
         .limit(3);
 
     return (relRaw || []).map((r: any) => ({
         id: r.id,
+        slug: r.slug,
         nombre: r.title || r.nombre || 'Producto',
         imagen_url: r.image_url || r.imagen_url || '',
         precio: typeof r.price_cents === 'number' ? r.price_cents / 100 : (r.precio || 0),
@@ -69,13 +103,18 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     const title = raw.title || raw.nombre || 'Producto';
     const description = raw.description || raw.descripcion || '';
     const imageUrl = raw.image_url || raw.imagen_url || '';
+    const canonicalSlug = raw.slug || raw.id;
 
     return {
         title: `${title} - C7Dev Digital Codes`,
         description,
+        alternates: {
+            canonical: `/tienda/${canonicalSlug}`,
+        },
         openGraph: {
             title,
             description,
+            url: `https://c7dev-portfolio.vercel.app/tienda/${canonicalSlug}`,
             images: imageUrl ? [imageUrl] : [],
         },
     };
@@ -94,6 +133,7 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
     // Normalizar objeto producto
     const producto = {
         id: raw.id,
+        slug: raw.slug || '',
         nombre: raw.title || raw.nombre || 'Sin nombre',
         descripcion: raw.description || raw.descripcion || 'Sin descripción',
         precio: typeof raw.price_cents === 'number' ? raw.price_cents / 100 : (raw.precio || 0),
@@ -115,21 +155,13 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
         day: 'numeric'
     });
 
-    // Formatear precio
-    const formatPrice = (precio: number) => {
-        if (typeof precio !== 'number' || isNaN(precio)) return '0.00';
-        return precio.toFixed(2);
-    };
-
     // Características del producto
     const caracteristicas = [
-        'Compra 100% segura y garantizada',
-        'Descarga automática del archivo .ZIP inmediatamente tras el pago',
-        'Descarga gratis: Requiere resolver CAPTCHA y esperar 60 segundos',
         'Código fuente completo y estructurado',
         'Documentación y guías de uso incluidas',
-        'Actualizaciones gratuitas y soporte directo por email',
-        'Uso comercial y personal permitido'
+        'Uso comercial y personal permitido',
+        'Actualizaciones y soporte directo por email',
+        'Descarga directa de recursos y código fuente'
     ];
 
     return (
@@ -161,7 +193,6 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                             nombre={producto.nombre}
                             categoria={producto.categoria}
                             destacado={producto.destacado}
-                            precio={formatPrice(producto.precio)}
                         />
 
                         {/* Características y Especificaciones de Descarga */}
@@ -174,28 +205,20 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                 <ul className="space-y-3">
                                     {caracteristicas.map((item, idx) => (
                                         <li key={idx} className="flex items-center gap-3 text-gray-300 text-sm">
-                                            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                            <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                                             {item}
                                         </li>
                                     ))}
                                 </ul>
                             </div>
 
-                            {/* Especificaciones sobre la compra y descarga */}
-                            <div className="pt-4 border-t border-gray-800/80 space-y-3">
-                                <div className="flex items-start gap-2.5 text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 p-3 rounded-xl">
-                                    <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-400" />
+                            {/* Especificación sobre la descarga gratuita */}
+                            <div className="pt-4 border-t border-gray-800/80">
+                                <div className="flex items-start gap-2.5 text-xs text-emerald-400 bg-emerald-950/20 border border-emerald-800/30 p-3.5 rounded-xl">
+                                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-400" />
                                     <div>
-                                        <span className="font-bold block text-emerald-300">Compra 100% Segura y Garantizada</span>
-                                        Al comprar el código, la descarga del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code> inicia automáticamente tras confirmarse el pago.
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-2.5 text-xs text-amber-400 bg-amber-950/20 border border-amber-800/30 p-3 rounded-xl">
-                                    <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
-                                    <div>
-                                        <span className="font-bold block text-amber-300">Descarga Gratis (Con Anuncios)</span>
-                                        Debes resolver un captcha de verificación y esperar 60 segundos para liberar la descarga gratis del archivo <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[11px]">.ZIP</code>.
+                                        <span className="font-bold block text-emerald-300">Descarga Gratuita</span>
+                                        Haz clic en <span className="text-white font-medium">Descargar Gratis</span> para acceder al enlace de descarga directa del código fuente listo para implementar.
                                     </div>
                                 </div>
                             </div>
@@ -240,12 +263,11 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                             )}
                         </div>
 
-                        {/* Precio y CTA con incremento de descargas */}
+                        {/* Descarga gratuita y Apoyo con incremento de descargas */}
                         <DownloadButtons
                             productId={producto.id}
                             linkFree={producto.link_free}
                             linkPaid={producto.link_paid}
-                            precio={formatPrice(producto.precio)}
                         />
 
                         {/* Descripción */}
@@ -284,7 +306,7 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                             {relacionados.map((rel: any) => (
                                 <Link
                                     key={rel.id}
-                                    href={`/tienda/${rel.id}`}
+                                    href={`/tienda/${rel.slug || rel.id}`}
                                     className="group glass-panel rounded-xl overflow-hidden hover:border-neon-gold/50 transition-all"
                                 >
                                     <div className="aspect-video overflow-hidden relative">
@@ -295,8 +317,8 @@ export default async function ProductoDetallePage({ params }: { params: { id: st
                                             decoding="async"
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
-                                        <div className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-neon-gold to-amber-600 text-black font-bold text-sm rounded-lg">
-                                            ${formatPrice(rel.precio)}
+                                        <div className="absolute top-3 right-3 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs uppercase tracking-wider rounded-lg backdrop-blur-sm shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                                            Gratis
                                         </div>
                                     </div>
                                     <div className="p-4">

@@ -73,12 +73,13 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const formatCount = (val: number) => (val >= 1000 ? `${(val / 1000).toFixed(1)}k` : `${val}`);
   const formattedVisitas = formatCount(animViews);
   const formattedDescargas = formatCount(animDownloads);
+  const productHref = `/tienda/${producto.slug || producto.id}`;
 
   return (
     <div className="bg-[#09090b]/90 border border-gray-800/80 hover:border-neon-gold/60 transition-all duration-300 hover:-translate-y-1.5 group rounded-2xl flex flex-col backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(255,215,0,0.15)]">
       {/* Image Container - Clickeable */}
       <Link 
-        href={`/tienda/${producto.id}`} 
+        href={productHref} 
         onClick={handleIncrementView}
         className="aspect-video overflow-hidden relative bg-[#050507] block rounded-t-2xl"
       >
@@ -133,7 +134,7 @@ export default function ProductCard({ producto }: ProductCardProps) {
 
       {/* Content */}
       <div className="p-5 flex-1 flex flex-col">
-        <Link href={`/tienda/${producto.id}`} onClick={handleIncrementView}>
+        <Link href={productHref} onClick={handleIncrementView}>
           <h3 className="font-outfit text-base font-bold text-white mb-2 group-hover:text-neon-gold transition-colors line-clamp-1">
             {producto.title || 'Sin nombre'}
           </h3>
@@ -176,7 +177,7 @@ export default function ProductCard({ producto }: ProductCardProps) {
 
           {/* Botón Ver más compacto */}
           <Link
-            href={`/tienda/${producto.id}`}
+            href={productHref}
             onClick={handleIncrementView}
             className="px-4 py-1.5 bg-gradient-to-r from-neon-gold to-amber-500 hover:from-amber-400 hover:to-neon-gold text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl shadow-[0_0_12px_rgba(255,215,0,0.2)] hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:scale-105"
           >

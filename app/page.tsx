@@ -64,7 +64,7 @@ export default async function HomePage() {
     const supabase = createServerSupabaseClient();
     const [proyRes, prodRes, metricsRes] = await Promise.all([
       supabase.from('proyectos').select('id, titulo, descripcion, categoria').eq('activo', true).order('orden', { ascending: true }),
-      (supabase.from('products_public' as any) as any).select('id, title, description, price_cents, tags').order('created_at', { ascending: false }).limit(7),
+      (supabase.from('products_public' as any) as any).select('id, title, description, price_cents, tags, slug').order('created_at', { ascending: false }).limit(7),
       (supabase.from('project_metrics' as any) as any).select('views, downloads'),
     ]);
 
@@ -140,7 +140,7 @@ export default async function HomePage() {
           position: idx + 1,
           name: p.title,
           description: p.description,
-          url: `https://c7dev-portfolio.vercel.app/tienda/${p.id}`
+          url: `https://c7dev-portfolio.vercel.app/tienda/${p.slug || p.id}`
         }))
       }
     ]
