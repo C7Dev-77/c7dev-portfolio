@@ -31,7 +31,6 @@ interface ProyectoForm {
     titulo: string;
     descripcion: string;
     imagen_url: string;
-    repo_url: string;
     demo_url: string;
     video_url: string;
     capturas: string;
@@ -41,7 +40,6 @@ interface ProyectoForm {
     activo: boolean;
     orden: number;
     link_buy: string;
-    link_free: string;
 }
 
 const CATEGORIAS = ['Web', 'Componentes', 'Templates', 'Web Apps', 'APIs', 'Animaciones', 'Otros'];
@@ -59,7 +57,6 @@ export default function PortfolioManager() {
         titulo: '',
         descripcion: '',
         imagen_url: '',
-        repo_url: '',
         demo_url: '',
         video_url: '',
         capturas: '',
@@ -68,8 +65,7 @@ export default function PortfolioManager() {
         destacado: false,
         activo: true,
         orden: 0,
-        link_buy: '',
-        link_free: ''
+        link_buy: ''
     };
 
     const [formData, setFormData] = useState<ProyectoForm>(emptyForm);
@@ -105,7 +101,6 @@ export default function PortfolioManager() {
             titulo: project.titulo || '',
             descripcion: project.descripcion || '',
             imagen_url: project.imagen_url || '',
-            repo_url: project.repo_url || '',
             demo_url: project.demo_url || '',
             video_url: project.video_url || '',
             capturas: Array.isArray(project.capturas) ? project.capturas.join(', ') : '',
@@ -114,8 +109,7 @@ export default function PortfolioManager() {
             destacado: project.destacado || false,
             activo: project.activo !== false, // Por defecto true
             orden: project.orden || 0,
-            link_buy: project.link_buy || '',
-            link_free: project.link_free || ''
+            link_buy: project.link_buy || ''
         });
         setShowForm(true);
     };
@@ -150,7 +144,7 @@ export default function PortfolioManager() {
             titulo: formData.titulo,
             descripcion: formData.descripcion,
             imagen_url: formData.imagen_url || null,
-            repo_url: formData.repo_url || null,
+            repo_url: null,
             demo_url: formData.demo_url || null,
             video_url: formData.video_url ? formData.video_url.trim() : null,
             capturas: formData.capturas ? formData.capturas.split(',').map(c => c.trim()).filter(Boolean) : [],
@@ -160,7 +154,7 @@ export default function PortfolioManager() {
             activo: formData.activo,
             orden: formData.orden,
             link_buy: formData.link_buy ? formData.link_buy.trim() : null,
-            link_free: formData.link_free ? formData.link_free.trim() : null
+            link_free: null
         };
 
         let error;
@@ -520,37 +514,25 @@ export default function PortfolioManager() {
                             </div>
                         </div>
 
-                        {/* Links */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <Github className="w-3 h-3" /> Repositorio (GitHub)
-                                </label>
-                                <input
-                                    placeholder="https://github.com/usuario/repo"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.repo_url}
-                                    onChange={e => setFormData({ ...formData, repo_url: e.target.value })}
-                                />
-                            </div>
+                        {/* Links del Proyecto */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-[#0a0a0a] rounded-xl border border-gray-800">
                             <div className="space-y-2">
                                 <label className="text-neon-platinum text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <ExternalLink className="w-3 h-3" /> Demo en Vivo
+                                    <ExternalLink className="w-3.5 h-3.5 text-neon-platinum" /> Demo en Vivo (Opcional)
                                 </label>
                                 <input
                                     placeholder="https://mi-proyecto.vercel.app"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-platinum outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    className="w-full bg-[#111111] border border-gray-800 focus:border-neon-platinum outline-none p-3 rounded-xl text-white transition-all text-sm"
                                     value={formData.demo_url}
                                     onChange={e => setFormData({ ...formData, demo_url: e.target.value })}
                                 />
+                                <p className="text-gray-600 text-[11px]">
+                                    💡 URL para el botón "Ver Demo en Vivo" en el detalle del proyecto
+                                </p>
                             </div>
-                        </div>
-
-                        {/* Enlaces de Descarga (Monetización / Free) - NUEVO */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-[#0a0a0a] rounded-xl border border-gray-800">
                             <div className="space-y-2">
                                 <label className="text-neon-gold text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <CreditCard className="w-3.5 h-3.5" /> Enlace Descargar Buy (Pago)
+                                    <CreditCard className="w-3.5 h-3.5 text-neon-gold" /> Enlace Descargar Buy (Pago) *
                                 </label>
                                 <input
                                     placeholder="https://gumroad.com/l/... o enlace de compra"
@@ -559,21 +541,7 @@ export default function PortfolioManager() {
                                     onChange={e => setFormData({ ...formData, link_buy: e.target.value })}
                                 />
                                 <p className="text-gray-600 text-[11px]">
-                                    💡 URL para comprar y descargar (Gumroad, Stripe, LemonSqueezy, etc.)
-                                </p>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-emerald-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <Download className="w-3.5 h-3.5" /> Enlace Descargar Free (Gratis)
-                                </label>
-                                <input
-                                    placeholder="https://github.com/... o enlace de descarga gratuita"
-                                    className="w-full bg-[#111111] border border-gray-800 focus:border-emerald-500 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.link_free}
-                                    onChange={e => setFormData({ ...formData, link_free: e.target.value })}
-                                />
-                                <p className="text-gray-600 text-[11px]">
-                                    💡 URL para descarga gratuita (GitHub, Drive, Mediafire, etc.)
+                                    💡 URL de compra y descarga para el botón "Descargar Buy"
                                 </p>
                             </div>
                         </div>
@@ -770,17 +738,6 @@ export default function PortfolioManager() {
 
                                 {/* Links */}
                                 <div className="hidden sm:flex items-center gap-2">
-                                    {project.repo_url && (
-                                        <a
-                                            href={project.repo_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
-                                            title="Ver repositorio"
-                                        >
-                                            <Github className="w-4 h-4" />
-                                        </a>
-                                    )}
                                     {project.demo_url && (
                                         <a
                                             href={project.demo_url}
@@ -801,17 +758,6 @@ export default function PortfolioManager() {
                                             title={`Enlace Buy: ${project.link_buy}`}
                                         >
                                             <CreditCard className="w-4 h-4" />
-                                        </a>
-                                    )}
-                                    {project.link_free && (
-                                        <a
-                                            href={project.link_free}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-2 hover:bg-emerald-500/20 rounded-lg transition-colors text-emerald-400"
-                                            title={`Enlace Free: ${project.link_free}`}
-                                        >
-                                            <Download className="w-4 h-4" />
                                         </a>
                                     )}
                                 </div>

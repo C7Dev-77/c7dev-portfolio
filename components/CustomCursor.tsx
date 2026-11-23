@@ -39,7 +39,8 @@ export default function CustomCursor() {
                 target.tagName === 'BUTTON' ||
                 target.closest('a') ||
                 target.closest('button') ||
-                target.classList.contains('cursor-pointer')
+                target.classList.contains('cursor-pointer') ||
+                window.getComputedStyle(target).cursor === 'pointer'
             ) {
                 setIsHovering(true);
             } else {
@@ -71,21 +72,31 @@ export default function CustomCursor() {
               }
             `}</style>
             <div
-                className="fixed top-0 left-0 pointer-events-none z-[9999]"
+                className="fixed top-0 left-0 pointer-events-none z-[99999]"
                 style={{
                     transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
                     opacity: isVisible ? 1 : 0,
-                    transition: 'opacity 0.2s ease',
+                    transition: 'opacity 0.15s ease',
+                    willChange: 'transform',
                 }}
             >
-                {/* Punto central simple */}
+                {/* Cursor RGB Ninja */}
                 <div
                     className={`
-                        relative -translate-x-1/2 -translate-y-1/2 rounded-full bg-white
-                        transition-all duration-150 ease-out
-                        ${isHovering ? 'w-3 h-3 opacity-80 shadow-[0_0_8px_rgba(255,215,0,0.8)] bg-neon-gold' : 'w-2.5 h-2.5 opacity-90'}
+                        relative -translate-x-[2px] -translate-y-[2px]
+                        transition-transform duration-150 ease-out origin-top-left
+                        ${isHovering ? 'scale-110 drop-shadow-[0_0_10px_rgba(0,255,200,0.7)]' : 'drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)]'}
                     `}
-                />
+                >
+                    <img
+                        src="/images/cursor/rgb-ninja-64.webp"
+                        alt="Cursor"
+                        width={34}
+                        height={34}
+                        className="select-none pointer-events-none block"
+                        draggable={false}
+                    />
+                </div>
             </div>
         </>
     );

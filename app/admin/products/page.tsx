@@ -28,10 +28,8 @@ interface ProductoForm {
     nombre: string;
     slug: string;
     descripcion: string;
-    precio: number; // En USD (ej: 9.99)
     imagen_url: string;
     link_free: string;
-    link_paid: string;
     video_url: string;
     capturas: string;
     tags: string;
@@ -56,10 +54,8 @@ export default function ProductsManager() {
         nombre: '',
         slug: '',
         descripcion: '',
-        precio: 0,
         imagen_url: '',
         link_free: '',
-        link_paid: '',
         video_url: '',
         capturas: '',
         tags: '',
@@ -103,10 +99,8 @@ export default function ProductsManager() {
             nombre: product.title || '',
             slug: product.slug || '',
             descripcion: product.description || '',
-            precio: product.price_cents ? product.price_cents / 100 : 0, // Convertir centavos → USD
             imagen_url: product.image_url || '',
             link_free: product.link_free || '',
-            link_paid: product.link_paid || '',
             video_url: product.video_url || '',
             capturas: Array.isArray(product.capturas) ? product.capturas.join(', ') : '',
             tags: Array.isArray(product.tags) ? product.tags.join(', ') : '',
@@ -144,9 +138,6 @@ export default function ProductsManager() {
         e.preventDefault();
         setLoading(true);
 
-        // Convertir precio USD → centavos para la tabla products
-        const priceCents = Math.round(formData.precio * 100);
-
         // Generar o limpiar slug
         const rawSlug = formData.slug.trim() || formData.nombre;
         const cleanSlug = rawSlug
@@ -159,10 +150,10 @@ export default function ProductsManager() {
             title: formData.nombre,
             slug: cleanSlug,
             description: formData.descripcion,
-            price_cents: priceCents,
+            price_cents: 0,
             image_url: formData.imagen_url || null,
             link_free: formData.link_free || null,
-            link_paid: formData.link_paid || null,
+            link_paid: null,
             video_url: formData.video_url ? formData.video_url.trim() : null,
             capturas: formData.capturas ? formData.capturas.split(',').map(c => c.trim()).filter(Boolean) : [],
             tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
@@ -170,7 +161,7 @@ export default function ProductsManager() {
             is_featured: formData.destacado,
             is_active: formData.activo,
             display_order: formData.orden,
-            has_free_version: Boolean(formData.link_free),
+            has_free_version: true,
         };
 
         let error;
@@ -182,7 +173,7 @@ export default function ProductsManager() {
             error = updateError;
         } else {
             // storage_path es requerido en INSERT
-            payload.storage_path = formData.link_paid || formData.link_free || cleanSlug;
+            payload.storage_path = formData.link_free || cleanSlug;
             const { error: insertError } = await (supabase.from('products') as any)
                 .insert([payload]);
             error = insertError;
@@ -369,7 +360,7 @@ export default function ProductsManager() {
                             </div>
                         </div>
 
-                        {/* Fila 2: Categoría y Precio Referencial */}
+                        {/* Fila 2: Categoría y Orden */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
@@ -387,17 +378,16 @@ export default function ProductsManager() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <DollarSign className="w-3 h-3" /> Precio Referencial USD (Opcional)
+                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider">
+                                    Orden de Visualización
                                 </label>
                                 <input
                                     type="number"
-                                    step="0.01"
                                     min="0"
-                                    placeholder="0.00"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.precio || ''}
-                                    onChange={e => setFormData({ ...formData, precio: parseFloat(e.target.value) || 0 })}
+                                    placeholder="0"
+                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                    value={formData.orden}
+                                    onChange={e => setFormData({ ...formData, orden: parseInt(e.target.value) || 0 })}
                                 />
                             </div>
                         </div>
@@ -562,58 +552,33 @@ export default function ProductsManager() {
                         </div>
 
                         {/* Tags */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <Tag className="w-3 h-3" /> Tecnologías (separadas por coma)
-                                </label>
-                                <input
-                                    placeholder="React, Next.js, Tailwind, TypeScript"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.tags}
-                                    onChange={e => setFormData({ ...formData, tags: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider">
-                                    Orden de Visualización
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="0"
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.orden}
-                                    onChange={e => setFormData({ ...formData, orden: parseInt(e.target.value) || 0 })}
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <label className="text-gray-400 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                <Tag className="w-3 h-3" /> Tecnologías (separadas por coma)
+                            </label>
+                            <input
+                                placeholder="React, Next.js, Tailwind, TypeScript"
+                                className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-gray-600 outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                value={formData.tags}
+                                onChange={e => setFormData({ ...formData, tags: e.target.value })}
+                            />
                         </div>
 
-                        {/* Links */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-green-500 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <LinkIcon className="w-3 h-3" /> Link Gratuito de Descarga *
-                                </label>
-                                <input
-                                    required
-                                    placeholder="https://linkvertise.com/... o https://github.com/..."
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-green-500 outline-none p-3 rounded-xl text-white transition-all text-sm"
-                                    value={formData.link_free}
-                                    onChange={e => setFormData({ ...formData, link_free: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-gray-500 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
-                                    <LinkIcon className="w-3 h-3" /> Link de Pago (Opcional - ya no se muestra en web)
-                                </label>
-                                <input
-                                    placeholder="https://gumroad.com/... o https://stripe.com/..."
-                                    className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-neon-gold outline-none p-3 rounded-xl text-white transition-all text-sm opacity-80"
-                                    value={formData.link_paid}
-                                    onChange={e => setFormData({ ...formData, link_paid: e.target.value })}
-                                />
-                            </div>
+                        {/* Link de Descarga Gratuita */}
+                        <div className="space-y-2">
+                            <label className="text-green-500 text-xs uppercase font-semibold tracking-wider flex items-center gap-2">
+                                <LinkIcon className="w-3 h-3" /> Link Gratuito de Descarga *
+                            </label>
+                            <input
+                                required
+                                placeholder="https://linkvertise.com/... o https://github.com/..."
+                                className="w-full bg-[#0a0a0a] border border-gray-800 focus:border-green-500 outline-none p-3 rounded-xl text-white transition-all text-sm"
+                                value={formData.link_free}
+                                onChange={e => setFormData({ ...formData, link_free: e.target.value })}
+                            />
+                            <p className="text-gray-600 text-xs">
+                                💡 URL de descarga directa para el usuario (Drive, GitHub, Mediafire, etc.)
+                            </p>
                         </div>
 
                         {/* Checkboxes */}
@@ -785,19 +750,15 @@ export default function ProductsManager() {
                                         ))}
                                         {/* Mostrar links configurados */}
                                         {product.link_free && (
-                                            <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded">✓ Link Gratis</span>
-                                        )}
-                                        {product.link_paid && (
-                                            <span className="text-[10px] bg-neon-gold/10 text-neon-gold px-2 py-0.5 rounded">✓ Link Pago</span>
+                                            <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded">✓ Link Descarga</span>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* Precio */}
+                                {/* Badge Estado */}
                                 <div className="hidden sm:block">
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-neon-gold/10 text-neon-gold rounded-full text-sm font-medium">
-                                        <DollarSign className="w-3 h-3" />
-                                        {product.price_cents ? (product.price_cents / 100).toFixed(2) : '0.00'}
+                                    <span className="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-semibold uppercase tracking-wider">
+                                        Gratis
                                     </span>
                                 </div>
 

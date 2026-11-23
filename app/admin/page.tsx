@@ -530,7 +530,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{producto.nombre}</p>
-                    <p className="text-xs text-gray-500">${producto.precio}</p>
+                    <span className="text-[10px] text-emerald-400 font-semibold uppercase">Gratis</span>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-600 flex items-center gap-1">
